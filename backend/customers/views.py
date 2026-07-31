@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Customer
 from .serializers import CustomerSerializer
 from permissions.permissions import IsAdminOrEmployee, IsAdmin
-
+from django.db.models import Q
 
 class CustomerListCreateView(
     generics.ListCreateAPIView
@@ -49,4 +49,32 @@ class CustomerProfileView(APIView):
 
         return Response(
             serializer.data
+        )
+class CustomerSearchView(
+    generics.ListAPIView
+):
+
+    serializer_class = CustomerSerializer
+
+    permission_classes = [
+        IsAdminOrEmployee
+    ]
+
+    def get_queryset(self):
+
+        query = self.request.GET.get(
+            "q",
+            ""
+        )
+
+        return Customer.objects.filter(
+            Q(customer_code__icontains=query)
+            |
+            Q(user__first_name__icontains=query)
+            |
+            Q(user__last_name__icontains=query)
+            |
+            Q(user__email__icontains=query)
+            |
+            Q(phone__icontains=query)
         )
