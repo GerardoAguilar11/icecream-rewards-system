@@ -1,7 +1,6 @@
 from django.db import models
 from authentication.models import CustomUser
-import uuid
-
+from .utils import generate_customer_code
 
 class Customer(models.Model):
 
@@ -17,10 +16,10 @@ class Customer(models.Model):
         null=True
     )
 
-    qr_code = models.UUIDField(
-        default=uuid.uuid4,
+    customer_code = models.CharField(
+        max_length=6,
         unique=True,
-        editable=False
+        editable=False,
     )
 
     points = models.PositiveIntegerField(
@@ -35,6 +34,13 @@ class Customer(models.Model):
         auto_now=True
     )
 
+    def save(self, *args, **kwargs):
+
+        if not self.customer_code:
+
+            self.customer_code = generate_customer_code()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
+        return f"{self.customer_code} - {self.user.first_name} {self.user.last_name}"

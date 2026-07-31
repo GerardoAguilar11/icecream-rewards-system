@@ -26,18 +26,18 @@ class CustomerSerializer(serializers.ModelSerializer):
 
         fields = [
             "id",
+            "customer_code",
             "email",
             "first_name",
             "last_name",
             "phone",
-            "qr_code",
             "points",
             "created_at",
             "updated_at",
         ]
 
         read_only_fields = [
-            "qr_code",
+            "customer_code",
             "points",
             "created_at",
             "updated_at",
