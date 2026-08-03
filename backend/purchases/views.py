@@ -2,16 +2,18 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.shortcuts import get_object_or_404
+
 from permissions.permissions import IsAdminOrEmployee
+
+from customers.models import Customer
 
 from .models import Purchase
 from .serializers import (
     PurchaseCreateSerializer,
     PurchaseSerializer,
-    CustomerPurchaseHistorySerializer,
 )
 from .services import PurchaseService
-from customers.models import Customer
 
 
 class PurchaseCreateView(APIView):
@@ -85,6 +87,7 @@ class PurchaseDetailView(generics.RetrieveAPIView):
         IsAdminOrEmployee
     ]
 
+
 class CustomerPurchaseHistoryView(APIView):
 
     permission_classes = [
@@ -93,9 +96,10 @@ class CustomerPurchaseHistoryView(APIView):
 
     def get(self, request, customer_code):
 
-        customer = Customer.objects.select_related(
-            "user"
-        ).get(
+        customer = get_object_or_404(
+            Customer.objects.select_related(
+                "user"
+            ),
             customer_code=customer_code
         )
 
@@ -116,7 +120,7 @@ class CustomerPurchaseHistoryView(APIView):
             )
         )
 
-        data = {
+        return Response({
             "customer": {
                 "name": customer.user.get_full_name(),
                 "customer_code": customer.customer_code,
@@ -126,10 +130,39 @@ class CustomerPurchaseHistoryView(APIView):
                 purchases,
                 many=True
             ).data,
-        }
+        })
 
-        serializer = CustomerPurchaseHistorySerializer(
-            data
+
+class PurchaseCancelView(APIView):
+
+    permission_classes = [
+        IsAdminOrEmployee
+    ]
+
+    def patch(self, request, pk):
+
+        purchase = get_object_or_404(
+            Purchase,
+            pk=pk
+        )
+
+        try:
+
+            purchase = PurchaseService.cancel_purchase(
+                purchase
+            )
+
+        except ValueError as e:
+
+            return Response(
+                {
+                    "detail": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = PurchaseSerializer(
+            purchase
         )
 
         return Response(

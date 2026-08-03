@@ -5,7 +5,11 @@ from django.db import transaction
 from customers.models import Customer
 from products.models import Product
 
-from .models import Purchase, PurchaseItem
+from .models import (
+    Purchase,
+    PurchaseItem,
+    PurchaseStatus,
+)
 
 
 class PurchaseService:
@@ -19,6 +23,11 @@ class PurchaseService:
         )
 
         items = data["items"]
+
+        if not items:
+            raise ValueError(
+                "La compra debe contener al menos un producto."
+            )
 
         total_amount = Decimal("0.00")
 
@@ -67,5 +76,25 @@ class PurchaseService:
 
         return purchase
 
-        if not purchase_items:
-            raise ValueError("La compra debe contener al menos un producto.")
+    @staticmethod
+    @transaction.atomic
+    def cancel_purchase(purchase):
+
+        if purchase.status == PurchaseStatus.CANCELLED:
+            raise ValueError(
+                "La compra ya fue cancelada."
+            )
+
+        customer = purchase.customer
+
+        customer.points = max(
+            0,
+            customer.points - purchase.points_earned
+        )
+
+        customer.save()
+
+        purchase.status = PurchaseStatus.CANCELLED
+        purchase.save()
+
+        return purchase
