@@ -76,3 +76,11 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "items",
             "created_at",
         ]
+
+class CustomerPurchaseHistorySerializer(serializers.Serializer):
+
+    customer = serializers.DictField()
+
+    purchases = PurchaseSerializer(
+        many=True
+    )

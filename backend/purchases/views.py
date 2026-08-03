@@ -8,8 +8,10 @@ from .models import Purchase
 from .serializers import (
     PurchaseCreateSerializer,
     PurchaseSerializer,
+    CustomerPurchaseHistorySerializer,
 )
 from .services import PurchaseService
+from customers.models import Customer
 
 
 class PurchaseCreateView(APIView):
@@ -82,3 +84,54 @@ class PurchaseDetailView(generics.RetrieveAPIView):
     permission_classes = [
         IsAdminOrEmployee
     ]
+
+class CustomerPurchaseHistoryView(APIView):
+
+    permission_classes = [
+        IsAdminOrEmployee
+    ]
+
+    def get(self, request, customer_code):
+
+        customer = Customer.objects.select_related(
+            "user"
+        ).get(
+            customer_code=customer_code
+        )
+
+        purchases = (
+            Purchase.objects
+            .filter(
+                customer=customer
+            )
+            .select_related(
+                "employee",
+                "customer__user",
+            )
+            .prefetch_related(
+                "items__product"
+            )
+            .order_by(
+                "-created_at"
+            )
+        )
+
+        data = {
+            "customer": {
+                "name": customer.user.get_full_name(),
+                "customer_code": customer.customer_code,
+                "points": customer.points,
+            },
+            "purchases": PurchaseSerializer(
+                purchases,
+                many=True
+            ).data,
+        }
+
+        serializer = CustomerPurchaseHistorySerializer(
+            data
+        )
+
+        return Response(
+            serializer.data
+        )
