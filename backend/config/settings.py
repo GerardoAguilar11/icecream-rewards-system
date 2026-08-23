@@ -43,7 +43,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
-    'authentication',
+    "authentication",
+    "customers",
+    "products",
+    "purchases",
+    "rewards",
 ]
 
 AUTH_USER_MODEL = "authentication.CustomUser"
@@ -149,3 +153,6 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

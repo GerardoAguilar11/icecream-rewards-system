@@ -35,4 +35,9 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "Usuarios"
 
     def __str__(self):
-        return f"{self.username} ({self.get_role_display()})"
+        full_name = f"{self.first_name} {self.last_name}".strip()
+
+        if full_name:
+            return f"{full_name} ({self.get_role_display()})"
+
+        return f"{self.email} ({self.get_role_display()})"

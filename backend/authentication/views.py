@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.generics import CreateAPIView
 
-from .serializers import LoginSerializer, UserSerializer
+from .serializers import LoginSerializer, UserSerializer, RegisterSerializer
 from .services import AuthenticationService
 from .permissions import IsAdmin
 
@@ -74,3 +75,10 @@ class AdminTestView(APIView):
                 "user": request.user.email
             }
         )
+class RegisterView(CreateAPIView):
+
+    serializer_class = RegisterSerializer
+
+    permission_classes = [
+        AllowAny
+    ]
