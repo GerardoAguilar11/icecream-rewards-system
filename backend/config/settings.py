@@ -43,10 +43,11 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'rest_framework_simplejwt.token_blacklist',
     "corsheaders",
-    'authentication',
-    'customers',
+    "authentication",
+    "customers",
     "products",
-    'purchases',
+    "purchases",
+    "rewards",
 ]
 
 AUTH_USER_MODEL = "authentication.CustomUser"

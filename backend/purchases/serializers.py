@@ -15,6 +15,10 @@ class PurchaseCreateSerializer(serializers.Serializer):
 
     customer = serializers.IntegerField()
 
+    used_reward = serializers.BooleanField(
+        default=False
+    )
+
     items = PurchaseItemCreateSerializer(
         many=True
     )
@@ -72,6 +76,7 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "employee_name",
             "total_amount",
             "points_earned",
+            "used_reward",
             "status",
             "items",
             "created_at",

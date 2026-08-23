@@ -52,13 +52,24 @@ class PurchaseService:
                 "subtotal": subtotal,
             })
 
-        points = int(total_amount // 50)
+        used_reward = data.get(
+            "used_reward",
+            False
+        )
+
+        if used_reward:
+            points = 0
+        else:
+            points = int(
+                total_amount // 50
+            )
 
         purchase = Purchase.objects.create(
             customer=customer,
             employee=employee,
             total_amount=total_amount,
             points_earned=points,
+            used_reward=used_reward,
         )
 
         for item in purchase_items:

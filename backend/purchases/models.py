@@ -35,6 +35,10 @@ class Purchase(models.Model):
         default=0
     )
 
+    used_reward = models.BooleanField(
+        default=False
+    )
+
     status = models.CharField(
         max_length=20,
         choices=PurchaseStatus.choices,
