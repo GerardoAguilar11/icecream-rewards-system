@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "products",
     "purchases",
     "rewards",
+    "dashboard",
 ]
 
 AUTH_USER_MODEL = "authentication.CustomUser"
