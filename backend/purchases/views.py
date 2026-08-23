@@ -15,12 +15,34 @@ from .serializers import (
 )
 from .services import PurchaseService
 
-
-class PurchaseCreateView(APIView):
+class PurchaseListCreateView(APIView):
 
     permission_classes = [
         IsAdminOrEmployee
     ]
+
+    def get(self, request):
+
+        purchases = (
+            Purchase.objects
+            .select_related(
+                "customer__user",
+                "employee",
+            )
+            .prefetch_related(
+                "items__product"
+            )
+            .order_by("-created_at")
+        )
+
+        serializer = PurchaseSerializer(
+            purchases,
+            many=True
+        )
+
+        return Response(
+            serializer.data
+        )
 
     def post(self, request):
 
@@ -45,29 +67,6 @@ class PurchaseCreateView(APIView):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-
-
-class PurchaseListView(generics.ListAPIView):
-
-    queryset = (
-        Purchase.objects
-        .select_related(
-            "customer__user",
-            "employee",
-        )
-        .prefetch_related(
-            "items__product"
-        )
-        .order_by("-created_at")
-    )
-
-    serializer_class = PurchaseSerializer
-
-    permission_classes = [
-        IsAdminOrEmployee
-    ]
-
-
 class PurchaseDetailView(generics.RetrieveAPIView):
 
     queryset = (
