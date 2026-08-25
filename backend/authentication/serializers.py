@@ -1,6 +1,8 @@
-from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.db import transaction
+
+from rest_framework import serializers
 
 from customers.models import Customer
 
@@ -37,7 +39,6 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
-
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -56,13 +57,12 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-
 class RegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(
-        write_only=True
+        write_only=True,
+        min_length=8
     )
-
 
     phone = serializers.CharField(
         required=False,
@@ -83,41 +83,44 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
 
 
+    def validate_email(self, value):
+
+        if User.objects.filter(
+            email__iexact=value
+        ).exists():
+
+            raise serializers.ValidationError(
+                "Ya existe una cuenta con este correo electrónico."
+            )
+
+        return value
+
+
+    @transaction.atomic
     def create(self, validated_data):
 
         phone = validated_data.pop(
             "phone",
-            None
+            ""
         )
 
-
         user = User.objects.create_user(
-
             email=validated_data["email"],
-
             password=validated_data["password"],
-
             first_name=validated_data.get(
                 "first_name",
                 ""
             ),
-
             last_name=validated_data.get(
                 "last_name",
                 ""
             ),
-
             role="CUSTOMER"
         )
 
-
         Customer.objects.create(
-
             user=user,
-
             phone=phone
-
         )
-
 
         return user

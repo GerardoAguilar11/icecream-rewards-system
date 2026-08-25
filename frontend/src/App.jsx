@@ -6,8 +6,15 @@ import {
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+
 import Dashboard from "./pages/Dashboard";
+
 import Customers from "./pages/Customers";
+import CustomerDetail from "./pages/CustomerDetail";
+import CustomerEdit from "./pages/CustomerEdit";
+import CustomerHome from "./pages/CustomerHome";
+
 import NotFound from "./pages/NotFound";
 
 import AdminLayout from "./components/layout/AdminLayout";
@@ -38,6 +45,54 @@ function App() {
 
 
         <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+
+
+        <Route
+          path="/customer"
+          element={
+            <ProtectedRoute
+              allowedRoles={["CUSTOMER"]}
+            >
+              <CustomerHome />
+            </ProtectedRoute>
+          }
+        />
+
+
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "ADMIN",
+                "EMPLOYEE",
+              ]}
+            >
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+
+          <Route
+            path="/customers"
+            element={<Customers />}
+          />
+
+          <Route
+            path="/customers/:id"
+            element={<CustomerDetail />}
+          />
+
+        </Route>
+
+
+        <Route
           element={
             <ProtectedRoute
               allowedRoles={["ADMIN"]}
@@ -52,22 +107,12 @@ function App() {
             element={<Dashboard />}
           />
 
+          <Route
+            path="/customers/:id/edit"
+            element={<CustomerEdit />}
+          />
+
         </Route>
-
-
-        <Route
-          path="/customers"
-          element={
-            <ProtectedRoute
-              allowedRoles={[
-                "ADMIN",
-                "EMPLOYEE",
-              ]}
-            >
-              <Customers />
-            </ProtectedRoute>
-          }
-        />
 
 
         <Route

@@ -15,10 +15,16 @@ export const getCurrentUser = async () => {
   return response.data;
 };
 
-export const logout = async (refresh) => {
+export const logout = async (refreshToken) => {
   const response = await api.post("/auth/logout/", {
-    refresh,
+    refresh: refreshToken,
   });
+
+  return response.data;
+};
+
+export const register = async (data) => {
+  const response = await api.post("/auth/register/", data);
 
   return response.data;
 };

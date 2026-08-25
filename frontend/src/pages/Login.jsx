@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
 
 import { useAuth } from "../context/useAuth";
 
@@ -15,13 +18,16 @@ function Login() {
   });
 
   const [error, setError] = useState("");
+
   const [submitting, setSubmitting] =
     useState(false);
 
 
   const handleChange = (event) => {
-    const { name, value } =
-      event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setForm((currentForm) => ({
       ...currentForm,
@@ -45,7 +51,9 @@ function Login() {
       if (user.role === "ADMIN") {
         navigate(
           "/dashboard",
-          { replace: true }
+          {
+            replace: true,
+          }
         );
 
         return;
@@ -54,7 +62,20 @@ function Login() {
       if (user.role === "EMPLOYEE") {
         navigate(
           "/customers",
-          { replace: true }
+          {
+            replace: true,
+          }
+        );
+
+        return;
+      }
+
+      if (user.role === "CUSTOMER") {
+        navigate(
+          "/customer",
+          {
+            replace: true,
+          }
         );
 
         return;
@@ -62,7 +83,9 @@ function Login() {
 
       navigate(
         "/",
-        { replace: true }
+        {
+          replace: true,
+        }
       );
     } catch {
       setError(
@@ -76,9 +99,16 @@ function Login() {
 
   return (
     <main>
-      <h1>Iniciar sesión</h1>
 
-      <form onSubmit={handleSubmit}>
+      <h1>
+        Iniciar sesión
+      </h1>
+
+
+      <form
+        onSubmit={handleSubmit}
+      >
+
         <div>
           <label htmlFor="email">
             Correo electrónico
@@ -94,6 +124,7 @@ function Login() {
             required
           />
         </div>
+
 
         <div>
           <label htmlFor="password">
@@ -111,11 +142,13 @@ function Login() {
           />
         </div>
 
+
         {error && (
           <p role="alert">
             {error}
           </p>
         )}
+
 
         <button
           type="submit"
@@ -125,7 +158,18 @@ function Login() {
             ? "Iniciando sesión..."
             : "Iniciar sesión"}
         </button>
+
       </form>
+
+
+      <p>
+        ¿Aún no tienes cuenta?{" "}
+
+        <Link to="/register">
+          Crear cuenta
+        </Link>
+      </p>
+
     </main>
   );
 }

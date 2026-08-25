@@ -10,13 +10,16 @@ function PublicRoute({ children }) {
     isAuthenticated,
   } = useAuth();
 
+
   if (loading) {
     return <p>Cargando...</p>;
   }
 
+
   if (!isAuthenticated) {
     return children;
   }
+
 
   if (user?.role === "ADMIN") {
     return (
@@ -27,6 +30,7 @@ function PublicRoute({ children }) {
     );
   }
 
+
   if (user?.role === "EMPLOYEE") {
     return (
       <Navigate
@@ -35,6 +39,17 @@ function PublicRoute({ children }) {
       />
     );
   }
+
+
+  if (user?.role === "CUSTOMER") {
+    return (
+      <Navigate
+        to="/customer"
+        replace
+      />
+    );
+  }
+
 
   return (
     <Navigate
