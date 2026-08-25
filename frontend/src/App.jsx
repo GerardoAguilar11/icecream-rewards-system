@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import NotFound from "./pages/NotFound";
 
+import AdminLayout from "./components/layout/AdminLayout";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 
@@ -24,6 +26,7 @@ function App() {
           element={<Home />}
         />
 
+
         <Route
           path="/login"
           element={
@@ -33,16 +36,24 @@ function App() {
           }
         />
 
+
         <Route
-          path="/dashboard"
           element={
             <ProtectedRoute
               allowedRoles={["ADMIN"]}
             >
-              <Dashboard />
+              <AdminLayout />
             </ProtectedRoute>
           }
-        />
+        >
+
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
+          />
+
+        </Route>
+
 
         <Route
           path="/customers"
@@ -57,6 +68,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
 
         <Route
           path="*"
