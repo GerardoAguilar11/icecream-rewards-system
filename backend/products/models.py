@@ -2,10 +2,13 @@ from django.db import models
 
 
 class ProductCategory(models.TextChoices):
+
     ICE_CREAM = "ICE_CREAM", "Helado"
-    PALETA = "PALETA", "Paleta"
+
     DRINK = "DRINK", "Bebida"
-    DESSERT = "DESSERT", "Postre"
+
+    TOPPING = "TOPPING", "Complemento"
+
     OTHER = "OTHER", "Otro"
 
 
@@ -48,8 +51,12 @@ class Product(models.Model):
         auto_now=True
     )
 
+
     class Meta:
+
         ordering = ["name"]
 
+
     def __str__(self):
+
         return self.name
