@@ -618,3 +618,101 @@ th {
     width: 100%;
   }
 }
+
+/* ==========================
+   Products
+========================== */
+
+.products-page {
+  padding: 32px;
+}
+
+.form-group textarea,
+.form-group select {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+
+  background: #ffffff;
+}
+
+.checkbox-group {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+}
+
+.checkbox-group input {
+  width: auto;
+}
+
+.table-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.link-button {
+  padding: 0;
+
+  border: 0;
+
+  background: none;
+
+  color: inherit;
+
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .products-page {
+    padding: 20px;
+  }
+
+  .table-actions {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+}
+
+.product-thumbnail {
+  width: 64px;
+  height: 64px;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+
+  border: 1px solid #e2e2e2;
+}
+
+.product-current-image {
+  margin-bottom: 18px;
+}
+
+.product-current-image p {
+  margin-bottom: 8px;
+
+  font-weight: 600;
+}
+
+.product-current-image img {
+  width: 180px;
+  max-width: 100%;
+
+  border-radius: 10px;
+
+  border: 1px solid #e2e2e2;
+}

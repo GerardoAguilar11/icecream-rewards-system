@@ -1,8 +1,12 @@
 from rest_framework import generics
 
+from permissions.permissions import (
+    IsAdmin,
+    IsAdminOrEmployee,
+)
+
 from .models import Product
 from .serializers import ProductSerializer
-from permissions.permissions import IsAdminOrEmployee
 
 
 class ProductListCreateView(
@@ -13,9 +17,23 @@ class ProductListCreateView(
 
     serializer_class = ProductSerializer
 
-    permission_classes = [
-        IsAdminOrEmployee
-    ]
+
+    def get_permissions(self):
+
+        if self.request.method == "POST":
+            permission_classes = [
+                IsAdmin
+            ]
+
+        else:
+            permission_classes = [
+                IsAdminOrEmployee
+            ]
+
+        return [
+            permission()
+            for permission in permission_classes
+        ]
 
 
 class ProductDetailView(
@@ -26,6 +44,20 @@ class ProductDetailView(
 
     serializer_class = ProductSerializer
 
-    permission_classes = [
-        IsAdminOrEmployee
-    ]
+
+    def get_permissions(self):
+
+        if self.request.method == "GET":
+            permission_classes = [
+                IsAdminOrEmployee
+            ]
+
+        else:
+            permission_classes = [
+                IsAdmin
+            ]
+
+        return [
+            permission()
+            for permission in permission_classes
+        ]
