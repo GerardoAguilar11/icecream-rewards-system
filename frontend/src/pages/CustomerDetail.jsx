@@ -11,6 +11,8 @@ import {
 
 import { useAuth } from "../context/useAuth";
 
+import ConfirmModal from "../components/common/ConfirmModal";
+
 import {
   getCustomerById,
   getCustomerPurchases,
@@ -23,9 +25,11 @@ import api from "../api/axios";
 function CustomerDetail() {
   const { id } = useParams();
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { user } = useAuth();
+  const { user } =
+    useAuth();
 
   const [customer, setCustomer] =
     useState(null);
@@ -45,6 +49,11 @@ function CustomerDetail() {
   const [deleting, setDeleting] =
     useState(false);
 
+  const [
+    showDeleteModal,
+    setShowDeleteModal,
+  ] = useState(false);
+
 
   useEffect(() => {
     const loadCustomer = async () => {
@@ -53,9 +62,13 @@ function CustomerDetail() {
         setError("");
 
         const customerData =
-          await getCustomerById(id);
+          await getCustomerById(
+            id
+          );
 
-        setCustomer(customerData);
+        setCustomer(
+          customerData
+        );
 
         const [
           purchaseData,
@@ -64,17 +77,20 @@ function CustomerDetail() {
           getCustomerPurchases(
             customerData.customer_code
           ),
+
           getCustomerRewardHistory(
             customerData.customer_code
           ),
         ]);
 
         setPurchases(
-          purchaseData.purchases ?? []
+          purchaseData.purchases ??
+          []
         );
 
         setRedemptions(
-          rewardData.redemptions ?? []
+          rewardData.redemptions ??
+          []
         );
       } catch {
         setError(
@@ -89,39 +105,43 @@ function CustomerDetail() {
   }, [id]);
 
 
-  const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "¿Seguro que deseas eliminar este cliente?"
-    );
+  const handleDelete =
+    async () => {
+      try {
+        setDeleting(true);
+        setError("");
 
-    if (!confirmed) {
-      return;
-    }
+        await api.delete(
+          `/customers/${id}/`
+        );
 
-    try {
-      setDeleting(true);
-      setError("");
+        setShowDeleteModal(
+          false
+        );
 
-      await api.delete(
-        `/customers/${id}/`
-      );
+        navigate(
+          "/customers",
+          {
+            replace: true,
+          }
+        );
+      } catch (requestError) {
+        const detail =
+          requestError.response
+            ?.data?.detail;
 
-      navigate(
-        "/customers",
-        { replace: true }
-      );
-    } catch (requestError) {
-      const detail =
-        requestError.response?.data?.detail;
+        setError(
+          detail ||
+          "No fue posible eliminar el cliente."
+        );
 
-      setError(
-        detail ||
-        "No fue posible eliminar el cliente."
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
+        setShowDeleteModal(
+          false
+        );
+      } finally {
+        setDeleting(false);
+      }
+    };
 
 
   if (loading) {
@@ -135,7 +155,10 @@ function CustomerDetail() {
   }
 
 
-  if (error && !customer) {
+  if (
+    error &&
+    !customer
+  ) {
     return (
       <main className="customers-page">
 
@@ -143,7 +166,9 @@ function CustomerDetail() {
           {error}
         </p>
 
-        <Link to="/customers">
+        <Link
+          to="/customers"
+        >
           Volver a clientes
         </Link>
 
@@ -158,6 +183,7 @@ function CustomerDetail() {
       <header className="page-header page-header-actions">
 
         <div>
+
           <Link
             to="/customers"
             className="back-link"
@@ -173,10 +199,12 @@ function CustomerDetail() {
           <p>
             Información general del cliente.
           </p>
+
         </div>
 
 
-        {user?.role === "ADMIN" && (
+        {user?.role ===
+          "ADMIN" && (
           <div className="customer-actions">
 
             <Link
@@ -189,12 +217,16 @@ function CustomerDetail() {
             <button
               type="button"
               className="danger-action"
-              onClick={handleDelete}
-              disabled={deleting}
+              onClick={() =>
+                setShowDeleteModal(
+                  true
+                )
+              }
+              disabled={
+                deleting
+              }
             >
-              {deleting
-                ? "Eliminando..."
-                : "Eliminar"}
+              Eliminar
             </button>
 
           </div>
@@ -216,46 +248,63 @@ function CustomerDetail() {
       <section className="customer-info-grid">
 
         <article className="summary-card">
+
           <h3>
             Código
           </h3>
 
           <p>
-            {customer.customer_code}
+            {
+              customer.customer_code
+            }
           </p>
+
         </article>
 
 
         <article className="summary-card">
+
           <h3>
             Puntos disponibles
           </h3>
 
           <p>
-            {customer.points}
+            {
+              customer.points
+            }
           </p>
+
         </article>
 
 
         <article className="summary-card">
+
           <h3>
             Correo
           </h3>
 
           <p className="customer-info-text">
-            {customer.email}
+            {
+              customer.email
+            }
           </p>
+
         </article>
 
 
         <article className="summary-card">
+
           <h3>
             Teléfono
           </h3>
 
           <p className="customer-info-text">
-            {customer.phone || "Sin teléfono"}
+            {
+              customer.phone ||
+              "Sin teléfono"
+            }
           </p>
+
         </article>
 
       </section>
@@ -267,6 +316,7 @@ function CustomerDetail() {
           Historial de compras
         </h2>
 
+
         {purchases.length === 0 ? (
           <p>
             El cliente todavía no tiene compras.
@@ -275,22 +325,47 @@ function CustomerDetail() {
           <div className="table-container">
 
             <table>
+
               <thead>
                 <tr>
-                  <th>Compra</th>
-                  <th>Total</th>
-                  <th>Puntos</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
+                  <th>
+                    Compra
+                  </th>
+
+                  <th>
+                    Total
+                  </th>
+
+                  <th>
+                    Puntos
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Fecha
+                  </th>
                 </tr>
               </thead>
 
+
               <tbody>
+
                 {purchases.map(
                   (purchase) => (
-                    <tr key={purchase.id}>
+                    <tr
+                      key={
+                        purchase.id
+                      }
+                    >
+
                       <td>
-                        #{purchase.id}
+                        #
+                        {
+                          purchase.id
+                        }
                       </td>
 
                       <td>
@@ -301,11 +376,15 @@ function CustomerDetail() {
                       </td>
 
                       <td>
-                        {purchase.points_earned}
+                        {
+                          purchase.points_earned
+                        }
                       </td>
 
                       <td>
-                        {purchase.status}
+                        {
+                          purchase.status
+                        }
                       </td>
 
                       <td>
@@ -313,10 +392,13 @@ function CustomerDetail() {
                           purchase.created_at
                         ).toLocaleString()}
                       </td>
+
                     </tr>
                   )
                 )}
+
               </tbody>
+
             </table>
 
           </div>
@@ -331,6 +413,7 @@ function CustomerDetail() {
           Historial de recompensas
         </h2>
 
+
         {redemptions.length === 0 ? (
           <p>
             El cliente todavía no ha canjeado recompensas.
@@ -339,29 +422,54 @@ function CustomerDetail() {
           <div className="table-container">
 
             <table>
+
               <thead>
                 <tr>
-                  <th>Recompensa</th>
-                  <th>Puntos utilizados</th>
-                  <th>Estado</th>
-                  <th>Fecha</th>
+                  <th>
+                    Recompensa
+                  </th>
+
+                  <th>
+                    Puntos utilizados
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Fecha
+                  </th>
                 </tr>
               </thead>
 
+
               <tbody>
+
                 {redemptions.map(
                   (redemption) => (
-                    <tr key={redemption.id}>
+                    <tr
+                      key={
+                        redemption.id
+                      }
+                    >
+
                       <td>
-                        {redemption.reward_name}
+                        {
+                          redemption.reward_name
+                        }
                       </td>
 
                       <td>
-                        {redemption.points_used}
+                        {
+                          redemption.points_used
+                        }
                       </td>
 
                       <td>
-                        {redemption.status}
+                        {
+                          redemption.status
+                        }
                       </td>
 
                       <td>
@@ -369,16 +477,40 @@ function CustomerDetail() {
                           redemption.created_at
                         ).toLocaleString()}
                       </td>
+
                     </tr>
                   )
                 )}
+
               </tbody>
+
             </table>
 
           </div>
         )}
 
       </section>
+
+
+      <ConfirmModal
+        isOpen={
+          showDeleteModal
+        }
+        title="Eliminar cliente"
+        message="¿Seguro que deseas eliminar este cliente? Esta acción no se puede deshacer."
+        confirmText="Eliminar cliente"
+        loading={
+          deleting
+        }
+        onConfirm={
+          handleDelete
+        }
+        onCancel={() =>
+          setShowDeleteModal(
+            false
+          )
+        }
+      />
 
     </main>
   );
