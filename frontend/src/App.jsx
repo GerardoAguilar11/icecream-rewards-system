@@ -18,6 +18,10 @@ import CustomerHome from "./pages/CustomerHome";
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
 
+import Purchases from "./pages/Purchases";
+import PurchaseCreate from "./pages/PurchaseCreate";
+import PurchaseDetail from "./pages/PurchaseDetail";
+
 import NotFound from "./pages/NotFound";
 
 import AdminLayout from "./components/layout/AdminLayout";
@@ -29,6 +33,7 @@ import PublicRoute from "./routes/PublicRoute";
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
 
         {/* ==========================
@@ -96,6 +101,8 @@ function App() {
           }
         >
 
+          {/* Customers */}
+
           <Route
             path="/customers"
             element={<Customers />}
@@ -103,13 +110,39 @@ function App() {
 
           <Route
             path="/customers/:id"
-            element={<CustomerDetail />}
+            element={
+              <CustomerDetail />
+            }
           />
 
+
+          {/* Products */}
 
           <Route
             path="/products"
             element={<Products />}
+          />
+
+
+          {/* Purchases */}
+
+          <Route
+            path="/purchases"
+            element={<Purchases />}
+          />
+
+          <Route
+            path="/purchases/new"
+            element={
+              <PurchaseCreate />
+            }
+          />
+
+          <Route
+            path="/purchases/:id"
+            element={
+              <PurchaseDetail />
+            }
           />
 
         </Route>
@@ -131,27 +164,38 @@ function App() {
           }
         >
 
+          {/* Dashboard */}
+
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
 
 
+          {/* Customers */}
+
           <Route
             path="/customers/:id/edit"
-            element={<CustomerEdit />}
+            element={
+              <CustomerEdit />
+            }
           />
 
+
+          {/* Products */}
 
           <Route
             path="/products/new"
-            element={<ProductForm />}
+            element={
+              <ProductForm />
+            }
           />
-
 
           <Route
             path="/products/:id/edit"
-            element={<ProductForm />}
+            element={
+              <ProductForm />
+            }
           />
 
         </Route>
@@ -167,6 +211,7 @@ function App() {
         />
 
       </Routes>
+
     </BrowserRouter>
   );
 }

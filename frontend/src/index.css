@@ -716,3 +716,186 @@ th {
 
   border: 1px solid #e2e2e2;
 }
+
+/* ==========================
+   Purchases
+========================== */
+
+.purchases-page {
+  padding: 32px;
+}
+
+.product-selection-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(180px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.product-selection-card {
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+}
+
+.product-selection-card img {
+  width: 100%;
+  height: 140px;
+
+  margin-bottom: 12px;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+}
+
+.product-selection-card h3 {
+  margin: 0 0 8px;
+}
+
+.product-selection-card p {
+  margin: 0 0 12px;
+
+  font-weight: 600;
+}
+
+.product-selection-card button {
+  width: 100%;
+
+  padding: 8px 12px;
+
+  cursor: pointer;
+}
+
+.purchase-total {
+  margin-top: 24px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid #eeeeee;
+}
+
+.purchase-total p {
+  margin: 6px 0;
+
+  font-size: 18px;
+}
+
+.purchases-page td input[type="number"] {
+  width: 80px;
+
+  padding: 8px;
+
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+  .purchases-page {
+    padding: 20px;
+  }
+}
+
+/* ==========================
+   Confirmation Modal
+========================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(0, 0, 0, 0.45);
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 440px;
+
+  padding: 24px;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 12px 40px
+    rgba(0, 0, 0, 0.18);
+}
+
+.modal-container h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.modal-container p {
+  margin-bottom: 24px;
+
+  line-height: 1.5;
+
+  color: #555;
+}
+
+.modal-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+.modal-actions button {
+  padding: 10px 16px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction:
+      column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* ==========================
+   Reward in Purchase Detail
+========================== */
+
+.reward-product-row td {
+  background: #f7f7f7;
+}
+
+.reward-badge {
+  display: inline-block;
+
+  margin-left: 8px;
+  padding: 3px 7px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 999px;
+}

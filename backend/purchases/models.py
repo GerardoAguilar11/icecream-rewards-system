@@ -26,6 +26,14 @@ class Purchase(models.Model):
         related_name="sales_made"
     )
 
+    redemption = models.OneToOneField(
+        "rewards.RewardRedemption",
+        on_delete=models.PROTECT,
+        related_name="purchase",
+        null=True,
+        blank=True
+    )
+
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2
@@ -56,11 +64,21 @@ class Purchase(models.Model):
 
     def __str__(self):
 
-        return f"Compra #{self.id} - {self.customer}"
+        return (
+            f"Compra #{self.id} - "
+            f"{self.customer}"
+        )
+
 
     def calculate_points(self):
 
-        return int(self.total_amount // 50)
+        if self.used_reward:
+            return 0
+
+        return int(
+            self.total_amount // 50
+        )
+
 
 class PurchaseItem(models.Model):
 
@@ -92,4 +110,7 @@ class PurchaseItem(models.Model):
 
     def __str__(self):
 
-        return f"{self.product.name} x {self.quantity}"
+        return (
+            f"{self.product.name} "
+            f"x {self.quantity}"
+        )
