@@ -14,6 +14,8 @@ import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
 import CustomerEdit from "./pages/CustomerEdit";
 import CustomerHome from "./pages/CustomerHome";
+import CustomerRewards from "./pages/CustomerRewards";
+import CustomerRedemptions from "./pages/CustomerRedemptions";
 
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
@@ -22,9 +24,13 @@ import Purchases from "./pages/Purchases";
 import PurchaseCreate from "./pages/PurchaseCreate";
 import PurchaseDetail from "./pages/PurchaseDetail";
 
+import Rewards from "./pages/Rewards";
+import RewardForm from "./pages/RewardForm";
+
 import NotFound from "./pages/NotFound";
 
 import AdminLayout from "./components/layout/AdminLayout";
+import CustomerLayout from "./components/layout/CustomerLayout";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
@@ -35,10 +41,6 @@ function App() {
     <BrowserRouter>
 
       <Routes>
-
-        {/* ==========================
-            Public Routes
-        ========================== */}
 
         <Route
           path="/"
@@ -66,27 +68,45 @@ function App() {
         />
 
 
-        {/* ==========================
-            Customer Routes
-        ========================== */}
+        {/* CUSTOMER */}
 
         <Route
-          path="/customer"
           element={
             <ProtectedRoute
               allowedRoles={[
                 "CUSTOMER",
               ]}
             >
-              <CustomerHome />
+              <CustomerLayout />
             </ProtectedRoute>
           }
-        />
+        >
+
+          <Route
+            path="/customer"
+            element={
+              <CustomerHome />
+            }
+          />
+
+          <Route
+            path="/customer/rewards"
+            element={
+              <CustomerRewards />
+            }
+          />
+
+          <Route
+            path="/customer/redemptions"
+            element={
+              <CustomerRedemptions />
+            }
+          />
+
+        </Route>
 
 
-        {/* ==========================
-            Admin + Employee Routes
-        ========================== */}
+        {/* ADMIN + EMPLOYEE */}
 
         <Route
           element={
@@ -101,8 +121,6 @@ function App() {
           }
         >
 
-          {/* Customers */}
-
           <Route
             path="/customers"
             element={<Customers />}
@@ -116,15 +134,11 @@ function App() {
           />
 
 
-          {/* Products */}
-
           <Route
             path="/products"
             element={<Products />}
           />
 
-
-          {/* Purchases */}
 
           <Route
             path="/purchases"
@@ -145,12 +159,16 @@ function App() {
             }
           />
 
+
+          <Route
+            path="/rewards"
+            element={<Rewards />}
+          />
+
         </Route>
 
 
-        {/* ==========================
-            Admin Only Routes
-        ========================== */}
+        {/* ADMIN ONLY */}
 
         <Route
           element={
@@ -164,15 +182,10 @@ function App() {
           }
         >
 
-          {/* Dashboard */}
-
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
-
-
-          {/* Customers */}
 
           <Route
             path="/customers/:id/edit"
@@ -180,9 +193,6 @@ function App() {
               <CustomerEdit />
             }
           />
-
-
-          {/* Products */}
 
           <Route
             path="/products/new"
@@ -198,12 +208,22 @@ function App() {
             }
           />
 
+          <Route
+            path="/rewards/new"
+            element={
+              <RewardForm />
+            }
+          />
+
+          <Route
+            path="/rewards/:id/edit"
+            element={
+              <RewardForm />
+            }
+          />
+
         </Route>
 
-
-        {/* ==========================
-            Not Found
-        ========================== */}
 
         <Route
           path="*"

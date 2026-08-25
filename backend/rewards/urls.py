@@ -6,6 +6,7 @@ from .views import (
     RewardRedemptionCreateView,
     CustomerRewardHistoryView,
     AvailableCustomerRewardsView,
+    CustomerRewardCatalogView,
 )
 
 
@@ -39,5 +40,11 @@ urlpatterns = [
         "<int:pk>/",
         RewardDetailView.as_view(),
         name="reward-detail",
+    ),
+
+    path(
+        "customer/me/catalog/",
+        CustomerRewardCatalogView.as_view(),
+        name="customer-reward-catalog",
     ),
 ]

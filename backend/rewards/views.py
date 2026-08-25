@@ -4,6 +4,9 @@ from rest_framework import (
     generics,
     status,
 )
+from rest_framework.permissions import (
+    IsAuthenticated,
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -100,7 +103,7 @@ class AvailableCustomerRewardsView(
 ):
 
     permission_classes = [
-        IsAdminOrEmployee
+        IsAuthenticated
     ]
 
 
@@ -116,6 +119,47 @@ class AvailableCustomerRewardsView(
             ),
             pk=customer_id
         )
+
+
+        if (
+            request.user.role == "CUSTOMER"
+            and customer.user_id
+            != request.user.id
+        ):
+            return Response(
+                {
+                    "detail": (
+                        "No tienes permiso "
+                        "para consultar este cliente."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
+
+
+        if (
+            request.user.role
+            not in [
+                "ADMIN",
+                "EMPLOYEE",
+                "CUSTOMER",
+            ]
+        ):
+            return Response(
+                {
+                    "detail": (
+                        "No tienes permiso "
+                        "para realizar esta acción."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
 
 
         rewards = (
@@ -141,13 +185,16 @@ class AvailableCustomerRewardsView(
         return Response({
             "customer": {
                 "id": customer.id,
+
                 "name": (
                     customer.user
                     .get_full_name()
                 ),
+
                 "customer_code": (
                     customer.customer_code
                 ),
+
                 "points": (
                     customer.points
                 ),
@@ -250,7 +297,7 @@ class CustomerRewardHistoryView(
 ):
 
     permission_classes = [
-        IsAdminOrEmployee
+        IsAuthenticated
     ]
 
 
@@ -265,6 +312,47 @@ class CustomerRewardHistoryView(
             .select_related("user"),
             customer_code=customer_code
         )
+
+
+        if (
+            request.user.role == "CUSTOMER"
+            and customer.user_id
+            != request.user.id
+        ):
+            return Response(
+                {
+                    "detail": (
+                        "No tienes permiso "
+                        "para consultar este cliente."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
+
+
+        if (
+            request.user.role
+            not in [
+                "ADMIN",
+                "EMPLOYEE",
+                "CUSTOMER",
+            ]
+        ):
+            return Response(
+                {
+                    "detail": (
+                        "No tienes permiso "
+                        "para realizar esta acción."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
 
 
         redemptions = (
@@ -295,10 +383,12 @@ class CustomerRewardHistoryView(
                     customer.user
                     .get_full_name()
                 ),
+
                 "customer_code": (
                     customer
                     .customer_code
                 ),
+
                 "points": (
                     customer.points
                 ),
@@ -307,4 +397,90 @@ class CustomerRewardHistoryView(
             "redemptions": (
                 serializer.data
             ),
+        })
+
+class CustomerRewardCatalogView(
+    APIView
+):
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+
+    def get(
+        self,
+        request
+    ):
+
+        if request.user.role != "CUSTOMER":
+            return Response(
+                {
+                    "detail": (
+                        "Esta consulta está disponible "
+                        "únicamente para clientes."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+
+        customer = get_object_or_404(
+            Customer.objects.select_related(
+                "user"
+            ),
+            user=request.user
+        )
+
+
+        rewards = (
+            Reward.objects
+            .filter(
+                is_active=True
+            )
+            .order_by(
+                "points_required"
+            )
+        )
+
+
+        reward_data = []
+
+        for reward in rewards:
+
+            points_missing = max(
+                0,
+                reward.points_required
+                - customer.points
+            )
+
+            reward_data.append({
+                "id": reward.id,
+                "name": reward.name,
+                "description": reward.description,
+                "points_required": (
+                    reward.points_required
+                ),
+                "can_redeem": (
+                    customer.points
+                    >= reward.points_required
+                ),
+                "points_missing": (
+                    points_missing
+                ),
+            })
+
+
+        return Response({
+            "customer": {
+                "id": customer.id,
+                "customer_code": (
+                    customer.customer_code
+                ),
+                "points": (
+                    customer.points
+                ),
+            },
+
+            "rewards": reward_data,
         })
