@@ -11,6 +11,11 @@ import {
   getMyCustomerProfile,
 } from "../services/customerService";
 
+import {
+  getAvailableRewards,
+  getCustomerRewardHistory,
+} from "../services/rewardService";
+
 
 function CustomerHome() {
   const navigate = useNavigate();
@@ -22,6 +27,16 @@ function CustomerHome() {
   const [customer, setCustomer] =
     useState(null);
 
+  const [
+    availableRewards,
+    setAvailableRewards,
+  ] = useState([]);
+
+  const [
+    redemptions,
+    setRedemptions,
+  ] = useState([]);
+
   const [loading, setLoading] =
     useState(true);
 
@@ -30,25 +45,59 @@ function CustomerHome() {
 
 
   useEffect(() => {
-    const loadCustomerProfile = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    let cancelled = false;
 
-        const data =
-          await getMyCustomerProfile();
+    getMyCustomerProfile()
+      .then(async (customerData) => {
+        if (cancelled) {
+          return;
+        }
 
-        setCustomer(data);
-      } catch {
-        setError(
-          "No fue posible cargar tu información."
+        setCustomer(
+          customerData
         );
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    loadCustomerProfile();
+        const [
+          rewardsData,
+          historyData,
+        ] = await Promise.all([
+          getAvailableRewards(
+            customerData.id
+          ),
+
+          getCustomerRewardHistory(
+            customerData.customer_code
+          ),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setAvailableRewards(
+          rewardsData.rewards ?? []
+        );
+
+        setRedemptions(
+          historyData.redemptions ?? []
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(
+            "No fue posible cargar tu información."
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
 
@@ -75,12 +124,16 @@ function CustomerHome() {
   }
 
 
-  if (error || !customer) {
+  if (
+    error ||
+    !customer
+  ) {
     return (
       <main className="customer-home-page">
 
         <p role="alert">
-          {error || "No fue posible cargar tu cuenta."}
+          {error ||
+            "No fue posible cargar tu cuenta."}
         </p>
 
         <button
@@ -154,6 +207,146 @@ function CustomerHome() {
       <section className="dashboard-section">
 
         <h2>
+          Recompensas disponibles
+        </h2>
+
+
+        {availableRewards.length === 0 ? (
+          <p>
+            Aún no tienes puntos suficientes para canjear una recompensa.
+          </p>
+        ) : (
+          <div className="customer-reward-grid">
+
+            {availableRewards.map(
+              (reward) => (
+                <article
+                  key={
+                    reward.id
+                  }
+                  className="customer-reward-card"
+                >
+
+                  <h3>
+                    {reward.name}
+                  </h3>
+
+                  <p>
+                    {reward.description ||
+                      "Sin descripción"}
+                  </p>
+
+                  <strong>
+                    {
+                      reward.points_required
+                    }{" "}
+                    puntos
+                  </strong>
+
+                </article>
+              )
+            )}
+
+          </div>
+        )}
+
+
+        <p className="reward-help-text">
+          Las recompensas se canjean al realizar una compra en la heladería.
+        </p>
+
+      </section>
+
+
+      <section className="dashboard-section">
+
+        <h2>
+          Historial de canjes
+        </h2>
+
+
+        {redemptions.length === 0 ? (
+          <p>
+            Todavía no has utilizado recompensas.
+          </p>
+        ) : (
+          <div className="table-container">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>
+                    Recompensa
+                  </th>
+
+                  <th>
+                    Puntos utilizados
+                  </th>
+
+                  <th>
+                    Estado
+                  </th>
+
+                  <th>
+                    Fecha
+                  </th>
+                </tr>
+              </thead>
+
+
+              <tbody>
+
+                {redemptions.map(
+                  (redemption) => (
+                    <tr
+                      key={
+                        redemption.id
+                      }
+                    >
+
+                      <td>
+                        {
+                          redemption.reward_name
+                        }
+                      </td>
+
+                      <td>
+                        {
+                          redemption.points_used
+                        }
+                      </td>
+
+                      <td>
+                        {redemption.status ===
+                        "COMPLETED"
+                          ? "Completado"
+                          : "Cancelado"}
+                      </td>
+
+                      <td>
+                        {new Date(
+                          redemption.created_at
+                        ).toLocaleString()}
+                      </td>
+
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
+
+      </section>
+
+
+      <section className="dashboard-section">
+
+        <h2>
           Mi identificación
         </h2>
 
@@ -215,7 +408,8 @@ function CustomerHome() {
             <strong>
               Teléfono:
             </strong>{" "}
-            {customer.phone || "Sin teléfono registrado"}
+            {customer.phone ||
+              "Sin teléfono registrado"}
           </p>
 
         </div>

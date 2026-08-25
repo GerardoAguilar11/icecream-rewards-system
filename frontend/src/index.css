@@ -899,3 +899,189 @@ th {
   border: 1px solid #d5d5d5;
   border-radius: 999px;
 }
+
+/* ==========================
+   Rewards
+========================== */
+
+.rewards-page {
+  padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .rewards-page {
+    padding: 20px;
+  }
+}
+
+/* ==========================
+   Customer Rewards
+========================== */
+
+.customer-reward-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.customer-reward-card {
+  padding: 18px;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+
+  background: #ffffff;
+}
+
+.customer-reward-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.customer-reward-card p {
+  margin-bottom: 14px;
+
+  color: #666;
+}
+
+.customer-reward-card strong {
+  font-size: 18px;
+}
+
+.reward-help-text {
+  margin-top: 18px;
+
+  color: #666;
+}
+
+/* ==========================
+   Customer Layout
+========================== */
+
+.customer-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.customer-sidebar {
+  width: 240px;
+  min-height: 100vh;
+
+  padding: 24px 16px;
+
+  background: #ffffff;
+
+  border-right: 1px solid #e2e2e2;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-sidebar-brand {
+  margin-bottom: 32px;
+}
+
+.customer-sidebar-brand h2 {
+  margin: 0;
+}
+
+.customer-sidebar-brand p {
+  margin: 4px 0 0;
+
+  color: #666;
+}
+
+.customer-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.customer-sidebar-footer {
+  margin-top: auto;
+
+  padding-top: 24px;
+}
+
+.customer-sidebar-footer span {
+  display: block;
+
+  margin-bottom: 12px;
+
+  font-size: 13px;
+
+  color: #777;
+
+  word-break: break-word;
+}
+
+.customer-sidebar-footer button {
+  width: 100%;
+
+  padding: 10px;
+
+  cursor: pointer;
+}
+
+.customer-layout-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-section-page {
+  padding: 32px;
+}
+
+
+@media (max-width: 768px) {
+
+  .customer-layout {
+    display: block;
+  }
+
+  .customer-sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .customer-sidebar-footer {
+    margin-top: 24px;
+  }
+
+  .customer-section-page {
+    padding: 20px;
+  }
+
+}
+
+/* ==========================
+   Customer Reward Availability
+========================== */
+
+.customer-reward-card-locked {
+  opacity: 0.65;
+}
+
+.reward-status {
+  display: inline-block;
+
+  margin-top: 8px;
+  padding: 5px 9px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 999px;
+}
+
+.reward-status-available {
+  opacity: 1;
+}
