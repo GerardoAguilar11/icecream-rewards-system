@@ -95,6 +95,20 @@ function CustomerLayout() {
 
 
           <NavLink
+            to="/customer/purchases"
+            className={({
+              isActive,
+            }) =>
+              isActive
+                ? "nav-link active"
+                : "nav-link"
+            }
+          >
+            Mis compras
+          </NavLink>
+
+
+          <NavLink
             to="/customer/profile"
             className={({
               isActive,

@@ -17,6 +17,8 @@ import CustomerHome from "./pages/CustomerHome";
 import CustomerRewards from "./pages/CustomerRewards";
 import CustomerRedemptions from "./pages/CustomerRedemptions";
 import CustomerProfile from "./pages/CustomerProfile";
+import CustomerPurchases from "./pages/CustomerPurchases";
+import CustomerPurchaseDetail from "./pages/CustomerPurchaseDetail";
 
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
@@ -117,6 +119,20 @@ function App() {
           />
 
         </Route>
+
+        <Route
+          path="/customer/purchases"
+          element={
+            <CustomerPurchases />
+          }
+        />
+
+        <Route
+          path="/customer/purchases/:id"
+          element={
+            <CustomerPurchaseDetail />
+          }
+        />
 
 
         {/* ADMIN + EMPLOYEE */}
