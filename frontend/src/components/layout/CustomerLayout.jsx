@@ -4,13 +4,19 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { useAuth } from "../../context/useAuth";
+import {
+  useAuth,
+} from "../../context/useAuth";
 
 
 function CustomerLayout() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { user, logout } = useAuth();
+  const {
+    user,
+    logout,
+  } = useAuth();
 
 
   const handleLogout = async () => {
@@ -18,7 +24,9 @@ function CustomerLayout() {
 
     navigate(
       "/login",
-      { replace: true }
+      {
+        replace: true,
+      }
     );
   };
 
@@ -29,6 +37,7 @@ function CustomerLayout() {
       <aside className="customer-sidebar">
 
         <div className="customer-sidebar-brand">
+
           <h2>
             Mi cuenta
           </h2>
@@ -36,6 +45,7 @@ function CustomerLayout() {
           <p>
             Recompensas
           </p>
+
         </div>
 
 
@@ -44,7 +54,9 @@ function CustomerLayout() {
           <NavLink
             to="/customer"
             end
-            className={({ isActive }) =>
+            className={({
+              isActive,
+            }) =>
               isActive
                 ? "nav-link active"
                 : "nav-link"
@@ -56,7 +68,9 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/rewards"
-            className={({ isActive }) =>
+            className={({
+              isActive,
+            }) =>
               isActive
                 ? "nav-link active"
                 : "nav-link"
@@ -68,13 +82,29 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/redemptions"
-            className={({ isActive }) =>
+            className={({
+              isActive,
+            }) =>
               isActive
                 ? "nav-link active"
                 : "nav-link"
             }
           >
             Mis canjes
+          </NavLink>
+
+
+          <NavLink
+            to="/customer/profile"
+            className={({
+              isActive,
+            }) =>
+              isActive
+                ? "nav-link active"
+                : "nav-link"
+            }
+          >
+            Mi perfil
           </NavLink>
 
         </nav>
@@ -88,7 +118,9 @@ function CustomerLayout() {
 
           <button
             type="button"
-            onClick={handleLogout}
+            onClick={
+              handleLogout
+            }
           >
             Cerrar sesión
           </button>
@@ -99,7 +131,9 @@ function CustomerLayout() {
 
 
       <section className="customer-layout-content">
+
         <Outlet />
+
       </section>
 
     </div>

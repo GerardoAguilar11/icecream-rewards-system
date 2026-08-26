@@ -16,6 +16,7 @@ import CustomerEdit from "./pages/CustomerEdit";
 import CustomerHome from "./pages/CustomerHome";
 import CustomerRewards from "./pages/CustomerRewards";
 import CustomerRedemptions from "./pages/CustomerRedemptions";
+import CustomerProfile from "./pages/CustomerProfile";
 
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
@@ -41,6 +42,8 @@ function App() {
     <BrowserRouter>
 
       <Routes>
+
+        {/* Public */}
 
         <Route
           path="/"
@@ -89,6 +92,7 @@ function App() {
             }
           />
 
+
           <Route
             path="/customer/rewards"
             element={
@@ -96,10 +100,19 @@ function App() {
             }
           />
 
+
           <Route
             path="/customer/redemptions"
             element={
               <CustomerRedemptions />
+            }
+          />
+
+
+          <Route
+            path="/customer/profile"
+            element={
+              <CustomerProfile />
             }
           />
 
@@ -123,8 +136,11 @@ function App() {
 
           <Route
             path="/customers"
-            element={<Customers />}
+            element={
+              <Customers />
+            }
           />
+
 
           <Route
             path="/customers/:id"
@@ -136,14 +152,19 @@ function App() {
 
           <Route
             path="/products"
-            element={<Products />}
+            element={
+              <Products />
+            }
           />
 
 
           <Route
             path="/purchases"
-            element={<Purchases />}
+            element={
+              <Purchases />
+            }
           />
+
 
           <Route
             path="/purchases/new"
@@ -151,6 +172,7 @@ function App() {
               <PurchaseCreate />
             }
           />
+
 
           <Route
             path="/purchases/:id"
@@ -162,7 +184,9 @@ function App() {
 
           <Route
             path="/rewards"
-            element={<Rewards />}
+            element={
+              <Rewards />
+            }
           />
 
         </Route>
@@ -184,8 +208,11 @@ function App() {
 
           <Route
             path="/dashboard"
-            element={<Dashboard />}
+            element={
+              <Dashboard />
+            }
           />
+
 
           <Route
             path="/customers/:id/edit"
@@ -194,12 +221,14 @@ function App() {
             }
           />
 
+
           <Route
             path="/products/new"
             element={
               <ProductForm />
             }
           />
+
 
           <Route
             path="/products/:id/edit"
@@ -208,12 +237,14 @@ function App() {
             }
           />
 
+
           <Route
             path="/rewards/new"
             element={
               <RewardForm />
             }
           />
+
 
           <Route
             path="/rewards/:id/edit"
@@ -227,7 +258,9 @@ function App() {
 
         <Route
           path="*"
-          element={<NotFound />}
+          element={
+            <NotFound />
+          }
         />
 
       </Routes>
