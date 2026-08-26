@@ -1085,3 +1085,48 @@ th {
 .reward-status-available {
   opacity: 1;
 }
+
+/* ==========================
+   Customer Profile
+========================== */
+
+.customer-profile-readonly {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(200px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.customer-profile-readonly div {
+  padding: 18px;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+
+  background: #fafafa;
+}
+
+.customer-profile-readonly span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+
+  color: #666;
+}
+
+.customer-profile-readonly strong {
+  font-size: 20px;
+}
+
+.form-success {
+  margin: 16px 0;
+
+  font-weight: 600;
+}

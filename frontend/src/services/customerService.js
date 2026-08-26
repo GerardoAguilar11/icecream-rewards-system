@@ -45,3 +45,14 @@ export const getMyCustomerProfile = async () => {
 
   return response.data;
 };
+
+export const updateMyCustomerProfile = async (
+  data
+) => {
+  const response = await api.patch(
+    "/customers/me/",
+    data
+  );
+
+  return response.data;
+};
