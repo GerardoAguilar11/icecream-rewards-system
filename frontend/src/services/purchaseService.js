@@ -36,3 +36,21 @@ export const cancelPurchase = async (id) => {
 
   return response.data;
 };
+
+
+export const getMyPurchases = async () => {
+  const response = await api.get(
+    "/purchases/me/"
+  );
+
+  return response.data;
+};
+
+
+export const getMyPurchaseById = async (id) => {
+  const response = await api.get(
+    `/purchases/me/${id}/`
+  );
+
+  return response.data;
+};

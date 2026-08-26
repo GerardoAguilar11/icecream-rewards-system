@@ -1130,3 +1130,11 @@ th {
 
   font-weight: 600;
 }
+
+/* ==========================
+   Customer Purchases
+========================== */
+
+.purchase-row-cancelled {
+  opacity: 0.65;
+}
