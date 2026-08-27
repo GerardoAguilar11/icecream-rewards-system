@@ -112,6 +112,22 @@ function App() {
 
 
           <Route
+            path="/customer/purchases"
+            element={
+              <CustomerPurchases />
+            }
+          />
+
+
+          <Route
+            path="/customer/purchases/:id"
+            element={
+              <CustomerPurchaseDetail />
+            }
+          />
+
+
+          <Route
             path="/customer/profile"
             element={
               <CustomerProfile />
@@ -119,20 +135,6 @@ function App() {
           />
 
         </Route>
-
-        <Route
-          path="/customer/purchases"
-          element={
-            <CustomerPurchases />
-          }
-        />
-
-        <Route
-          path="/customer/purchases/:id"
-          element={
-            <CustomerPurchaseDetail />
-          }
-        />
 
 
         {/* ADMIN + EMPLOYEE */}

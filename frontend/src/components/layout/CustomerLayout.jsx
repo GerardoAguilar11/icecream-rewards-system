@@ -1,4 +1,17 @@
 import {
+  Gift,
+  House,
+  LogOut,
+  Menu,
+  ReceiptText,
+  TicketCheck,
+  UserRound,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+import {
   NavLink,
   Outlet,
   useNavigate,
@@ -7,6 +20,10 @@ import {
 import {
   useAuth,
 } from "../../context/useAuth";
+
+import {
+  useState,
+} from "react";
 
 
 function CustomerLayout() {
@@ -17,6 +34,16 @@ function CustomerLayout() {
     user,
     logout,
   } = useAuth();
+
+  const [
+    collapsed,
+    setCollapsed,
+  ] = useState(false);
+
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] = useState(false);
 
 
   const handleLogout = async () => {
@@ -31,20 +58,138 @@ function CustomerLayout() {
   };
 
 
+  const closeMobileMenu = () => {
+    setMobileOpen(false);
+  };
+
+
+  const getNavClass = ({
+    isActive,
+  }) =>
+    isActive
+      ? "nav-link active"
+      : "nav-link";
+
+
   return (
-    <div className="customer-layout">
+    <div
+      className={
+        `customer-layout ${
+          collapsed
+            ? "sidebar-collapsed"
+            : ""
+        }`
+      }
+    >
 
-      <aside className="customer-sidebar">
+      {/* Mobile header */}
 
-        <div className="customer-sidebar-brand">
+      <header className="mobile-navigation-header">
 
-          <h2>
-            Mi cuenta
-          </h2>
+        <button
+          type="button"
+          className="mobile-menu-button"
+          onClick={() =>
+            setMobileOpen(true)
+          }
+          aria-label="Abrir menú"
+        >
+          <Menu size={22} />
+        </button>
 
-          <p>
-            Recompensas
-          </p>
+        <div className="mobile-navigation-brand">
+
+          <strong>
+            Frio&Co
+          </strong>
+
+          <span>
+            Cliente
+          </span>
+
+        </div>
+
+      </header>
+
+
+      {/* Backdrop mobile */}
+
+      {mobileOpen && (
+        <button
+          type="button"
+          className="navigation-backdrop"
+          onClick={closeMobileMenu}
+          aria-label="Cerrar menú"
+        />
+      )}
+
+
+      {/* Sidebar */}
+
+      <aside
+        className={
+          `customer-sidebar ${
+            mobileOpen
+              ? "mobile-open"
+              : ""
+          }`
+        }
+      >
+
+        <div className="sidebar-top">
+
+          <div className="customer-sidebar-brand">
+
+            <div className="sidebar-brand-text">
+
+              <h2>
+                Frio&Co
+              </h2>
+
+              <p>
+                Mi cuenta
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="mobile-menu-close"
+              onClick={closeMobileMenu}
+              aria-label="Cerrar menú"
+            >
+              <X size={22} />
+            </button>
+
+          </div>
+
+
+          <button
+            type="button"
+            className="sidebar-collapse-button"
+            onClick={() =>
+              setCollapsed(
+                (current) =>
+                  !current
+              )
+            }
+            aria-label={
+              collapsed
+                ? "Expandir menú"
+                : "Contraer menú"
+            }
+          >
+            {collapsed ? (
+              <ChevronRight
+                size={20}
+              />
+            ) : (
+              <ChevronLeft
+                size={20}
+              />
+            )}
+          </button>
 
         </div>
 
@@ -54,71 +199,92 @@ function CustomerLayout() {
           <NavLink
             to="/customer"
             end
-            className={({
-              isActive,
-            }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Inicio
+
+            <span className="nav-icon">
+              <House size={20} />
+            </span>
+
+            <span className="nav-label">
+              Inicio
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/customer/rewards"
-            className={({
-              isActive,
-            }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Mis recompensas
+
+            <span className="nav-icon">
+              <Gift size={20} />
+            </span>
+
+            <span className="nav-label">
+              Mis recompensas
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/customer/redemptions"
-            className={({
-              isActive,
-            }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Mis canjes
+
+            <span className="nav-icon">
+              <TicketCheck
+                size={20}
+              />
+            </span>
+
+            <span className="nav-label">
+              Mis canjes
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/customer/purchases"
-            className={({
-              isActive,
-            }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Mis compras
+
+            <span className="nav-icon">
+              <ReceiptText
+                size={20}
+              />
+            </span>
+
+            <span className="nav-label">
+              Mis compras
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/customer/profile"
-            className={({
-              isActive,
-            }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Mi perfil
+
+            <span className="nav-icon">
+              <UserRound
+                size={20}
+              />
+            </span>
+
+            <span className="nav-label">
+              Mi perfil
+            </span>
+
           </NavLink>
 
         </nav>
@@ -126,17 +292,34 @@ function CustomerLayout() {
 
         <div className="customer-sidebar-footer">
 
-          <span>
-            {user?.email}
-          </span>
+          <div className="sidebar-user-info">
+
+            <p>
+              {user?.email}
+            </p>
+
+            <span>
+              Cliente
+            </span>
+
+          </div>
+
 
           <button
             type="button"
-            onClick={
-              handleLogout
-            }
+            className="sidebar-logout-button"
+            onClick={handleLogout}
           >
-            Cerrar sesión
+
+            <LogOut
+              className="logout-icon"
+              size={19}
+            />
+
+            <span className="logout-label">
+              Cerrar sesión
+            </span>
+
           </button>
 
         </div>
@@ -144,10 +327,10 @@ function CustomerLayout() {
       </aside>
 
 
+      {/* Content */}
+
       <section className="customer-layout-content">
-
         <Outlet />
-
       </section>
 
     </div>

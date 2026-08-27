@@ -1,3 +1,7 @@
+/* =========================================================
+   1. Base
+========================================================= */
+
 * {
   box-sizing: border-box;
 }
@@ -28,62 +32,207 @@ textarea {
 }
 
 
-/* ==========================
-   Admin Layout
-========================== */
+/* =========================================================
+   2. Variables
+========================================================= */
 
-.admin-layout {
-  display: flex;
+:root {
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 76px;
+  --mobile-header-height: 64px;
+}
+
+
+/* =========================================================
+   3. Main Layout
+========================================================= */
+
+.admin-layout,
+.customer-layout {
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 240px;
+.admin-content,
+.customer-layout-content {
+  min-width: 0;
   min-height: 100vh;
 
-  padding: 24px 16px;
+  margin-left: var(--sidebar-width);
+
+  transition:
+    margin-left 0.25s ease;
+}
+
+.admin-layout.sidebar-collapsed
+.admin-content,
+.customer-layout.sidebar-collapsed
+.customer-layout-content {
+  margin-left:
+    var(--sidebar-collapsed-width);
+}
+
+
+/* =========================================================
+   4. Sidebar
+========================================================= */
+
+.sidebar,
+.customer-sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  z-index: 500;
+
+  display: flex;
+  flex-direction: column;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  padding: 20px 14px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
 
   background: #ffffff;
 
   border-right: 1px solid #e2e2e2;
 
+  transition:
+    width 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+/* =========================================================
+   5. Sidebar Header
+========================================================= */
+
+.sidebar-top {
+  flex-shrink: 0;
+}
+
+.sidebar-brand,
+.customer-sidebar-brand {
   display: flex;
-  flex-direction: column;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
 }
 
-.sidebar-brand {
-  margin-bottom: 32px;
+.sidebar-brand-text {
+  min-width: 0;
 }
 
-.sidebar-brand h2 {
+.sidebar-brand h2,
+.customer-sidebar-brand h2 {
   margin: 0;
+
+  font-size: 22px;
+
+  white-space: nowrap;
 }
 
-.sidebar-brand p {
+.sidebar-brand p,
+.customer-sidebar-brand p {
   margin: 4px 0 0;
 
+  font-size: 14px;
+
   color: #666;
+
+  white-space: nowrap;
 }
 
-.sidebar-nav {
+
+/* =========================================================
+   6. Collapse Button
+========================================================= */
+
+.sidebar-collapse-button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 34px;
+
+  margin-bottom: 20px;
+
+  padding: 0;
+
+  border: 1px solid #e2e2e2;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #555;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.sidebar-collapse-button:hover {
+  background: #f5f5f5;
+
+  border-color: #d1d1d1;
+}
+
+
+/* =========================================================
+   7. Sidebar Navigation
+========================================================= */
+
+.sidebar-nav,
+.customer-sidebar-nav {
   display: flex;
   flex-direction: column;
 
-  gap: 8px;
+  flex: 1;
+
+  gap: 6px;
+
+  min-height: 0;
 }
 
 .nav-link {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-height: 44px;
+
   padding: 10px 12px;
 
   color: #333;
 
   text-decoration: none;
 
-  border-radius: 6px;
+  border-radius: 8px;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.15s ease;
 }
 
 .nav-link:hover {
-  background: #f0f0f0;
+  background: #f1f1f1;
 }
 
 .nav-link.active {
@@ -92,45 +241,196 @@ textarea {
   background: #e9e9e9;
 }
 
-.sidebar-footer {
+.nav-icon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 22px;
+  height: 22px;
+
+  font-size: 17px;
+}
+
+.nav-label {
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   8. Sidebar Footer
+========================================================= */
+
+.sidebar-footer,
+.customer-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+
+  flex-shrink: 0;
+
+  gap: 12px;
+
   margin-top: auto;
-  padding-top: 24px;
+  padding-top: 18px;
+
+  border-top: 1px solid #eeeeee;
 }
 
-.sidebar-footer p {
-  font-size: 14px;
-
-  word-break: break-word;
-}
-
-.sidebar-footer span {
-  display: block;
-
-  margin-bottom: 12px;
-
-  font-size: 13px;
-
-  color: #777;
-}
-
-.sidebar-footer button {
-  width: 100%;
-
-  padding: 10px;
-
-  cursor: pointer;
-}
-
-.admin-content {
-  flex: 1;
-
+.sidebar-user-info {
   min-width: 0;
 }
 
+.sidebar-user-info p,
+.sidebar-user-info span,
+.sidebar-user-info small {
+  display: block;
 
-/* ==========================
-   Common Page Header
-========================== */
+  margin: 0;
+
+  overflow: hidden;
+
+  font-size: 13px;
+
+  color: #666;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.sidebar-user-info p {
+  margin-bottom: 5px;
+
+  font-size: 14px;
+
+  color: #333;
+}
+
+.sidebar-user-info small {
+  margin-top: 5px;
+}
+
+.sidebar-logout-button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 12px;
+
+  border: 1px solid #d8d8d8;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #333;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.15s ease;
+}
+
+.sidebar-logout-button:hover {
+  background: #f5f5f5;
+}
+
+.logout-icon {
+  flex-shrink: 0;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   9. Collapsed Sidebar
+========================================================= */
+
+.admin-layout.sidebar-collapsed
+.sidebar,
+.customer-layout.sidebar-collapsed
+.customer-sidebar {
+  width:
+    var(--sidebar-collapsed-width);
+
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.sidebar-collapsed
+.sidebar-brand-text,
+
+.sidebar-collapsed
+.sidebar-user-info,
+
+.sidebar-collapsed
+.nav-label,
+
+.sidebar-collapsed
+.logout-label {
+  display: none;
+}
+
+.sidebar-collapsed
+.sidebar-brand,
+
+.sidebar-collapsed
+.customer-sidebar-brand {
+  justify-content: center;
+}
+
+.sidebar-collapsed
+.nav-link {
+  justify-content: center;
+
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.sidebar-collapsed
+.sidebar-logout-button {
+  justify-content: center;
+
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+
+/* =========================================================
+   10. Mobile Navigation
+========================================================= */
+
+.mobile-navigation-header,
+.mobile-menu-close,
+.navigation-backdrop {
+  display: none;
+}
+
+
+/* =========================================================
+   11. Pages
+========================================================= */
+
+.dashboard-page,
+.customers-page,
+.products-page,
+.purchases-page,
+.rewards-page,
+.customer-section-page {
+  padding: 32px;
+}
 
 .page-header {
   margin-bottom: 28px;
@@ -147,27 +447,223 @@ textarea {
   color: #666;
 }
 
+.page-header-actions {
+  display: flex;
 
-/* ==========================
-   Dashboard
-========================== */
+  align-items: center;
+  justify-content: space-between;
 
-.dashboard-page {
-  padding: 32px;
+  gap: 16px;
 }
 
-.summary-grid {
+
+/* =========================================================
+   12. Common Actions
+========================================================= */
+
+.primary-action,
+.secondary-action {
+  display: inline-block;
+
+  padding: 10px 16px;
+
+  border-radius: 6px;
+
+  text-decoration: none;
+}
+
+.primary-action {
+  background: #222;
+  color: #ffffff;
+}
+
+.secondary-action {
+  color: #333;
+
+  border: 1px solid #d8d8d8;
+
+  background: #ffffff;
+}
+
+.action-link,
+.back-link {
+  color: inherit;
+
+  text-decoration: underline;
+}
+
+.back-link {
+  display: inline-block;
+
+  margin-bottom: 12px;
+}
+
+.danger-action {
+  padding: 10px 16px;
+
+  border: 1px solid #cfcfcf;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+}
+
+.danger-action:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+.link-button {
+  padding: 0;
+
+  border: 0;
+
+  background: none;
+
+  color: inherit;
+
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+.customer-actions,
+.table-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+/* =========================================================
+   13. Forms
+========================================================= */
+
+.customer-form {
+  max-width: 640px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+
+  background: #ffffff;
+}
+
+.checkbox-group {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+}
+
+.checkbox-group input {
+  width: auto;
+}
+
+.form-error {
+  margin-bottom: 18px;
+}
+
+.form-success {
+  margin: 16px 0;
+
+  font-weight: 600;
+}
+
+.form-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+.form-actions button {
+  padding: 10px 16px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   14. Cards / Sections
+========================================================= */
+
+.dashboard-section {
+  margin-bottom: 28px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+}
+
+.dashboard-section h2 {
+  margin-top: 0;
+}
+
+.summary-grid,
+.customer-info-grid,
+.customer-home-grid {
   display: grid;
 
   grid-template-columns:
     repeat(
       auto-fit,
-      minmax(180px, 1fr)
+      minmax(200px, 1fr)
     );
 
   gap: 16px;
 
   margin-bottom: 32px;
+}
+
+.summary-grid {
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(180px, 1fr)
+    );
+}
+
+.customer-home-grid {
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+
+  margin-bottom: 28px;
 }
 
 .summary-card {
@@ -176,7 +672,6 @@ textarea {
   background: #ffffff;
 
   border: 1px solid #e3e3e3;
-
   border-radius: 10px;
 }
 
@@ -192,30 +687,20 @@ textarea {
   margin: 0;
 
   font-size: 26px;
-
   font-weight: 700;
 }
 
-.dashboard-section {
-  margin-bottom: 28px;
+.customer-info-text {
+  font-size: 16px !important;
+  font-weight: 500 !important;
 
-  padding: 20px;
-
-  background: #ffffff;
-
-  border: 1px solid #e3e3e3;
-
-  border-radius: 10px;
-}
-
-.dashboard-section h2 {
-  margin-top: 0;
+  overflow-wrap: anywhere;
 }
 
 
-/* ==========================
-   Tables
-========================== */
+/* =========================================================
+   15. Tables
+========================================================= */
 
 .table-container {
   width: 100%;
@@ -244,27 +729,26 @@ th {
   color: #555;
 }
 
+.purchase-row-cancelled {
+  opacity: 0.65;
+}
 
-/* ==========================
-   Dashboard Chart
-========================== */
+
+/* =========================================================
+   16. Dashboard
+========================================================= */
 
 .sales-chart {
   width: 100%;
-
   min-height: 320px;
 
   margin-top: 20px;
 }
 
 
-/* ==========================
-   Customers
-========================== */
-
-.customers-page {
-  padding: 32px;
-}
+/* =========================================================
+   17. Customers
+========================================================= */
 
 .customer-search {
   display: flex;
@@ -280,214 +764,13 @@ th {
   padding: 10px 12px;
 
   border: 1px solid #d8d8d8;
-
   border-radius: 6px;
 }
 
-.customer-search button {
-  padding: 10px 18px;
 
-  cursor: pointer;
-}
-
-.action-link,
-.back-link {
-  color: inherit;
-
-  text-decoration: underline;
-}
-
-.back-link {
-  display: inline-block;
-
-  margin-bottom: 12px;
-}
-
-.customer-info-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(200px, 1fr)
-    );
-
-  gap: 16px;
-
-  margin-bottom: 32px;
-}
-
-.customer-info-text {
-  font-size: 16px !important;
-
-  font-weight: 500 !important;
-
-  overflow-wrap: anywhere;
-}
-
-
-/* ==========================
-   Responsive
-========================== */
-
-@media (max-width: 768px) {
-  .admin-layout {
-    display: block;
-  }
-
-  .sidebar {
-    width: 100%;
-
-    min-height: auto;
-  }
-
-  .dashboard-page,
-  .customers-page {
-    padding: 20px;
-  }
-
-  .customer-search {
-    flex-direction: column;
-  }
-}
-
-/* ==========================
-   Customer Forms
-========================== */
-
-.page-header-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.primary-action,
-.secondary-action {
-  display: inline-block;
-
-  padding: 10px 16px;
-
-  text-decoration: none;
-
-  border-radius: 6px;
-}
-
-.primary-action {
-  background: #222;
-  color: #fff;
-}
-
-.secondary-action {
-  color: #333;
-
-  border: 1px solid #d8d8d8;
-}
-
-.customer-form {
-  max-width: 640px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
-
-  margin-bottom: 18px;
-}
-
-.form-group label {
-  font-weight: 600;
-}
-
-.form-group input {
-  width: 100%;
-
-  padding: 10px 12px;
-
-  border: 1px solid #d8d8d8;
-  border-radius: 6px;
-}
-
-.form-error {
-  margin-bottom: 18px;
-}
-
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  gap: 12px;
-}
-
-.form-actions button {
-  padding: 10px 16px;
-
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .page-header-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .primary-action {
-    text-align: center;
-  }
-
-  .form-actions {
-    align-items: stretch;
-    flex-direction: column-reverse;
-  }
-
-  .form-actions button,
-  .secondary-action {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-.customer-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.danger-action {
-  padding: 10px 16px;
-
-  border: 1px solid #cfcfcf;
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  cursor: pointer;
-}
-
-.danger-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-@media (max-width: 768px) {
-  .customer-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .customer-actions .primary-action,
-  .customer-actions .danger-action {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-/* ==========================
-   Customer Home
-========================== */
+/* =========================================================
+   18. Customer Home
+========================================================= */
 
 .customer-home-page {
   max-width: 1000px;
@@ -501,7 +784,6 @@ th {
   display: flex;
 
   align-items: center;
-
   justify-content: space-between;
 
   gap: 20px;
@@ -525,27 +807,12 @@ th {
   cursor: pointer;
 }
 
-.customer-home-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(220px, 1fr)
-    );
-
-  gap: 16px;
-
-  margin-bottom: 28px;
-}
-
 .customer-code-card {
   max-width: 420px;
 
   padding: 24px;
 
   border: 1px solid #e3e3e3;
-
   border-radius: 10px;
 
   text-align: center;
@@ -577,13 +844,10 @@ th {
   margin-bottom: 18px;
 
   align-items: center;
-
   justify-content: center;
-
   flex-direction: column;
 
   border: 2px dashed #d2d2d2;
-
   border-radius: 10px;
 
   background: #fafafa;
@@ -603,89 +867,50 @@ th {
   margin: 0 0 12px;
 }
 
-@media (max-width: 768px) {
-  .customer-home-page {
-    padding: 20px;
-  }
 
-  .customer-home-header {
-    align-items: stretch;
+/* =========================================================
+   19. Customer Profile
+========================================================= */
 
-    flex-direction: column;
-  }
+.customer-profile-readonly {
+  display: grid;
 
-  .customer-home-header button {
-    width: 100%;
-  }
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(200px, 1fr)
+    );
+
+  gap: 16px;
 }
 
-/* ==========================
-   Products
-========================== */
+.customer-profile-readonly div {
+  padding: 18px;
 
-.products-page {
-  padding: 32px;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+
+  background: #fafafa;
 }
 
-.form-group textarea,
-.form-group select {
-  width: 100%;
+.customer-profile-readonly span {
+  display: block;
 
-  padding: 10px 12px;
+  margin-bottom: 8px;
 
-  border: 1px solid #d8d8d8;
-  border-radius: 6px;
+  font-size: 14px;
 
-  background: #ffffff;
+  color: #666;
 }
 
-.checkbox-group {
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  margin-bottom: 18px;
+.customer-profile-readonly strong {
+  font-size: 20px;
 }
 
-.checkbox-group input {
-  width: auto;
-}
 
-.table-actions {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-}
-
-.link-button {
-  padding: 0;
-
-  border: 0;
-
-  background: none;
-
-  color: inherit;
-
-  text-decoration: underline;
-
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-  .products-page {
-    padding: 20px;
-  }
-
-  .table-actions {
-    align-items: flex-start;
-
-    flex-direction: column;
-  }
-}
+/* =========================================================
+   20. Products
+========================================================= */
 
 .product-thumbnail {
   width: 64px;
@@ -693,9 +918,8 @@ th {
 
   object-fit: cover;
 
-  border-radius: 8px;
-
   border: 1px solid #e2e2e2;
+  border-radius: 8px;
 }
 
 .product-current-image {
@@ -712,18 +936,14 @@ th {
   width: 180px;
   max-width: 100%;
 
-  border-radius: 10px;
-
   border: 1px solid #e2e2e2;
+  border-radius: 10px;
 }
 
-/* ==========================
-   Purchases
-========================== */
 
-.purchases-page {
-  padding: 32px;
-}
+/* =========================================================
+   21. Purchases
+========================================================= */
 
 .product-selection-grid {
   display: grid;
@@ -777,7 +997,6 @@ th {
 
 .purchase-total {
   margin-top: 24px;
-
   padding-top: 18px;
 
   border-top: 1px solid #eeeeee;
@@ -797,559 +1016,6 @@ th {
   border: 1px solid #d8d8d8;
   border-radius: 6px;
 }
-
-@media (max-width: 768px) {
-  .purchases-page {
-    padding: 20px;
-  }
-}
-
-/* ==========================
-   Confirmation Modal
-========================== */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  background:
-    rgba(0, 0, 0, 0.45);
-}
-
-.modal-container {
-  width: 100%;
-  max-width: 440px;
-
-  padding: 24px;
-
-  background: #ffffff;
-
-  border-radius: 12px;
-
-  box-shadow:
-    0 12px 40px
-    rgba(0, 0, 0, 0.18);
-}
-
-.modal-container h2 {
-  margin-top: 0;
-  margin-bottom: 12px;
-}
-
-.modal-container p {
-  margin-bottom: 24px;
-
-  line-height: 1.5;
-
-  color: #555;
-}
-
-.modal-actions {
-  display: flex;
-
-  justify-content: flex-end;
-
-  gap: 12px;
-}
-
-.modal-actions button {
-  padding: 10px 16px;
-
-  border-radius: 6px;
-
-  cursor: pointer;
-}
-
-@media (max-width: 480px) {
-  .modal-actions {
-    flex-direction:
-      column-reverse;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-}
-
-/* ==========================
-   Reward in Purchase Detail
-========================== */
-
-.reward-product-row td {
-  background: #f7f7f7;
-}
-
-.reward-badge {
-  display: inline-block;
-
-  margin-left: 8px;
-  padding: 3px 7px;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  border: 1px solid #d5d5d5;
-  border-radius: 999px;
-}
-
-/* ==========================
-   Rewards
-========================== */
-
-.rewards-page {
-  padding: 32px;
-}
-
-@media (max-width: 768px) {
-  .rewards-page {
-    padding: 20px;
-  }
-}
-
-/* ==========================
-   Customer Rewards
-========================== */
-
-.customer-reward-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(220px, 1fr)
-    );
-
-  gap: 16px;
-}
-
-.customer-reward-card {
-  padding: 18px;
-
-  border: 1px solid #e3e3e3;
-  border-radius: 10px;
-
-  background: #ffffff;
-}
-
-.customer-reward-card h3 {
-  margin-top: 0;
-  margin-bottom: 8px;
-}
-
-.customer-reward-card p {
-  margin-bottom: 14px;
-
-  color: #666;
-}
-
-.customer-reward-card strong {
-  font-size: 18px;
-}
-
-.reward-help-text {
-  margin-top: 18px;
-
-  color: #666;
-}
-
-/* ==========================
-   Customer Layout
-========================== */
-
-.customer-layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-.customer-sidebar {
-  width: 240px;
-  min-height: 100vh;
-
-  padding: 24px 16px;
-
-  background: #ffffff;
-
-  border-right: 1px solid #e2e2e2;
-
-  display: flex;
-  flex-direction: column;
-}
-
-.customer-sidebar-brand {
-  margin-bottom: 32px;
-}
-
-.customer-sidebar-brand h2 {
-  margin: 0;
-}
-
-.customer-sidebar-brand p {
-  margin: 4px 0 0;
-
-  color: #666;
-}
-
-.customer-sidebar-nav {
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
-}
-
-.customer-sidebar-footer {
-  margin-top: auto;
-
-  padding-top: 24px;
-}
-
-.customer-sidebar-footer span {
-  display: block;
-
-  margin-bottom: 12px;
-
-  font-size: 13px;
-
-  color: #777;
-
-  word-break: break-word;
-}
-
-.customer-sidebar-footer button {
-  width: 100%;
-
-  padding: 10px;
-
-  cursor: pointer;
-}
-
-.customer-layout-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.customer-section-page {
-  padding: 32px;
-}
-
-
-@media (max-width: 768px) {
-
-  .customer-layout {
-    display: block;
-  }
-
-  .customer-sidebar {
-    width: 100%;
-    min-height: auto;
-  }
-
-  .customer-sidebar-footer {
-    margin-top: 24px;
-  }
-
-  .customer-section-page {
-    padding: 20px;
-  }
-
-}
-
-/* ==========================
-   Customer Reward Availability
-========================== */
-
-.customer-reward-card-locked {
-  opacity: 0.65;
-}
-
-.reward-status {
-  display: inline-block;
-
-  margin-top: 8px;
-  padding: 5px 9px;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  border: 1px solid #d5d5d5;
-  border-radius: 999px;
-}
-
-.reward-status-available {
-  opacity: 1;
-}
-
-/* ==========================
-   Customer Profile
-========================== */
-
-.customer-profile-readonly {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(200px, 1fr)
-    );
-
-  gap: 16px;
-}
-
-.customer-profile-readonly div {
-  padding: 18px;
-
-  border: 1px solid #e3e3e3;
-  border-radius: 10px;
-
-  background: #fafafa;
-}
-
-.customer-profile-readonly span {
-  display: block;
-
-  margin-bottom: 8px;
-
-  font-size: 14px;
-
-  color: #666;
-}
-
-.customer-profile-readonly strong {
-  font-size: 20px;
-}
-
-.form-success {
-  margin: 16px 0;
-
-  font-weight: 600;
-}
-
-/* ==========================
-   Customer Purchases
-========================== */
-
-.purchase-row-cancelled {
-  opacity: 0.65;
-}
-
-/* ========================================
-   Autocompletado de clientes
-   ======================================== */
-
-.customer-autocomplete {
-  position: relative;
-  width: 100%;
-  max-width: 760px;
-  margin-top: 18px;
-}
-
-.customer-search-label {
-  display: block;
-  margin-bottom: 10px;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.customer-autocomplete-input-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.customer-autocomplete-input-wrapper input {
-  width: 100%;
-  height: 48px;
-
-  box-sizing: border-box;
-
-  padding: 0 48px 0 16px;
-
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-
-  background: #ffffff;
-
-  font-family: inherit;
-  font-size: 1rem;
-
-  outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.customer-autocomplete-input-wrapper input::placeholder {
-  opacity: 0.6;
-}
-
-.customer-autocomplete-input-wrapper input:focus {
-  border-color: #6b7280;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(107, 114, 128, 0.12);
-}
-
-
-/* Botón X para cambiar cliente */
-
-.customer-clear-button {
-  position: absolute;
-
-  top: 50%;
-  right: 12px;
-
-  transform: translateY(-50%);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 30px;
-  height: 30px;
-
-  padding: 0;
-
-  border: none;
-  border-radius: 50%;
-
-  background: transparent;
-
-  font-size: 22px;
-  line-height: 1;
-
-  cursor: pointer;
-
-  opacity: 0.6;
-}
-
-.customer-clear-button:hover {
-  background: #f3f4f6;
-  opacity: 1;
-}
-
-
-/* Contenedor de resultados */
-
-.customer-autocomplete-results {
-  position: absolute;
-
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-
-  z-index: 100;
-
-  overflow: hidden;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-
-  background: #ffffff;
-
-  box-shadow:
-    0 10px 30px
-    rgba(0, 0, 0, 0.12);
-}
-
-
-/* Cada cliente */
-
-.customer-autocomplete-option {
-  display: flex;
-
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 20px;
-
-  width: 100%;
-
-  padding: 14px 16px;
-
-  border: none;
-  border-bottom: 1px solid #f0f0f0;
-
-  background: #ffffff;
-
-  font-family: inherit;
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    background 0.15s ease;
-}
-
-.customer-autocomplete-option:last-child {
-  border-bottom: none;
-}
-
-.customer-autocomplete-option:hover,
-.customer-autocomplete-option:focus {
-  background: #f8f9fa;
-  outline: none;
-}
-
-
-/* Código y nombre */
-
-.customer-autocomplete-main {
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-
-  min-width: 0;
-}
-
-.customer-autocomplete-main strong {
-  font-size: 0.95rem;
-}
-
-.customer-autocomplete-main span {
-  font-size: 0.95rem;
-}
-
-
-/* Correo y puntos */
-
-.customer-autocomplete-secondary {
-  display: flex;
-  flex-direction: column;
-
-  align-items: flex-end;
-
-  gap: 4px;
-
-  flex-shrink: 0;
-
-  font-size: 0.85rem;
-
-  opacity: 0.7;
-}
-
-
-/* Buscando / sin resultados */
-
-.customer-autocomplete-message {
-  padding: 16px;
-
-  font-size: 0.9rem;
-
-  opacity: 0.7;
-}
-
-
-/* Cliente seleccionado */
 
 .purchase-customer-summary {
   display: flex;
@@ -1372,9 +1038,10 @@ th {
   margin: 0;
 }
 
-/* ==========================
-   Purchase Date Filters
-========================== */
+
+/* =========================================================
+   22. Purchase Date Filters
+========================================================= */
 
 .purchase-filter-header {
   display: flex;
@@ -1401,7 +1068,6 @@ th {
   display: flex;
 
   align-items: flex-end;
-
   flex-wrap: wrap;
 
   gap: 16px;
@@ -1411,14 +1077,13 @@ th {
 
 .purchase-date-filters .form-group {
   min-width: 180px;
+
   margin: 0;
 }
 
 .purchase-date-filters input {
   width: 100%;
   height: 44px;
-
-  box-sizing: border-box;
 
   padding: 0 12px;
 
@@ -1429,7 +1094,571 @@ th {
 }
 
 
+/* =========================================================
+   23. Customer Autocomplete
+========================================================= */
+
+.customer-autocomplete {
+  position: relative;
+
+  width: 100%;
+  max-width: 760px;
+
+  margin-top: 18px;
+}
+
+.customer-search-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.customer-autocomplete-input-wrapper {
+  position: relative;
+
+  width: 100%;
+}
+
+.customer-autocomplete-input-wrapper input {
+  width: 100%;
+  height: 48px;
+
+  padding: 0 48px 0 16px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  font-size: 1rem;
+
+  outline: none;
+}
+
+.customer-autocomplete-input-wrapper input:focus {
+  border-color: #6b7280;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(107, 114, 128, 0.12);
+}
+
+.customer-clear-button {
+  position: absolute;
+
+  top: 50%;
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
+  font-size: 22px;
+
+  cursor: pointer;
+}
+
+.customer-clear-button:hover {
+  background: #f3f4f6;
+}
+
+.customer-autocomplete-results {
+  position: absolute;
+
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
+  z-index: 100;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.12);
+}
+
+.customer-autocomplete-option {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+
+  background: #ffffff;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.customer-autocomplete-option:last-child {
+  border-bottom: none;
+}
+
+.customer-autocomplete-option:hover,
+.customer-autocomplete-option:focus {
+  background: #f8f9fa;
+
+  outline: none;
+}
+
+.customer-autocomplete-main,
+.customer-autocomplete-secondary {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.customer-autocomplete-secondary {
+  align-items: flex-end;
+
+  font-size: 0.85rem;
+
+  opacity: 0.7;
+}
+
+.customer-autocomplete-message {
+  padding: 16px;
+}
+
+
+/* =========================================================
+   24. Rewards
+========================================================= */
+
+.customer-reward-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.customer-reward-card {
+  padding: 18px;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+
+  background: #ffffff;
+}
+
+.customer-reward-card h3 {
+  margin-top: 0;
+}
+
+.customer-reward-card-locked {
+  opacity: 0.65;
+}
+
+.reward-help-text {
+  margin-top: 18px;
+
+  color: #666;
+}
+
+.reward-status {
+  display: inline-block;
+
+  margin-top: 8px;
+  padding: 5px 9px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 999px;
+}
+
+.reward-product-row td {
+  background: #f7f7f7;
+}
+
+.reward-badge {
+  display: inline-block;
+
+  margin-left: 8px;
+  padding: 3px 7px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 999px;
+}
+
+
+/* =========================================================
+   25. Modal
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(0, 0, 0, 0.45);
+}
+
+.modal-container {
+  width: 100%;
+  max-width: 440px;
+
+  padding: 24px;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 12px 40px
+    rgba(0, 0, 0, 0.18);
+}
+
+.modal-container h2 {
+  margin-top: 0;
+}
+
+.modal-container p {
+  margin-bottom: 24px;
+
+  color: #555;
+
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 12px;
+}
+
+.modal-actions button {
+  padding: 10px 16px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   26. Responsive / Mobile
+========================================================= */
+
 @media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+
+  /* Main layout */
+
+  .admin-layout,
+  .customer-layout {
+    padding-top:
+      var(--mobile-header-height);
+  }
+
+
+  .admin-content,
+  .customer-layout-content,
+
+  .admin-layout.sidebar-collapsed
+  .admin-content,
+
+  .customer-layout.sidebar-collapsed
+  .customer-layout-content {
+    margin-left: 0;
+  }
+
+
+  /* Mobile Header */
+
+  .mobile-navigation-header {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    z-index: 450;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    height:
+      var(--mobile-header-height);
+
+    padding: 0 16px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e2e2e2;
+  }
+
+
+  .mobile-menu-button {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    border: 1px solid #e1e1e1;
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    font-size: 21px;
+
+    cursor: pointer;
+  }
+
+
+  .mobile-navigation-brand {
+    display: flex;
+    flex-direction: column;
+  }
+
+
+  .mobile-navigation-brand strong {
+    font-size: 15px;
+  }
+
+
+  .mobile-navigation-brand span {
+    font-size: 12px;
+
+    color: #777;
+  }
+
+
+  /* Sidebar drawer */
+
+  .sidebar,
+  .customer-sidebar {
+    width: min(
+      300px,
+      86vw
+    ) !important;
+
+    transform:
+      translateX(-105%);
+
+    box-shadow:
+      8px 0 30px
+      rgba(0, 0, 0, 0.15);
+  }
+
+
+  .sidebar.mobile-open,
+  .customer-sidebar.mobile-open {
+    transform:
+      translateX(0);
+  }
+
+
+  .sidebar-collapse-button {
+    display: none;
+  }
+
+
+  .mobile-menu-close {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
+    font-size: 25px;
+
+    cursor: pointer;
+  }
+
+
+  .mobile-menu-close:hover {
+    background: #f2f2f2;
+  }
+
+
+  .navigation-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 490;
+
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+
+    border: none;
+
+    background:
+      rgba(0, 0, 0, 0.4);
+  }
+
+
+  /* Ignore collapsed mode in mobile */
+
+  .sidebar-collapsed
+  .sidebar-brand-text,
+
+  .sidebar-collapsed
+  .sidebar-user-info,
+
+  .sidebar-collapsed
+  .nav-label,
+
+  .sidebar-collapsed
+  .logout-label {
+    display: initial;
+  }
+
+
+  .sidebar-collapsed
+  .sidebar-user-info {
+    display: block;
+  }
+
+
+  .sidebar-collapsed
+  .nav-link {
+    justify-content: flex-start;
+
+    padding: 10px 12px;
+  }
+
+
+  .sidebar-collapsed
+  .sidebar-brand,
+
+  .sidebar-collapsed
+  .customer-sidebar-brand {
+    justify-content:
+      space-between;
+  }
+
+
+  /* Pages */
+
+  .dashboard-page,
+  .customers-page,
+  .products-page,
+  .purchases-page,
+  .rewards-page,
+  .customer-section-page,
+  .customer-home-page {
+    padding: 20px;
+  }
+
+
+  /* Headers */
+
+  .page-header-actions,
+  .customer-home-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+
+  /* Forms */
+
+  .customer-search {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    align-items: stretch;
+
+    flex-direction:
+      column-reverse;
+  }
+
+  .form-actions button,
+  .secondary-action {
+    width: 100%;
+
+    text-align: center;
+  }
+
+
+  /* Actions */
+
+  .customer-actions,
+  .table-actions {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+
+  /* Purchase filters */
 
   .purchase-filter-header {
     flex-direction: column;
@@ -1443,8 +1672,36 @@ th {
     width: 100%;
   }
 
-  .purchase-date-filters .form-group {
+  .purchase-date-filters
+  .form-group {
     width: 100%;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .modal-actions {
+    flex-direction:
+      column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+
+
+  .customer-autocomplete-option {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .customer-autocomplete-secondary {
+    align-items: flex-start;
   }
 
 }

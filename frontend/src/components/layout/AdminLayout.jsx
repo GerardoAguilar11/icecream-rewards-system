@@ -1,15 +1,49 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Gift,
+  IceCreamBowl,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  ShoppingCart,
+  Users,
+  X,
+} from "lucide-react";
 
-import { useAuth } from "../../context/useAuth";
+import {
+  NavLink,
+  Outlet,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  useState,
+} from "react";
+
+import {
+  useAuth,
+} from "../../context/useAuth";
 
 
 function AdminLayout() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
   const {
     user,
     logout,
   } = useAuth();
+
+  const [
+    collapsed,
+    setCollapsed,
+  ] = useState(false);
+
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] = useState(false);
 
 
   const handleLogout = async () => {
@@ -17,22 +51,149 @@ function AdminLayout() {
 
     navigate(
       "/login",
-      { replace: true }
+      {
+        replace: true,
+      }
     );
   };
 
 
+  const closeMobileMenu = () => {
+    setMobileOpen(false);
+  };
+
+
+  const getNavClass = ({
+    isActive,
+  }) =>
+    isActive
+      ? "nav-link active"
+      : "nav-link";
+
+
   return (
-    <div className="admin-layout">
+    <div
+      className={
+        `admin-layout ${
+          collapsed
+            ? "sidebar-collapsed"
+            : ""
+        }`
+      }
+    >
 
-      <aside className="sidebar">
+      {/* Mobile header */}
 
-        <div className="sidebar-brand">
-          <h2>Frio&Co</h2>
+      <header className="mobile-navigation-header">
 
-          <p>
-            Rewards System
-          </p>
+        <button
+          type="button"
+          className="mobile-menu-button"
+          onClick={() =>
+            setMobileOpen(true)
+          }
+          aria-label="Abrir menú"
+        >
+          <Menu size={22} />
+        </button>
+
+
+        <div className="mobile-navigation-brand">
+
+          <strong>
+            Frio&Co
+          </strong>
+
+          <span>
+            {user?.role === "ADMIN"
+              ? "Administrador"
+              : "Empleado"}
+          </span>
+
+        </div>
+
+      </header>
+
+
+      {/* Backdrop mobile */}
+
+      {mobileOpen && (
+        <button
+          type="button"
+          className="navigation-backdrop"
+          onClick={closeMobileMenu}
+          aria-label="Cerrar menú"
+        />
+      )}
+
+
+      {/* Sidebar */}
+
+      <aside
+        className={
+          `sidebar ${
+            mobileOpen
+              ? "mobile-open"
+              : ""
+          }`
+        }
+      >
+
+        <div className="sidebar-top">
+
+          <div className="sidebar-brand">
+
+            <div className="sidebar-brand-text">
+
+              <h2>
+                Frio&Co
+              </h2>
+
+              <p>
+                Rewards System
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="mobile-menu-close"
+              onClick={closeMobileMenu}
+              aria-label="Cerrar menú"
+            >
+              <X size={22} />
+            </button>
+
+          </div>
+
+
+          <button
+            type="button"
+            className="sidebar-collapse-button"
+            onClick={() =>
+              setCollapsed(
+                (current) =>
+                  !current
+              )
+            }
+            aria-label={
+              collapsed
+                ? "Expandir menú"
+                : "Contraer menú"
+            }
+          >
+            {collapsed ? (
+              <ChevronRight
+                size={20}
+              />
+            ) : (
+              <ChevronLeft
+                size={20}
+              />
+            )}
+          </button>
+
         </div>
 
 
@@ -41,62 +202,93 @@ function AdminLayout() {
           {user?.role === "ADMIN" && (
             <NavLink
               to="/dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? "nav-link active"
-                  : "nav-link"
-              }
+              className={getNavClass}
+              onClick={closeMobileMenu}
             >
-              Dashboard
+
+              <span className="nav-icon">
+                <LayoutDashboard
+                  size={20}
+                />
+              </span>
+
+              <span className="nav-label">
+                Dashboard
+              </span>
+
             </NavLink>
           )}
 
 
           <NavLink
             to="/customers"
-            className={({ isActive }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Clientes
+
+            <span className="nav-icon">
+              <Users size={20} />
+            </span>
+
+            <span className="nav-label">
+              Clientes
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/products"
-            className={({ isActive }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Productos
+
+            <span className="nav-icon">
+              <IceCreamBowl
+                size={20}
+              />
+            </span>
+
+            <span className="nav-label">
+              Productos
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/purchases"
-            className={({ isActive }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Compras
+
+            <span className="nav-icon">
+              <ShoppingCart
+                size={20}
+              />
+            </span>
+
+            <span className="nav-label">
+              Compras
+            </span>
+
           </NavLink>
 
 
           <NavLink
             to="/rewards"
-            className={({ isActive }) =>
-              isActive
-                ? "nav-link active"
-                : "nav-link"
-            }
+            className={getNavClass}
+            onClick={closeMobileMenu}
           >
-            Recompensas
+
+            <span className="nav-icon">
+              <Gift size={20} />
+            </span>
+
+            <span className="nav-label">
+              Recompensas
+            </span>
+
           </NavLink>
 
         </nav>
@@ -104,27 +296,44 @@ function AdminLayout() {
 
         <div className="sidebar-footer">
 
-          <p>
-            {user?.email}
-          </p>
+          <div className="sidebar-user-info">
 
-          <span>
-            {user?.role === "ADMIN"
-              ? "Administrador"
-              : "Empleado"}
-          </span>
+            <p>
+              {user?.email}
+            </p>
+
+            <span>
+              {user?.role === "ADMIN"
+                ? "Administrador"
+                : "Empleado"}
+            </span>
+
+          </div>
+
 
           <button
             type="button"
+            className="sidebar-logout-button"
             onClick={handleLogout}
           >
-            Cerrar sesión
+
+            <LogOut
+              className="logout-icon"
+              size={19}
+            />
+
+            <span className="logout-label">
+              Cerrar sesión
+            </span>
+
           </button>
 
         </div>
 
       </aside>
 
+
+      {/* Content */}
 
       <div className="admin-content">
         <Outlet />
