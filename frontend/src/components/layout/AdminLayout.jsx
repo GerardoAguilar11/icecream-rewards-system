@@ -1,4 +1,5 @@
 import {
+  BriefcaseBusiness,
   ChevronLeft,
   ChevronRight,
   Gift,
@@ -82,7 +83,7 @@ function AdminLayout() {
       }
     >
 
-      {/* Mobile header */}
+      {/* Mobile Header */}
 
       <header className="mobile-navigation-header">
 
@@ -115,7 +116,7 @@ function AdminLayout() {
       </header>
 
 
-      {/* Backdrop mobile */}
+      {/* Mobile Backdrop */}
 
       {mobileOpen && (
         <button
@@ -182,6 +183,11 @@ function AdminLayout() {
                 ? "Expandir menú"
                 : "Contraer menú"
             }
+            title={
+              collapsed
+                ? "Expandir menú"
+                : "Contraer menú"
+            }
           >
             {collapsed ? (
               <ChevronRight
@@ -197,13 +203,20 @@ function AdminLayout() {
         </div>
 
 
+        {/* Navigation */}
+
         <nav className="sidebar-nav">
 
           {user?.role === "ADMIN" && (
             <NavLink
               to="/dashboard"
-              className={getNavClass}
-              onClick={closeMobileMenu}
+              className={
+                getNavClass
+              }
+              onClick={
+                closeMobileMenu
+              }
+              title="Dashboard"
             >
 
               <span className="nav-icon">
@@ -222,8 +235,13 @@ function AdminLayout() {
 
           <NavLink
             to="/customers"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Clientes"
           >
 
             <span className="nav-icon">
@@ -237,10 +255,41 @@ function AdminLayout() {
           </NavLink>
 
 
+          {user?.role === "ADMIN" && (
+            <NavLink
+              to="/employees"
+              className={
+                getNavClass
+              }
+              onClick={
+                closeMobileMenu
+              }
+              title="Empleados"
+            >
+
+              <span className="nav-icon">
+                <BriefcaseBusiness
+                  size={20}
+                />
+              </span>
+
+              <span className="nav-label">
+                Empleados
+              </span>
+
+            </NavLink>
+          )}
+
+
           <NavLink
             to="/products"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Productos"
           >
 
             <span className="nav-icon">
@@ -258,8 +307,13 @@ function AdminLayout() {
 
           <NavLink
             to="/purchases"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Compras"
           >
 
             <span className="nav-icon">
@@ -277,8 +331,13 @@ function AdminLayout() {
 
           <NavLink
             to="/rewards"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Recompensas"
           >
 
             <span className="nav-icon">
@@ -293,6 +352,8 @@ function AdminLayout() {
 
         </nav>
 
+
+        {/* Footer */}
 
         <div className="sidebar-footer">
 
@@ -314,7 +375,10 @@ function AdminLayout() {
           <button
             type="button"
             className="sidebar-logout-button"
-            onClick={handleLogout}
+            onClick={
+              handleLogout
+            }
+            title="Cerrar sesión"
           >
 
             <LogOut
@@ -336,7 +400,9 @@ function AdminLayout() {
       {/* Content */}
 
       <div className="admin-content">
+
         <Outlet />
+
       </div>
 
     </div>
