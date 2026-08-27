@@ -26,57 +26,59 @@ function Customers() {
 
 
   useEffect(() => {
-    const loadCustomers = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    let cancelled = false;
 
-        const data =
-          await getCustomers();
+    const timeoutId = setTimeout(
+      async () => {
+        try {
+          const query =
+            search.trim();
 
-        setCustomers(data);
-      } catch {
-        setError(
-          "No fue posible cargar los clientes."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+          const data = query
+            ? await searchCustomers(
+                query
+              )
+            : await getCustomers();
 
-    loadCustomers();
-  }, []);
+          if (!cancelled) {
+            setCustomers(data);
+          }
+        } catch {
+          if (!cancelled) {
+            setError(
+              "No fue posible realizar la búsqueda."
+            );
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
+      },
+      300
+    );
 
 
-  const handleSearch = async (event) => {
-    event.preventDefault();
+    return () => {
+      cancelled = true;
 
-    try {
-      setLoading(true);
-      setError("");
-
-      if (!search.trim()) {
-        const data =
-          await getCustomers();
-
-        setCustomers(data);
-
-        return;
-      }
-
-      const data =
-        await searchCustomers(
-          search.trim()
-        );
-
-      setCustomers(data);
-    } catch {
-      setError(
-        "No fue posible realizar la búsqueda."
+      clearTimeout(
+        timeoutId
       );
-    } finally {
-      setLoading(false);
-    }
+    };
+  }, [search]);
+
+
+  const handleSearchChange = (
+    event
+  ) => {
+    setSearch(
+      event.target.value
+    );
+
+    setLoading(true);
+
+    setError("");
   };
 
 
@@ -84,7 +86,9 @@ function Customers() {
     <main className="customers-page">
 
       <header className="page-header">
+
         <div>
+
           <h1>
             Clientes
           </h1>
@@ -92,31 +96,26 @@ function Customers() {
           <p>
             Consulta los clientes registrados.
           </p>
+
         </div>
+
       </header>
 
 
       <section className="dashboard-section">
 
-        <form
-          onSubmit={handleSearch}
-          className="customer-search"
-        >
+        <div className="customer-search">
+
           <input
             type="text"
             placeholder="Buscar por nombre, correo, teléfono o código"
             value={search}
-            onChange={(event) =>
-              setSearch(
-                event.target.value
-              )
+            onChange={
+              handleSearchChange
             }
           />
 
-          <button type="submit">
-            Buscar
-          </button>
-        </form>
+        </div>
 
       </section>
 
@@ -127,9 +126,10 @@ function Customers() {
           Clientes registrados
         </h2>
 
+
         {loading ? (
           <p>
-            Cargando clientes...
+            Buscando clientes...
           </p>
         ) : error ? (
           <p role="alert">
@@ -143,56 +143,97 @@ function Customers() {
           <div className="table-container">
 
             <table>
+
               <thead>
                 <tr>
-                  <th>Código</th>
-                  <th>Nombre</th>
-                  <th>Correo</th>
-                  <th>Teléfono</th>
-                  <th>Puntos</th>
-                  <th>Acciones</th>
+                  <th>
+                    Código
+                  </th>
+
+                  <th>
+                    Nombre
+                  </th>
+
+                  <th>
+                    Correo
+                  </th>
+
+                  <th>
+                    Teléfono
+                  </th>
+
+                  <th>
+                    Puntos
+                  </th>
+
+                  <th>
+                    Acciones
+                  </th>
                 </tr>
               </thead>
 
+
               <tbody>
+
                 {customers.map(
                   (customer) => (
-                    <tr key={customer.id}>
+                    <tr
+                      key={
+                        customer.id
+                      }
+                    >
 
                       <td>
-                        {customer.customer_code}
+                        {
+                          customer.customer_code
+                        }
                       </td>
 
                       <td>
-                        {customer.first_name}{" "}
-                        {customer.last_name}
+                        {
+                          customer.first_name
+                        }{" "}
+                        {
+                          customer.last_name
+                        }
                       </td>
 
                       <td>
-                        {customer.email}
+                        {
+                          customer.email
+                        }
                       </td>
 
                       <td>
-                        {customer.phone || "-"}
+                        {
+                          customer.phone ||
+                          "-"
+                        }
                       </td>
 
                       <td>
-                        {customer.points}
+                        {
+                          customer.points
+                        }
                       </td>
 
                       <td>
+
                         <Link
                           to={`/customers/${customer.id}`}
                           className="action-link"
                         >
                           Ver detalle
                         </Link>
+
                       </td>
 
                     </tr>
                   )
                 )}
+
               </tbody>
+
             </table>
 
           </div>

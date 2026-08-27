@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -10,7 +11,6 @@ import {
 } from "react-router-dom";
 
 import {
-  getCustomers,
   searchCustomers,
 } from "../services/customerService";
 
@@ -30,8 +30,9 @@ import {
 function PurchaseCreate() {
   const navigate = useNavigate();
 
-  const [customers, setCustomers] =
-    useState([]);
+  const searchContainerRef =
+    useRef(null);
+
 
   const [products, setProducts] =
     useState([]);
@@ -42,14 +43,24 @@ function PurchaseCreate() {
   ] = useState("");
 
   const [
-    selectedCustomer,
-    setSelectedCustomer,
-  ] = useState("");
+    customerSuggestions,
+    setCustomerSuggestions,
+  ] = useState([]);
 
   const [
-    selectedCustomerData,
-    setSelectedCustomerData,
+    selectedCustomer,
+    setSelectedCustomer,
   ] = useState(null);
+
+  const [
+    showSuggestions,
+    setShowSuggestions,
+  ] = useState(false);
+
+  const [
+    searchingCustomer,
+    setSearchingCustomer,
+  ] = useState(false);
 
   const [
     availableRewards,
@@ -73,11 +84,6 @@ function PurchaseCreate() {
     useState(true);
 
   const [
-    searchingCustomer,
-    setSearchingCustomer,
-  ] = useState(false);
-
-  const [
     loadingRewards,
     setLoadingRewards,
   ] = useState(false);
@@ -89,24 +95,17 @@ function PurchaseCreate() {
     useState("");
 
 
+  /*
+   * Carga inicial de productos.
+   */
   useEffect(() => {
     let cancelled = false;
 
-    Promise.all([
-      getCustomers(),
-      getProducts(),
-    ])
-      .then(([
-        customerData,
-        productData,
-      ]) => {
+    getProducts()
+      .then((productData) => {
         if (cancelled) {
           return;
         }
-
-        setCustomers(
-          customerData
-        );
 
         setProducts(
           productData.filter(
@@ -118,7 +117,7 @@ function PurchaseCreate() {
       .catch(() => {
         if (!cancelled) {
           setError(
-            "No fue posible cargar la información necesaria."
+            "No fue posible cargar los productos."
           );
         }
       })
@@ -134,6 +133,130 @@ function PurchaseCreate() {
   }, []);
 
 
+  /*
+   * Búsqueda dinámica de clientes.
+   *
+   * Esperamos 300 ms después
+   * de que el usuario deje de escribir.
+   */
+  useEffect(() => {
+    const query =
+      customerSearch.trim();
+
+    /*
+     * Si ya seleccionamos cliente,
+     * no necesitamos seguir buscando.
+     */
+    if (selectedCustomer) {
+      return;
+    }
+
+    /*
+     * No mostramos todo el catálogo
+     * cuando el campo está vacío.
+     */
+    if (!query) {
+      return;
+    }
+
+    let cancelled = false;
+
+
+    const timeoutId = setTimeout(
+      () => {
+        searchCustomers(query,5)
+          .then((data) => {
+            if (cancelled) {
+              return;
+            }
+
+            /*
+             * Máximo 5 resultados.
+             */
+            setCustomerSuggestions(
+              data
+            );
+
+            setShowSuggestions(
+              true
+            );
+          })
+          .catch(() => {
+            if (!cancelled) {
+              setCustomerSuggestions(
+                []
+              );
+
+              setError(
+                "No fue posible buscar clientes."
+              );
+            }
+          })
+          .finally(() => {
+            if (!cancelled) {
+              setSearchingCustomer(
+                false
+              );
+            }
+          });
+      },
+      300
+    );
+
+
+    return () => {
+      cancelled = true;
+
+      clearTimeout(
+        timeoutId
+      );
+    };
+  }, [
+    customerSearch,
+    selectedCustomer,
+  ]);
+
+
+  /*
+   * Cerrar las sugerencias cuando
+   * se hace clic fuera del buscador.
+   */
+  useEffect(() => {
+    const handleClickOutside = (
+      event
+    ) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(
+          event.target
+        )
+      ) {
+        setShowSuggestions(
+          false
+        );
+      }
+    };
+
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
+
+  /*
+   * Consulta las recompensas
+   * disponibles del cliente.
+   */
   useEffect(() => {
     if (!selectedCustomer) {
       return;
@@ -141,8 +264,9 @@ function PurchaseCreate() {
 
     let cancelled = false;
 
+
     getAvailableRewards(
-      selectedCustomer
+      selectedCustomer.id
     )
       .then((data) => {
         if (cancelled) {
@@ -152,14 +276,12 @@ function PurchaseCreate() {
         setAvailableRewards(
           data.rewards ?? []
         );
-
-        setSelectedCustomerData(
-          data.customer ?? null
-        );
       })
       .catch(() => {
         if (!cancelled) {
-          setAvailableRewards([]);
+          setAvailableRewards(
+            []
+          );
 
           setError(
             "No fue posible consultar las recompensas disponibles."
@@ -168,9 +290,12 @@ function PurchaseCreate() {
       })
       .finally(() => {
         if (!cancelled) {
-          setLoadingRewards(false);
+          setLoadingRewards(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -178,47 +303,88 @@ function PurchaseCreate() {
   }, [selectedCustomer]);
 
 
-  const handleCustomerSearch = async () => {
-    try {
-      setSearchingCustomer(true);
-      setError("");
+  const handleCustomerSearchChange = (
+    event
+  ) => {
+    const value =
+      event.target.value;
 
-      const query =
-        customerSearch.trim();
 
-      if (!query) {
-        const data =
-          await getCustomers();
+    setCustomerSearch(
+      value
+    );
 
-        setCustomers(data);
+    setError("");
 
-        return;
-      }
 
-      const data =
-        await searchCustomers(
-          query
-        );
-
-      setCustomers(data);
-    } catch {
-      setError(
-        "No fue posible buscar clientes."
+    /*
+     * Si había un cliente seleccionado
+     * y el empleado modifica la barra,
+     * eliminamos la selección anterior.
+     */
+    if (selectedCustomer) {
+      setSelectedCustomer(
+        null
       );
-    } finally {
-      setSearchingCustomer(false);
+
+      setAvailableRewards([]);
+
+      setUseReward(false);
+
+      setSelectedReward("");
+
+      setLoadingRewards(false);
     }
+
+
+    if (!value.trim()) {
+      setCustomerSuggestions(
+        []
+      );
+
+      setShowSuggestions(
+        false
+      );
+
+      setSearchingCustomer(
+        false
+      );
+
+      return;
+    }
+
+
+    setSearchingCustomer(
+      true
+    );
+
+    setShowSuggestions(
+      true
+    );
   };
 
 
-  const handleCustomerChange = (
-    event
+  const handleSelectCustomer = (
+    customer
   ) => {
-    const customerId =
-      event.target.value;
-
     setSelectedCustomer(
-      customerId
+      customer
+    );
+
+    setCustomerSearch(
+      `${customer.customer_code} - ${customer.first_name} ${customer.last_name}`
+    );
+
+    setCustomerSuggestions(
+      []
+    );
+
+    setShowSuggestions(
+      false
+    );
+
+    setSearchingCustomer(
+      false
     );
 
     setAvailableRewards([]);
@@ -227,30 +393,45 @@ function PurchaseCreate() {
 
     setSelectedReward("");
 
+    setLoadingRewards(true);
+
     setError("");
+  };
 
-    if (!customerId) {
-      setSelectedCustomerData(
-        null
-      );
 
-      setLoadingRewards(false);
-
-      return;
-    }
-
-    const customer =
-      customers.find(
-        (item) =>
-          String(item.id) ===
-          String(customerId)
-      );
-
-    setSelectedCustomerData(
-      customer ?? null
+  const handleClearCustomer = () => {
+    setSelectedCustomer(
+      null
     );
 
-    setLoadingRewards(true);
+    setCustomerSearch("");
+
+    setCustomerSuggestions([]);
+
+    setShowSuggestions(false);
+
+    setAvailableRewards([]);
+
+    setUseReward(false);
+
+    setSelectedReward("");
+
+    setLoadingRewards(false);
+
+    setError("");
+  };
+
+
+  const handleSearchFocus = () => {
+    if (
+      !selectedCustomer &&
+      customerSearch.trim() &&
+      customerSuggestions.length > 0
+    ) {
+      setShowSuggestions(
+        true
+      );
+    }
   };
 
 
@@ -265,6 +446,7 @@ function PurchaseCreate() {
             product.id
         );
 
+
       if (existingItem) {
         return currentItems.map(
           (item) =>
@@ -272,18 +454,21 @@ function PurchaseCreate() {
             product.id
               ? {
                   ...item,
+
                   quantity:
                     Number(
                       item.quantity ||
-                      0
+                        0
                     ) + 1,
                 }
               : item
         );
       }
 
+
       return [
         ...currentItems,
+
         {
           product,
           quantity: 1,
@@ -304,10 +489,13 @@ function PurchaseCreate() {
           productId
             ? {
                 ...item,
+
                 quantity:
                   value === ""
                     ? ""
-                    : Number(value),
+                    : Number(
+                        value
+                      ),
               }
             : item
       )
@@ -325,6 +513,7 @@ function PurchaseCreate() {
           productId
             ? {
                 ...item,
+
                 quantity:
                   !item.quantity ||
                   Number(
@@ -356,14 +545,17 @@ function PurchaseCreate() {
 
   const total = useMemo(() => {
     return items.reduce(
-      (accumulator, item) =>
+      (
+        accumulator,
+        item
+      ) =>
         accumulator +
         Number(
           item.product.price
         ) *
-        Number(
-          item.quantity || 0
-        ),
+          Number(
+            item.quantity || 0
+          ),
       0
     );
   }, [items]);
@@ -387,8 +579,8 @@ function PurchaseCreate() {
 
   const currentPoints =
     Number(
-      selectedCustomerData
-        ?.points ?? 0
+      selectedCustomer?.points ??
+        0
     );
 
 
@@ -413,9 +605,11 @@ function PurchaseCreate() {
     const checked =
       event.target.checked;
 
+
     setUseReward(
       checked
     );
+
 
     if (!checked) {
       setSelectedReward("");
@@ -430,6 +624,7 @@ function PurchaseCreate() {
 
     setError("");
 
+
     if (!selectedCustomer) {
       setError(
         "Selecciona un cliente."
@@ -438,6 +633,7 @@ function PurchaseCreate() {
       return;
     }
 
+
     if (items.length === 0) {
       setError(
         "Agrega al menos un producto."
@@ -445,6 +641,7 @@ function PurchaseCreate() {
 
       return;
     }
+
 
     const invalidQuantity =
       items.some(
@@ -455,6 +652,7 @@ function PurchaseCreate() {
           ) < 1
       );
 
+
     if (invalidQuantity) {
       setError(
         "Todas las cantidades deben ser mayores a cero."
@@ -462,6 +660,7 @@ function PurchaseCreate() {
 
       return;
     }
+
 
     if (
       useReward &&
@@ -474,13 +673,15 @@ function PurchaseCreate() {
       return;
     }
 
+
     try {
       setSubmitting(true);
+
 
       const payload = {
         customer:
           Number(
-            selectedCustomer
+            selectedCustomer.id
           ),
 
         items: items.map(
@@ -520,9 +721,11 @@ function PurchaseCreate() {
           replace: true,
         }
       );
+
     } catch (requestError) {
       const responseData =
         requestError.response?.data;
+
 
       if (responseData?.detail) {
         setError(
@@ -532,6 +735,7 @@ function PurchaseCreate() {
         return;
       }
 
+
       if (responseData?.items) {
         setError(
           "Revisa los productos de la compra."
@@ -539,6 +743,7 @@ function PurchaseCreate() {
 
         return;
       }
+
 
       if (responseData?.customer) {
         setError(
@@ -548,6 +753,7 @@ function PurchaseCreate() {
         return;
       }
 
+
       if (responseData?.reward) {
         setError(
           "La recompensa seleccionada no es válida."
@@ -556,9 +762,11 @@ function PurchaseCreate() {
         return;
       }
 
+
       setError(
         "No fue posible registrar la compra."
       );
+
     } finally {
       setSubmitting(false);
     }
@@ -568,9 +776,11 @@ function PurchaseCreate() {
   if (loading) {
     return (
       <main className="purchases-page">
+
         <p>
           Cargando información...
         </p>
+
       </main>
     );
   }
@@ -620,86 +830,139 @@ function PurchaseCreate() {
           </h2>
 
 
-          <div className="customer-search">
+          <div
+            className="customer-autocomplete"
+            ref={searchContainerRef}
+          >
 
-            <input
-              type="text"
-              placeholder="Buscar por nombre, correo o código"
-              value={customerSearch}
-              onChange={(event) =>
-                setCustomerSearch(
-                  event.target.value
-                )
-              }
-            />
-
-            <button
-              type="button"
-              onClick={
-                handleCustomerSearch
-              }
-              disabled={
-                searchingCustomer
-              }
+            <label
+              htmlFor="customer-search"
+              className="customer-search-label"
             >
-              {searchingCustomer
-                ? "Buscando..."
-                : "Buscar"}
-            </button>
-
-          </div>
-
-
-          <div className="form-group">
-
-            <label htmlFor="customer">
-              Seleccionar cliente
+              Buscar cliente
             </label>
 
-            <select
-              id="customer"
-              value={
-                selectedCustomer
-              }
-              onChange={
-                handleCustomerChange
-              }
-              required
-            >
-              <option value="">
-                Selecciona un cliente
-              </option>
 
-              {customers.map(
-                (customer) => (
-                  <option
-                    key={
-                      customer.id
-                    }
-                    value={
-                      customer.id
-                    }
-                  >
-                    {
-                      customer.customer_code
-                    }
-                    {" - "}
-                    {
-                      customer.first_name
-                    }
-                    {" "}
-                    {
-                      customer.last_name
-                    }
-                  </option>
-                )
+            <div className="customer-autocomplete-input-wrapper">
+
+              <input
+                id="customer-search"
+                type="text"
+                autoComplete="off"
+                placeholder="Nombre, correo, teléfono o código"
+                value={
+                  customerSearch
+                }
+                onChange={
+                  handleCustomerSearchChange
+                }
+                onFocus={
+                  handleSearchFocus
+                }
+              />
+
+
+              {selectedCustomer && (
+                <button
+                  type="button"
+                  className="customer-clear-button"
+                  onClick={
+                    handleClearCustomer
+                  }
+                  aria-label="Cambiar cliente"
+                >
+                  ×
+                </button>
               )}
-            </select>
+
+            </div>
+
+
+            {showSuggestions &&
+              !selectedCustomer && (
+                <div className="customer-autocomplete-results">
+
+                  {searchingCustomer ? (
+
+                    <div className="customer-autocomplete-message">
+                      Buscando clientes...
+                    </div>
+
+                  ) : customerSuggestions.length ===
+                    0 ? (
+
+                    <div className="customer-autocomplete-message">
+                      No se encontraron clientes.
+                    </div>
+
+                  ) : (
+
+                    customerSuggestions.map(
+                      (customer) => (
+                        <button
+                          key={
+                            customer.id
+                          }
+                          type="button"
+                          className="customer-autocomplete-option"
+                          onClick={() =>
+                            handleSelectCustomer(
+                              customer
+                            )
+                          }
+                        >
+
+                          <span className="customer-autocomplete-main">
+
+                            <strong>
+                              {
+                                customer.customer_code
+                              }
+                            </strong>
+
+                            <span>
+                              {
+                                customer.first_name
+                              }{" "}
+                              {
+                                customer.last_name
+                              }
+                            </span>
+
+                          </span>
+
+
+                          <span className="customer-autocomplete-secondary">
+
+                            <span>
+                              {
+                                customer.email
+                              }
+                            </span>
+
+                            <span>
+                              {
+                                customer.points
+                              }{" "}
+                              puntos
+                            </span>
+
+                          </span>
+
+                        </button>
+                      )
+                    )
+
+                  )}
+
+                </div>
+              )}
 
           </div>
 
 
-          {selectedCustomerData && (
+          {selectedCustomer && (
+
             <div className="purchase-customer-summary">
 
               <p>
@@ -707,19 +970,46 @@ function PurchaseCreate() {
                   Cliente:
                 </strong>{" "}
                 {
-                  selectedCustomerData.name ??
-                  `${selectedCustomerData.first_name ?? ""} ${selectedCustomerData.last_name ?? ""}`
+                  selectedCustomer.first_name
+                }{" "}
+                {
+                  selectedCustomer.last_name
                 }
               </p>
+
+
+              <p>
+                <strong>
+                  Código:
+                </strong>{" "}
+                {
+                  selectedCustomer.customer_code
+                }
+              </p>
+
 
               <p>
                 <strong>
                   Puntos actuales:
                 </strong>{" "}
-                {currentPoints}
+                {
+                  currentPoints
+                }
               </p>
 
+
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={
+                  handleClearCustomer
+                }
+              >
+                Cambiar cliente
+              </button>
+
             </div>
+
           )}
 
         </section>
@@ -733,15 +1023,21 @@ function PurchaseCreate() {
 
 
           {!selectedCustomer ? (
+
             <p>
               Selecciona primero un cliente para consultar sus recompensas.
             </p>
+
           ) : loadingRewards ? (
+
             <p>
               Consultando recompensas...
             </p>
+
           ) : (
+
             <>
+
               <div className="checkbox-group">
 
                 <input
@@ -768,10 +1064,13 @@ function PurchaseCreate() {
 
               {availableRewards.length ===
               0 ? (
+
                 <p>
                   Este cliente no tiene recompensas disponibles con sus puntos actuales.
                 </p>
+
               ) : (
+
                 <p>
                   Hay{" "}
                   {
@@ -779,10 +1078,12 @@ function PurchaseCreate() {
                   }{" "}
                   recompensa(s) disponible(s).
                 </p>
+
               )}
 
 
               {useReward && (
+
                 <div className="reward-selection">
 
                   <div className="form-group">
@@ -790,6 +1091,7 @@ function PurchaseCreate() {
                     <label htmlFor="reward">
                       Recompensa
                     </label>
+
 
                     <select
                       id="reward"
@@ -809,6 +1111,7 @@ function PurchaseCreate() {
                       <option value="">
                         Selecciona una recompensa
                       </option>
+
 
                       {availableRewards.map(
                         (reward) => (
@@ -838,6 +1141,7 @@ function PurchaseCreate() {
 
 
                   {selectedRewardData && (
+
                     <div className="reward-points-summary">
 
                       <p>
@@ -869,12 +1173,15 @@ function PurchaseCreate() {
                       </p>
 
                     </div>
+
                   )}
 
                 </div>
+
               )}
 
             </>
+
           )}
 
         </section>
@@ -888,10 +1195,13 @@ function PurchaseCreate() {
 
 
           {products.length === 0 ? (
+
             <p>
               No hay productos activos disponibles.
             </p>
+
           ) : (
+
             <div className="product-selection-grid">
 
               {products.map(
@@ -914,11 +1224,13 @@ function PurchaseCreate() {
                       />
                     )}
 
+
                     <h3>
                       {
                         product.name
                       }
                     </h3>
+
 
                     <p>
                       $
@@ -926,6 +1238,7 @@ function PurchaseCreate() {
                         product.price
                       ).toFixed(2)}
                     </p>
+
 
                     <button
                       type="button"
@@ -943,6 +1256,7 @@ function PurchaseCreate() {
               )}
 
             </div>
+
           )}
 
         </section>
@@ -956,22 +1270,41 @@ function PurchaseCreate() {
 
 
           {items.length === 0 ? (
+
             <p>
               No has agregado productos.
             </p>
+
           ) : (
+
             <div className="table-container">
 
               <table>
 
                 <thead>
+
                   <tr>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Acción</th>
+                    <th>
+                      Producto
+                    </th>
+
+                    <th>
+                      Precio
+                    </th>
+
+                    <th>
+                      Cantidad
+                    </th>
+
+                    <th>
+                      Subtotal
+                    </th>
+
+                    <th>
+                      Acción
+                    </th>
                   </tr>
+
                 </thead>
 
 
@@ -991,6 +1324,7 @@ function PurchaseCreate() {
                           }
                         </td>
 
+
                         <td>
                           $
                           {Number(
@@ -998,7 +1332,9 @@ function PurchaseCreate() {
                           ).toFixed(2)}
                         </td>
 
+
                         <td>
+
                           <input
                             type="number"
                             min="1"
@@ -1019,7 +1355,9 @@ function PurchaseCreate() {
                               )
                             }
                           />
+
                         </td>
+
 
                         <td>
                           $
@@ -1029,12 +1367,14 @@ function PurchaseCreate() {
                             ) *
                             Number(
                               item.quantity ||
-                              0
+                                0
                             )
                           ).toFixed(2)}
                         </td>
 
+
                         <td>
+
                           <button
                             type="button"
                             onClick={() =>
@@ -1045,6 +1385,7 @@ function PurchaseCreate() {
                           >
                             Quitar
                           </button>
+
                         </td>
 
                       </tr>
@@ -1056,6 +1397,7 @@ function PurchaseCreate() {
               </table>
 
             </div>
+
           )}
 
 
@@ -1068,18 +1410,24 @@ function PurchaseCreate() {
               ${total.toFixed(2)}
             </p>
 
+
             <p>
               <strong>
                 Puntos generados:
               </strong>{" "}
-              {estimatedPoints}
+              {
+                estimatedPoints
+              }
             </p>
+
 
             {useReward &&
               selectedRewardData && (
+
                 <p>
                   Esta compra utiliza una recompensa y no generará puntos.
                 </p>
+
               )}
 
           </div>
@@ -1093,6 +1441,7 @@ function PurchaseCreate() {
             >
               Cancelar
             </Link>
+
 
             <button
               type="submit"

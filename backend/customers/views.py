@@ -250,7 +250,6 @@ class CustomerProfileView(
             status=status.HTTP_200_OK
         )
 
-
 class CustomerSearchView(
     generics.ListAPIView
 ):
@@ -269,10 +268,14 @@ class CustomerSearchView(
         query = self.request.GET.get(
             "q",
             ""
+        ).strip()
+
+        limit = self.request.GET.get(
+            "limit"
         )
 
 
-        return (
+        queryset = (
             Customer.objects
             .select_related("user")
             .filter(
@@ -296,4 +299,23 @@ class CustomerSearchView(
                     phone__icontains=query
                 )
             )
+            .order_by(
+                "user__first_name",
+                "user__last_name",
+            )
         )
+
+
+        if limit:
+
+            try:
+                limit = int(limit)
+
+                if limit > 0:
+                    queryset = queryset[:limit]
+
+            except ValueError:
+                pass
+
+
+        return queryset
