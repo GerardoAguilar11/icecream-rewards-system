@@ -6,12 +6,24 @@ export const getCustomers = async () => {
   return response.data;
 };
 
-export const searchCustomers = async (query) => {
-  const response = await api.get("/customers/search/", {
-    params: {
-      q: query,
-    },
-  });
+export const searchCustomers = async (
+  query,
+  limit = null
+) => {
+  const params = {
+    q: query,
+  };
+
+  if (limit) {
+    params.limit = limit;
+  }
+
+  const response = await api.get(
+    "/customers/search/",
+    {
+      params,
+    }
+  );
 
   return response.data;
 };
