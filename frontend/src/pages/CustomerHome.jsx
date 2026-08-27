@@ -3,9 +3,15 @@ import {
   useState,
 } from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+} from "react-router-dom";
 
-import { useAuth } from "../context/useAuth";
+import QRCode from "react-qr-code";
+
+import {
+  useAuth,
+} from "../context/useAuth";
 
 import {
   getMyCustomerProfile,
@@ -18,14 +24,17 @@ import {
 
 
 function CustomerHome() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
   const {
     logout,
   } = useAuth();
 
-  const [customer, setCustomer] =
-    useState(null);
+  const [
+    customer,
+    setCustomer,
+  ] = useState(null);
 
   const [
     availableRewards,
@@ -37,25 +46,34 @@ function CustomerHome() {
     setRedemptions,
   ] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
 
   useEffect(() => {
     let cancelled = false;
 
+
     getMyCustomerProfile()
-      .then(async (customerData) => {
+      .then(async (
+        customerData
+      ) => {
         if (cancelled) {
           return;
         }
 
+
         setCustomer(
           customerData
         );
+
 
         const [
           rewardsData,
@@ -70,9 +88,11 @@ function CustomerHome() {
           ),
         ]);
 
+
         if (cancelled) {
           return;
         }
+
 
         setAvailableRewards(
           rewardsData.rewards ?? []
@@ -95,6 +115,7 @@ function CustomerHome() {
         }
       });
 
+
     return () => {
       cancelled = true;
     };
@@ -116,9 +137,11 @@ function CustomerHome() {
   if (loading) {
     return (
       <main className="customer-home-page">
+
         <p>
           Cargando tu cuenta...
         </p>
+
       </main>
     );
   }
@@ -136,9 +159,12 @@ function CustomerHome() {
             "No fue posible cargar tu cuenta."}
         </p>
 
+
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={
+            handleLogout
+          }
         >
           Cerrar sesión
         </button>
@@ -148,12 +174,17 @@ function CustomerHome() {
   }
 
 
+  const qrValue =
+    `FRIOCO:CUSTOMER:${customer.customer_code}`;
+
+
   return (
     <main className="customer-home-page">
 
       <header className="customer-home-header">
 
         <div>
+
           <h1>
             Hola, {customer.first_name}
           </h1>
@@ -161,12 +192,15 @@ function CustomerHome() {
           <p>
             Bienvenido a tu cuenta de recompensas.
           </p>
+
         </div>
 
 
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={
+            handleLogout
+          }
         >
           Cerrar sesión
         </button>
@@ -212,14 +246,18 @@ function CustomerHome() {
 
 
         {availableRewards.length === 0 ? (
+
           <p>
             Aún no tienes puntos suficientes para canjear una recompensa.
           </p>
+
         ) : (
+
           <div className="customer-reward-grid">
 
             {availableRewards.map(
               (reward) => (
+
                 <article
                   key={
                     reward.id
@@ -231,10 +269,12 @@ function CustomerHome() {
                     {reward.name}
                   </h3>
 
+
                   <p>
                     {reward.description ||
                       "Sin descripción"}
                   </p>
+
 
                   <strong>
                     {
@@ -244,10 +284,12 @@ function CustomerHome() {
                   </strong>
 
                 </article>
+
               )
             )}
 
           </div>
+
         )}
 
 
@@ -266,16 +308,21 @@ function CustomerHome() {
 
 
         {redemptions.length === 0 ? (
+
           <p>
             Todavía no has utilizado recompensas.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Recompensa
                   </th>
@@ -291,7 +338,9 @@ function CustomerHome() {
                   <th>
                     Fecha
                   </th>
+
                 </tr>
+
               </thead>
 
 
@@ -299,6 +348,7 @@ function CustomerHome() {
 
                 {redemptions.map(
                   (redemption) => (
+
                     <tr
                       key={
                         redemption.id
@@ -311,11 +361,13 @@ function CustomerHome() {
                         }
                       </td>
 
+
                       <td>
                         {
                           redemption.points_used
                         }
                       </td>
+
 
                       <td>
                         {redemption.status ===
@@ -324,6 +376,7 @@ function CustomerHome() {
                           : "Cancelado"}
                       </td>
 
+
                       <td>
                         {new Date(
                           redemption.created_at
@@ -331,6 +384,7 @@ function CustomerHome() {
                       </td>
 
                     </tr>
+
                   )
                 )}
 
@@ -339,6 +393,7 @@ function CustomerHome() {
             </table>
 
           </div>
+
         )}
 
       </section>
@@ -350,30 +405,34 @@ function CustomerHome() {
           Mi identificación
         </h2>
 
+
         <div className="customer-code-card">
 
           <span>
             Código de cliente
           </span>
 
+
           <strong>
             {customer.customer_code}
           </strong>
 
-          <div className="qr-placeholder">
 
-            <p>
-              Código QR
-            </p>
+          <div className="customer-qr-container">
 
-            <small>
-              Se habilitará próximamente.
-            </small>
+            <QRCode
+              value={qrValue}
+              size={220}
+              level="M"
+              bgColor="#ffffff"
+              fgColor="#000000"
+            />
 
           </div>
 
+
           <p>
-            Muestra este código al empleado para identificar tu cuenta.
+            Muestra este código QR al empleado para identificar tu cuenta.
           </p>
 
         </div>
@@ -387,29 +446,41 @@ function CustomerHome() {
           Mi información
         </h2>
 
+
         <div className="customer-profile-details">
 
           <p>
+
             <strong>
               Nombre:
             </strong>{" "}
+
             {customer.first_name}{" "}
             {customer.last_name}
+
           </p>
 
+
           <p>
+
             <strong>
               Correo:
             </strong>{" "}
+
             {customer.email}
+
           </p>
 
+
           <p>
+
             <strong>
               Teléfono:
             </strong>{" "}
+
             {customer.phone ||
               "Sin teléfono registrado"}
+
           </p>
 
         </div>

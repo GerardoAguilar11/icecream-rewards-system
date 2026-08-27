@@ -836,31 +836,31 @@ th {
   letter-spacing: 2px;
 }
 
-.qr-placeholder {
+/* =========================================================
+   Customer QR
+========================================================= */
+
+.customer-qr-container {
   display: flex;
-
-  min-height: 180px;
-
-  margin-bottom: 18px;
 
   align-items: center;
   justify-content: center;
-  flex-direction: column;
 
-  border: 2px dashed #d2d2d2;
-  border-radius: 10px;
+  width: 100%;
 
-  background: #fafafa;
+  margin-bottom: 18px;
+  padding: 22px;
+
+  background: #ffffff;
+
+  border: 1px solid #e3e3e3;
+  border-radius: 12px;
 }
 
-.qr-placeholder p {
-  margin: 0 0 4px;
-
-  font-weight: 600;
-}
-
-.qr-placeholder small {
-  color: #777;
+.customer-qr-container svg {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
 }
 
 .customer-profile-details p {
