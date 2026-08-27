@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_date
 
 from rest_framework import (
     generics,
@@ -14,7 +15,6 @@ from rest_framework.permissions import (
 )
 
 from rest_framework.response import Response
-
 from rest_framework.views import APIView
 
 
@@ -48,6 +48,19 @@ class PurchaseListCreateView(
         request
     ):
 
+        date_from_param = (
+            request.query_params.get(
+                "date_from"
+            )
+        )
+
+        date_to_param = (
+            request.query_params.get(
+                "date_to"
+            )
+        )
+
+
         purchases = (
             Purchase.objects
             .select_related(
@@ -59,15 +72,109 @@ class PurchaseListCreateView(
             .prefetch_related(
                 "items__product"
             )
-            .order_by(
-                "-created_at"
-            )
         )
+
+
+        if date_from_param:
+
+            date_from = parse_date(
+                date_from_param
+            )
+
+            if not date_from:
+
+                return Response(
+                    {
+                        "detail": (
+                            "La fecha inicial "
+                            "no es válida."
+                        )
+                    },
+                    status=(
+                        status
+                        .HTTP_400_BAD_REQUEST
+                    )
+                )
+
+            purchases = purchases.filter(
+                created_at__date__gte=(
+                    date_from
+                )
+            )
+
+
+        if date_to_param:
+
+            date_to = parse_date(
+                date_to_param
+            )
+
+            if not date_to:
+
+                return Response(
+                    {
+                        "detail": (
+                            "La fecha final "
+                            "no es válida."
+                        )
+                    },
+                    status=(
+                        status
+                        .HTTP_400_BAD_REQUEST
+                    )
+                )
+
+            purchases = purchases.filter(
+                created_at__date__lte=(
+                    date_to
+                )
+            )
+
+
+        if (
+            date_from_param
+            and date_to_param
+        ):
+
+            date_from = parse_date(
+                date_from_param
+            )
+
+            date_to = parse_date(
+                date_to_param
+            )
+
+            if (
+                date_from
+                and date_to
+                and date_from > date_to
+            ):
+
+                return Response(
+                    {
+                        "detail": (
+                            "La fecha inicial "
+                            "no puede ser posterior "
+                            "a la fecha final."
+                        )
+                    },
+                    status=(
+                        status
+                        .HTTP_400_BAD_REQUEST
+                    )
+                )
+
+
+        purchases = purchases.order_by(
+            "-created_at"
+        )
+
 
         serializer = PurchaseSerializer(
             purchases,
             many=True
         )
+
 
         return Response(
             serializer.data
@@ -89,6 +196,7 @@ class PurchaseListCreateView(
             raise_exception=True
         )
 
+
         purchase = (
             PurchaseService
             .create_purchase(
@@ -97,9 +205,11 @@ class PurchaseListCreateView(
             )
         )
 
+
         serializer = PurchaseSerializer(
             purchase
         )
+
 
         return Response(
             serializer.data,
@@ -159,6 +269,7 @@ class CustomerPurchaseHistoryView(
             customer_code=customer_code
         )
 
+
         purchases = (
             Purchase.objects
             .filter(
@@ -178,9 +289,11 @@ class CustomerPurchaseHistoryView(
             )
         )
 
+
         return Response({
 
             "customer": {
+
                 "name": (
                     customer.user
                     .get_full_name()
@@ -193,6 +306,7 @@ class CustomerPurchaseHistoryView(
                 "points": (
                     customer.points
                 ),
+
             },
 
             "purchases": (
@@ -223,6 +337,7 @@ class MyPurchaseListView(
     ):
 
         user = self.request.user
+
 
         if user.role != "CUSTOMER":
 
@@ -287,6 +402,7 @@ class MyPurchaseDetailView(
     ):
 
         user = self.request.user
+
 
         if user.role != "CUSTOMER":
 
