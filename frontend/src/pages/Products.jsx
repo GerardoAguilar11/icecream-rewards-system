@@ -3,27 +3,60 @@ import {
   useState,
 } from "react";
 
-import { Link } from "react-router-dom";
-
-import { useAuth } from "../context/useAuth";
+import {
+  Link,
+} from "react-router-dom";
 
 import {
+  useAuth,
+} from "../context/useAuth";
+
+import {
+  deleteProduct,
   getProducts,
   updateProduct,
 } from "../services/productService";
 
 
 function Products() {
-  const { user } = useAuth();
+  const {
+    user,
+  } = useAuth();
 
-  const [products, setProducts] =
-    useState([]);
+  const [
+    products,
+    setProducts,
+  ] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    productToDelete,
+    setProductToDelete,
+  ] = useState(null);
+
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
+
+  const [
+    deleteError,
+    setDeleteError,
+  ] = useState("");
+
+  const [
+    deleteSuccess,
+    setDeleteSuccess,
+  ] = useState(false);
 
 
   useEffect(() => {
@@ -55,7 +88,8 @@ function Products() {
 
 
   const reloadProducts = async () => {
-    const data = await getProducts();
+    const data =
+      await getProducts();
 
     setProducts(data);
   };
@@ -70,15 +104,90 @@ function Products() {
       await updateProduct(
         product.id,
         {
-          is_active: !product.is_active,
+          is_active:
+            !product.is_active,
         }
       );
 
       await reloadProducts();
+
     } catch {
       setError(
         "No fue posible actualizar el producto."
       );
+    }
+  };
+
+
+  const handleDeleteClick = (
+    product
+  ) => {
+    setError("");
+    setDeleteError("");
+    setDeleteSuccess(false);
+
+    setProductToDelete(
+      product
+    );
+  };
+
+
+  const handleCloseDeleteModal = () => {
+    if (deleting) {
+      return;
+    }
+
+    setProductToDelete(
+      null
+    );
+
+    setDeleteError("");
+    setDeleteSuccess(false);
+  };
+
+
+  const handleCloseSuccessModal = () => {
+    setDeleteSuccess(false);
+
+    window.location.reload();
+  };
+
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setDeleteError("");
+
+      await deleteProduct(
+        productToDelete.id
+      );
+
+      setProductToDelete(
+        null
+      );
+
+      setDeleteSuccess(
+        true
+      );
+
+    } catch (requestError) {
+      const detail =
+        requestError
+          .response
+          ?.data
+          ?.detail;
+
+      setDeleteError(
+        detail ||
+        "No fue posible eliminar el producto."
+      );
+
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -106,6 +215,7 @@ function Products() {
       <header className="page-header page-header-actions">
 
         <div>
+
           <h1>
             Productos
           </h1>
@@ -113,28 +223,33 @@ function Products() {
           <p>
             Consulta y administra el catálogo de productos.
           </p>
+
         </div>
 
 
         {user?.role === "ADMIN" && (
+
           <Link
             to="/products/new"
             className="primary-action"
           >
             Nuevo producto
           </Link>
+
         )}
 
       </header>
 
 
       {error && (
+
         <p
           role="alert"
           className="form-error"
         >
           {error}
         </p>
+
       )}
 
 
@@ -146,20 +261,27 @@ function Products() {
 
 
         {loading ? (
+
           <p>
             Cargando productos...
           </p>
+
         ) : products.length === 0 ? (
+
           <p>
             No hay productos registrados.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Imagen
                   </th>
@@ -185,7 +307,9 @@ function Products() {
                       Acciones
                     </th>
                   )}
+
                 </tr>
+
               </thead>
 
 
@@ -193,25 +317,42 @@ function Products() {
 
                 {products.map(
                   (product) => (
-                    <tr key={product.id}>
+
+                    <tr
+                      key={
+                        product.id
+                      }
+                    >
 
                       <td>
+
                         {product.image ? (
+
                           <img
-                            src={product.image}
-                            alt={product.name}
+                            src={
+                              product.image
+                            }
+                            alt={
+                              product.name
+                            }
                             className="product-thumbnail"
                           />
+
                         ) : (
+
                           <span>
                             Sin imagen
                           </span>
+
                         )}
+
                       </td>
 
 
                       <td>
-                        {product.name}
+                        {
+                          product.name
+                        }
                       </td>
 
 
@@ -238,6 +379,7 @@ function Products() {
 
 
                       {user?.role === "ADMIN" && (
+
                         <td>
 
                           <div className="table-actions">
@@ -264,12 +406,27 @@ function Products() {
                                 : "Activar"}
                             </button>
 
+
+                            <button
+                              type="button"
+                              className="link-button danger-link"
+                              onClick={() =>
+                                handleDeleteClick(
+                                  product
+                                )
+                              }
+                            >
+                              Eliminar
+                            </button>
+
                           </div>
 
                         </td>
+
                       )}
 
                     </tr>
+
                   )
                 )}
 
@@ -278,9 +435,168 @@ function Products() {
             </table>
 
           </div>
+
         )}
 
       </section>
+
+
+      {productToDelete && (
+
+        <div
+          className="modal-overlay"
+          role="presentation"
+        >
+
+          <div
+            className="modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-product-title"
+          >
+
+            {deleteError ? (
+
+              <>
+                <h2
+                  id="delete-product-title"
+                >
+                  No se puede eliminar
+                </h2>
+
+
+                <p>
+                  {deleteError}
+                </p>
+
+
+                <div className="modal-actions">
+
+                  <button
+                    type="button"
+                    className="secondary-action"
+                    onClick={
+                      handleCloseDeleteModal
+                    }
+                  >
+                    Entendido
+                  </button>
+
+                </div>
+              </>
+
+            ) : (
+
+              <>
+                <h2
+                  id="delete-product-title"
+                >
+                  Eliminar producto
+                </h2>
+
+
+                <p>
+                  ¿Estás seguro de que deseas eliminar{" "}
+                  <strong>
+                    {productToDelete.name}
+                  </strong>
+                  ?
+                </p>
+
+
+                <p>
+                  Esta acción solo será posible si el producto nunca ha sido utilizado en una compra.
+                </p>
+
+
+                <div className="modal-actions">
+
+                  <button
+                    type="button"
+                    className="secondary-action"
+                    onClick={
+                      handleCloseDeleteModal
+                    }
+                    disabled={
+                      deleting
+                    }
+                  >
+                    Cancelar
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className="danger-action"
+                    onClick={
+                      handleConfirmDelete
+                    }
+                    disabled={
+                      deleting
+                    }
+                  >
+                    {deleting
+                      ? "Eliminando..."
+                      : "Eliminar producto"}
+                  </button>
+
+                </div>
+              </>
+
+            )}
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {deleteSuccess && (
+
+        <div
+          className="modal-overlay"
+          role="presentation"
+        >
+
+          <div
+            className="modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-success-title"
+          >
+
+            <h2
+              id="delete-success-title"
+            >
+              Producto eliminado
+            </h2>
+
+
+            <p>
+              El producto se eliminó correctamente.
+            </p>
+
+
+            <div className="modal-actions">
+
+              <button
+                type="button"
+                className="primary-action"
+                onClick={
+                  handleCloseSuccessModal
+                }
+              >
+                Aceptar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </main>
   );
