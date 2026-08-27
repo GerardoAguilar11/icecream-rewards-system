@@ -13,6 +13,10 @@ import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
 import CustomerEdit from "./pages/CustomerEdit";
+
+import Employees from "./pages/Employees";
+import EmployeeForm from "./pages/EmployeeForm";
+
 import CustomerHome from "./pages/CustomerHome";
 import CustomerRewards from "./pages/CustomerRewards";
 import CustomerRedemptions from "./pages/CustomerRedemptions";
@@ -45,11 +49,15 @@ function App() {
 
       <Routes>
 
-        {/* Public */}
+        {/* ==========================
+            PUBLIC
+        ========================== */}
 
         <Route
           path="/"
-          element={<Home />}
+          element={
+            <Home />
+          }
         />
 
 
@@ -73,7 +81,9 @@ function App() {
         />
 
 
-        {/* CUSTOMER */}
+        {/* ==========================
+            CUSTOMER
+        ========================== */}
 
         <Route
           element={
@@ -137,7 +147,9 @@ function App() {
         </Route>
 
 
-        {/* ADMIN + EMPLOYEE */}
+        {/* ==========================
+            ADMIN + EMPLOYEE
+        ========================== */}
 
         <Route
           element={
@@ -210,7 +222,9 @@ function App() {
         </Route>
 
 
-        {/* ADMIN ONLY */}
+        {/* ==========================
+            ADMIN ONLY
+        ========================== */}
 
         <Route
           element={
@@ -232,6 +246,34 @@ function App() {
           />
 
 
+          {/* Employees */}
+
+          <Route
+            path="/employees"
+            element={
+              <Employees />
+            }
+          />
+
+
+          <Route
+            path="/employees/new"
+            element={
+              <EmployeeForm />
+            }
+          />
+
+
+          <Route
+            path="/employees/:id/edit"
+            element={
+              <EmployeeForm />
+            }
+          />
+
+
+          {/* Customers */}
+
           <Route
             path="/customers/:id/edit"
             element={
@@ -239,6 +281,8 @@ function App() {
             }
           />
 
+
+          {/* Products */}
 
           <Route
             path="/products/new"
@@ -255,6 +299,8 @@ function App() {
             }
           />
 
+
+          {/* Rewards */}
 
           <Route
             path="/rewards/new"
@@ -273,6 +319,10 @@ function App() {
 
         </Route>
 
+
+        {/* ==========================
+            NOT FOUND
+        ========================== */}
 
         <Route
           path="*"
