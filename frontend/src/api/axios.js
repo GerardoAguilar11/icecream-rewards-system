@@ -1,7 +1,15 @@
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  throw new Error(
+    "VITE_API_URL is not configured. Check your environment variables.",
+  );
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -24,11 +32,14 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem("refresh");
@@ -39,7 +50,7 @@ api.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh/`,
+          `${API_URL}/auth/refresh/`,
           {
             refresh: refreshToken,
           },
@@ -47,13 +58,20 @@ api.interceptors.response.use(
 
         const newAccessToken = response.data.access;
 
-        localStorage.setItem("access", newAccessToken);
+        localStorage.setItem(
+          "access",
+          newAccessToken,
+        );
 
         if (response.data.refresh) {
-          localStorage.setItem("refresh", response.data.refresh);
+          localStorage.setItem(
+            "refresh",
+            response.data.refresh,
+          );
         }
 
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {
