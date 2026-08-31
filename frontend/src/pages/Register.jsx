@@ -8,12 +8,19 @@ import {
 } from "react-router-dom";
 
 import {
+  UserPlus,
+} from "lucide-react";
+
+import {
   useNotification,
 } from "../context/useNotification";
 
 import {
   register,
 } from "../services/authService";
+
+import frioCoLogo
+  from "../assets/frio-co-logo-ui.png";
 
 
 function Register() {
@@ -138,6 +145,7 @@ function Register() {
           true
         );
 
+
         await register({
           first_name:
             form.first_name.trim(),
@@ -258,201 +266,249 @@ function Register() {
 
 
   return (
-    <main className="customers-page">
+    <main className="auth-page auth-register-page">
 
-      <header className="page-header">
+      <section className="auth-card auth-register-card">
 
-        <h1>
-          Crear cuenta
-        </h1>
+        <div className="auth-brand">
 
-        <p>
-          Regístrate para comenzar
-          a acumular puntos.
-        </p>
+          <img
+            src={frioCoLogo}
+            alt="Frio&Co"
+            className="auth-logo"
+          />
 
-      </header>
+          <p>
+            Regístrate y comienza a
+            acumular puntos en cada compra.
+          </p>
 
-
-      <section className="dashboard-section">
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="customer-form"
-        >
-
-          <div className="form-group">
-
-            <label htmlFor="first_name">
-              Nombre
-            </label>
-
-            <input
-              id="first_name"
-              name="first_name"
-              type="text"
-              value={
-                form.first_name
-              }
-              onChange={
-                handleChange
-              }
-              required
-            />
-
-          </div>
+        </div>
 
 
-          <div className="form-group">
+        <div className="auth-content">
 
-            <label htmlFor="last_name">
-              Apellidos
-            </label>
+          <div className="auth-header">
 
-            <input
-              id="last_name"
-              name="last_name"
-              type="text"
-              value={
-                form.last_name
-              }
-              onChange={
-                handleChange
-              }
-              required
-            />
+            <span className="auth-eyebrow">
+              Únete a Frio&Co
+            </span>
 
-          </div>
+            <h1>
+              Crear cuenta
+            </h1>
 
-
-          <div className="form-group">
-
-            <label htmlFor="email">
-              Correo electrónico
-            </label>
-
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={
-                form.email
-              }
-              onChange={
-                handleChange
-              }
-              autoComplete="email"
-              required
-            />
-
-          </div>
-
-
-          <div className="form-group">
-
-            <label htmlFor="phone">
-              Teléfono
-            </label>
-
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={
-                form.phone
-              }
-              onChange={
-                handleChange
-              }
-            />
-
-          </div>
-
-
-          <div className="form-group">
-
-            <label htmlFor="password">
-              Contraseña
-            </label>
-
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={
-                form.password
-              }
-              onChange={
-                handleChange
-              }
-              autoComplete="new-password"
-              minLength="8"
-              required
-            />
-
-          </div>
-
-
-          <div className="form-group">
-
-            <label htmlFor="confirmPassword">
-              Confirmar contraseña
-            </label>
-
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={
-                form.confirmPassword
-              }
-              onChange={
-                handleChange
-              }
-              autoComplete="new-password"
-              minLength="8"
-              required
-            />
-
-          </div>
-
-
-          {error && (
-            <p
-              role="alert"
-              className="form-error"
-            >
-              {error}
+            <p>
+              Completa tus datos para formar
+              parte del programa de recompensas.
             </p>
-          )}
+
+          </div>
 
 
-          <div className="form-actions">
+          <form
+            onSubmit={
+              handleSubmit
+            }
+            className="auth-form"
+          >
 
-            <Link
-              to="/login"
-              className="secondary-action"
-            >
-              Ya tengo cuenta
-            </Link>
+            <div className="auth-form-grid">
+
+              <div className="form-group">
+
+                <label htmlFor="first_name">
+                  Nombre
+                </label>
+
+                <input
+                  id="first_name"
+                  name="first_name"
+                  type="text"
+                  value={
+                    form.first_name
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Tu nombre"
+                  required
+                />
+
+              </div>
+
+
+              <div className="form-group">
+
+                <label htmlFor="last_name">
+                  Apellidos
+                </label>
+
+                <input
+                  id="last_name"
+                  name="last_name"
+                  type="text"
+                  value={
+                    form.last_name
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  placeholder="Tus apellidos"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label htmlFor="email">
+                Correo electrónico
+              </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={
+                  form.email
+                }
+                onChange={
+                  handleChange
+                }
+                autoComplete="email"
+                placeholder="correo@ejemplo.com"
+                required
+              />
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label htmlFor="phone">
+                Teléfono
+              </label>
+
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={
+                  form.phone
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Tu teléfono"
+              />
+
+            </div>
+
+
+            <div className="auth-form-grid">
+
+              <div className="form-group">
+
+                <label htmlFor="password">
+                  Contraseña
+                </label>
+
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={
+                    form.password
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  autoComplete="new-password"
+                  placeholder="Mínimo 8 caracteres"
+                  minLength="8"
+                  required
+                />
+
+              </div>
+
+
+              <div className="form-group">
+
+                <label htmlFor="confirmPassword">
+                  Confirmar contraseña
+                </label>
+
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={
+                    form.confirmPassword
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  autoComplete="new-password"
+                  placeholder="Repite tu contraseña"
+                  minLength="8"
+                  required
+                />
+
+              </div>
+
+            </div>
+
+
+            {error && (
+              <p
+                role="alert"
+                className="form-error"
+              >
+                {error}
+              </p>
+            )}
 
 
             <button
               type="submit"
+              className="auth-submit-button"
               disabled={
                 submitting
               }
             >
-              {submitting
-                ? "Creando cuenta..."
-                : "Crear cuenta"}
+
+              <UserPlus
+                size={18}
+              />
+
+              <span>
+                {submitting
+                  ? "Creando cuenta..."
+                  : "Crear cuenta"}
+              </span>
+
             </button>
+
+          </form>
+
+
+          <div className="auth-footer">
+
+            <span>
+              ¿Ya tienes cuenta?
+            </span>
+
+            <Link to="/login">
+              Iniciar sesión
+            </Link>
 
           </div>
 
-        </form>
+        </div>
 
       </section>
 

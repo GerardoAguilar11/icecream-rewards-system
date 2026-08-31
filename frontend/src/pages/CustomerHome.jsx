@@ -3,15 +3,7 @@ import {
   useState,
 } from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
-
 import QRCode from "react-qr-code";
-
-import {
-  useAuth,
-} from "../context/useAuth";
 
 import {
   getMyCustomerProfile,
@@ -24,13 +16,6 @@ import {
 
 
 function CustomerHome() {
-  const navigate =
-    useNavigate();
-
-  const {
-    logout,
-  } = useAuth();
-
   const [
     customer,
     setCustomer,
@@ -122,18 +107,6 @@ function CustomerHome() {
   }, []);
 
 
-  const handleLogout = async () => {
-    await logout();
-
-    navigate(
-      "/login",
-      {
-        replace: true,
-      }
-    );
-  };
-
-
   if (loading) {
     return (
       <main className="customer-home-page">
@@ -154,20 +127,13 @@ function CustomerHome() {
     return (
       <main className="customer-home-page">
 
-        <p role="alert">
+        <p
+          role="alert"
+          className="form-error"
+        >
           {error ||
             "No fue posible cargar tu cuenta."}
         </p>
-
-
-        <button
-          type="button"
-          onClick={
-            handleLogout
-          }
-        >
-          Cerrar sesión
-        </button>
 
       </main>
     );
@@ -194,16 +160,6 @@ function CustomerHome() {
           </p>
 
         </div>
-
-
-        <button
-          type="button"
-          onClick={
-            handleLogout
-          }
-        >
-          Cerrar sesión
-        </button>
 
       </header>
 

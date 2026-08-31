@@ -1,4 +1,6 @@
 import {
+  ChevronLeft,
+  ChevronRight,
   Gift,
   House,
   LogOut,
@@ -7,8 +9,6 @@ import {
   TicketCheck,
   UserRound,
   X,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 import {
@@ -18,6 +18,10 @@ import {
 } from "react-router-dom";
 
 import {
+  useState,
+} from "react";
+
+import {
   useAuth,
 } from "../../context/useAuth";
 
@@ -25,9 +29,11 @@ import {
   useNotification,
 } from "../../context/useNotification";
 
-import {
-  useState,
-} from "react";
+import frioCoLogo
+  from "../../assets/frio-co-logo-ui.png";
+
+import frioCoMark
+  from "../../assets/frio-co-mark.png";
 
 
 function CustomerLayout() {
@@ -130,15 +136,31 @@ function CustomerLayout() {
           <Menu size={22} />
         </button>
 
+
         <div className="mobile-navigation-brand">
 
-          <strong>
-            Frio&Co
-          </strong>
+          <div className="mobile-brand-icon">
 
-          <span>
-            Cliente
-          </span>
+            <img
+              src={frioCoMark}
+              alt=""
+              className="mobile-brand-mark"
+            />
+
+          </div>
+
+
+          <div>
+
+            <strong>
+              Frio&Co
+            </strong>
+
+            <span>
+              Cliente
+            </span>
+
+          </div>
 
         </div>
 
@@ -151,7 +173,9 @@ function CustomerLayout() {
         <button
           type="button"
           className="navigation-backdrop"
-          onClick={closeMobileMenu}
+          onClick={
+            closeMobileMenu
+          }
           aria-label="Cerrar menú"
         />
       )}
@@ -173,15 +197,32 @@ function CustomerLayout() {
 
           <div className="customer-sidebar-brand">
 
-            <div className="sidebar-brand-text">
+            <div className="sidebar-brand-expanded">
 
-              <h2>
-                Frio&Co
-              </h2>
+              <img
+                src={frioCoLogo}
+                alt="Frio&Co"
+                className="sidebar-brand-logo"
+              />
 
-              <p>
-                Mi cuenta
-              </p>
+              <div className="sidebar-brand-caption">
+
+                <span>
+                  Mi cuenta
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div className="sidebar-brand-collapsed">
+
+              <img
+                src={frioCoMark}
+                alt="Frio&Co"
+                className="sidebar-brand-mark"
+              />
 
             </div>
 
@@ -189,7 +230,9 @@ function CustomerLayout() {
             <button
               type="button"
               className="mobile-menu-close"
-              onClick={closeMobileMenu}
+              onClick={
+                closeMobileMenu
+              }
               aria-label="Cerrar menú"
             >
               <X size={22} />
@@ -212,28 +255,42 @@ function CustomerLayout() {
                 ? "Expandir menú"
                 : "Contraer menú"
             }
+            title={
+              collapsed
+                ? "Expandir menú"
+                : "Contraer menú"
+            }
           >
+
             {collapsed ? (
               <ChevronRight
-                size={20}
+                size={19}
               />
             ) : (
               <ChevronLeft
-                size={20}
+                size={19}
               />
             )}
+
           </button>
 
         </div>
 
+
+        {/* Customer navigation */}
 
         <nav className="customer-sidebar-nav">
 
           <NavLink
             to="/customer"
             end
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Inicio"
           >
 
             <span className="nav-icon">
@@ -249,8 +306,13 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/rewards"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Mis recompensas"
           >
 
             <span className="nav-icon">
@@ -266,8 +328,13 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/redemptions"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Mis canjes"
           >
 
             <span className="nav-icon">
@@ -285,8 +352,13 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/purchases"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Mis compras"
           >
 
             <span className="nav-icon">
@@ -304,8 +376,13 @@ function CustomerLayout() {
 
           <NavLink
             to="/customer/profile"
-            className={getNavClass}
-            onClick={closeMobileMenu}
+            className={
+              getNavClass
+            }
+            onClick={
+              closeMobileMenu
+            }
+            title="Mi perfil"
           >
 
             <span className="nav-icon">
@@ -322,6 +399,8 @@ function CustomerLayout() {
 
         </nav>
 
+
+        {/* Footer */}
 
         <div className="customer-sidebar-footer">
 
@@ -341,8 +420,13 @@ function CustomerLayout() {
           <button
             type="button"
             className="sidebar-logout-button"
-            onClick={handleLogout}
-            disabled={loggingOut}
+            onClick={
+              handleLogout
+            }
+            disabled={
+              loggingOut
+            }
+            title="Cerrar sesión"
           >
 
             <LogOut
@@ -351,9 +435,11 @@ function CustomerLayout() {
             />
 
             <span className="logout-label">
+
               {loggingOut
                 ? "Cerrando sesión..."
                 : "Cerrar sesión"}
+
             </span>
 
           </button>
@@ -363,10 +449,12 @@ function CustomerLayout() {
       </aside>
 
 
-      {/* Content */}
+      {/* Customer content */}
 
       <section className="customer-layout-content">
+
         <Outlet />
+
       </section>
 
     </div>
