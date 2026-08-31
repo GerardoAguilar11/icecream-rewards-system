@@ -11,6 +11,15 @@ import {
 } from "react-router-dom";
 
 import {
+  Gift,
+  Minus,
+  Plus,
+  Search,
+  ShoppingCart,
+  Trash2,
+} from "lucide-react";
+
+import {
   searchCustomers,
 } from "../services/customerService";
 
@@ -27,6 +36,24 @@ import {
 } from "../services/rewardService";
 
 
+const PRODUCT_CATEGORY_LABELS = {
+  ICE_CREAM: "Helados",
+  DRINK: "Bebidas",
+  TOPPING: "Complementos",
+  OTHER: "Otros",
+};
+
+
+const formatCurrency = (value) =>
+  Number(value ?? 0).toLocaleString(
+    "es-MX",
+    {
+      style: "currency",
+      currency: "MXN",
+    }
+  );
+
+
 function PurchaseCreate() {
   const navigate = useNavigate();
 
@@ -34,8 +61,29 @@ function PurchaseCreate() {
     useRef(null);
 
 
-  const [products, setProducts] =
-    useState([]);
+  /* ==========================
+     PRODUCTS
+  ========================== */
+
+  const [
+    products,
+    setProducts,
+  ] = useState([]);
+
+  const [
+    productSearch,
+    setProductSearch,
+  ] = useState("");
+
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("ALL");
+
+
+  /* ==========================
+     CUSTOMER
+  ========================== */
 
   const [
     customerSearch,
@@ -62,6 +110,11 @@ function PurchaseCreate() {
     setSearchingCustomer,
   ] = useState(false);
 
+
+  /* ==========================
+     REWARDS
+  ========================== */
+
   const [
     availableRewards,
     setAvailableRewards,
@@ -77,27 +130,46 @@ function PurchaseCreate() {
     setSelectedReward,
   ] = useState("");
 
-  const [items, setItems] =
-    useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
   const [
     loadingRewards,
     setLoadingRewards,
   ] = useState(false);
 
-  const [submitting, setSubmitting] =
-    useState(false);
 
-  const [error, setError] =
-    useState("");
+  /* ==========================
+     CART
+  ========================== */
+
+  const [
+    items,
+    setItems,
+  ] = useState([]);
 
 
-  /*
-   * Carga inicial de productos.
-   */
+  /* ==========================
+     GENERAL STATE
+  ========================== */
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  /* ==========================
+     LOAD PRODUCTS
+  ========================== */
+
   useEffect(() => {
     let cancelled = false;
 
@@ -127,52 +199,46 @@ function PurchaseCreate() {
         }
       });
 
+
     return () => {
       cancelled = true;
     };
   }, []);
 
 
-  /*
-   * Búsqueda dinámica de clientes.
-   *
-   * Esperamos 300 ms después
-   * de que el usuario deje de escribir.
-   */
+  /* ==========================
+     CUSTOMER SEARCH
+  ========================== */
+
   useEffect(() => {
     const query =
       customerSearch.trim();
 
-    /*
-     * Si ya seleccionamos cliente,
-     * no necesitamos seguir buscando.
-     */
+
     if (selectedCustomer) {
       return;
     }
 
-    /*
-     * No mostramos todo el catálogo
-     * cuando el campo está vacío.
-     */
+
     if (!query) {
       return;
     }
 
+
     let cancelled = false;
 
 
-    const timeoutId = setTimeout(
-      () => {
-        searchCustomers(query,5)
+    const timeoutId =
+      setTimeout(() => {
+        searchCustomers(
+          query,
+          5
+        )
           .then((data) => {
             if (cancelled) {
               return;
             }
 
-            /*
-             * Máximo 5 resultados.
-             */
             setCustomerSuggestions(
               data
             );
@@ -199,9 +265,7 @@ function PurchaseCreate() {
               );
             }
           });
-      },
-      300
-    );
+      }, 300);
 
 
     return () => {
@@ -217,10 +281,10 @@ function PurchaseCreate() {
   ]);
 
 
-  /*
-   * Cerrar las sugerencias cuando
-   * se hace clic fuera del buscador.
-   */
+  /* ==========================
+     CLOSE CUSTOMER RESULTS
+  ========================== */
+
   useEffect(() => {
     const handleClickOutside = (
       event
@@ -253,14 +317,15 @@ function PurchaseCreate() {
   }, []);
 
 
-  /*
-   * Consulta las recompensas
-   * disponibles del cliente.
-   */
+  /* ==========================
+     AVAILABLE REWARDS
+  ========================== */
+
   useEffect(() => {
     if (!selectedCustomer) {
       return;
     }
+
 
     let cancelled = false;
 
@@ -303,6 +368,10 @@ function PurchaseCreate() {
   }, [selectedCustomer]);
 
 
+  /* ==========================
+     CUSTOMER HANDLERS
+  ========================== */
+
   const handleCustomerSearchChange = (
     event
   ) => {
@@ -317,23 +386,22 @@ function PurchaseCreate() {
     setError("");
 
 
-    /*
-     * Si había un cliente seleccionado
-     * y el empleado modifica la barra,
-     * eliminamos la selección anterior.
-     */
     if (selectedCustomer) {
       setSelectedCustomer(
         null
       );
 
-      setAvailableRewards([]);
+      setAvailableRewards(
+        []
+      );
 
       setUseReward(false);
 
       setSelectedReward("");
 
-      setLoadingRewards(false);
+      setLoadingRewards(
+        false
+      );
     }
 
 
@@ -387,13 +455,17 @@ function PurchaseCreate() {
       false
     );
 
-    setAvailableRewards([]);
+    setAvailableRewards(
+      []
+    );
 
     setUseReward(false);
 
     setSelectedReward("");
 
-    setLoadingRewards(true);
+    setLoadingRewards(
+      true
+    );
 
     setError("");
   };
@@ -406,17 +478,25 @@ function PurchaseCreate() {
 
     setCustomerSearch("");
 
-    setCustomerSuggestions([]);
+    setCustomerSuggestions(
+      []
+    );
 
-    setShowSuggestions(false);
+    setShowSuggestions(
+      false
+    );
 
-    setAvailableRewards([]);
+    setAvailableRewards(
+      []
+    );
 
     setUseReward(false);
 
     setSelectedReward("");
 
-    setLoadingRewards(false);
+    setLoadingRewards(
+      false
+    );
 
     setError("");
   };
@@ -435,23 +515,129 @@ function PurchaseCreate() {
   };
 
 
-  const handleAddProduct = (
-    product
-  ) => {
-    setItems((currentItems) => {
-      const existingItem =
-        currentItems.find(
-          (item) =>
-            item.product.id ===
-            product.id
+  /* ==========================
+     PRODUCT FILTERS
+  ========================== */
+
+  const productCategories =
+    useMemo(() => {
+      const categories =
+        new Set(
+          products
+            .map(
+              (product) =>
+                product.category
+            )
+            .filter(Boolean)
         );
 
 
-      if (existingItem) {
-        return currentItems.map(
+      return Array.from(
+        categories
+      );
+    }, [products]);
+
+
+  const filteredProducts =
+    useMemo(() => {
+      const query =
+        productSearch
+          .trim()
+          .toLowerCase();
+
+
+      return products.filter(
+        (product) => {
+          const matchesCategory =
+            selectedCategory ===
+              "ALL" ||
+            product.category ===
+              selectedCategory;
+
+
+          const searchableText =
+            `${product.name ?? ""} ${product.description ?? ""}`
+              .toLowerCase();
+
+
+          const matchesSearch =
+            !query ||
+            searchableText.includes(
+              query
+            );
+
+
+          return (
+            matchesCategory &&
+            matchesSearch
+          );
+        }
+      );
+    }, [
+      products,
+      productSearch,
+      selectedCategory,
+    ]);
+
+
+  /* ==========================
+     CART HANDLERS
+  ========================== */
+
+  const handleAddProduct = (
+    product
+  ) => {
+    setItems(
+      (currentItems) => {
+        const existingItem =
+          currentItems.find(
+            (item) =>
+              item.product.id ===
+              product.id
+          );
+
+
+        if (existingItem) {
+          return currentItems.map(
+            (item) =>
+              item.product.id ===
+              product.id
+                ? {
+                    ...item,
+
+                    quantity:
+                      Number(
+                        item.quantity ||
+                          0
+                      ) + 1,
+                  }
+                : item
+          );
+        }
+
+
+        return [
+          ...currentItems,
+
+          {
+            product,
+            quantity: 1,
+          },
+        ];
+      }
+    );
+  };
+
+
+  const handleIncrementQuantity = (
+    productId
+  ) => {
+    setItems(
+      (currentItems) =>
+        currentItems.map(
           (item) =>
             item.product.id ===
-            product.id
+            productId
               ? {
                   ...item,
 
@@ -462,19 +648,35 @@ function PurchaseCreate() {
                     ) + 1,
                 }
               : item
-        );
-      }
+        )
+    );
+  };
 
 
-      return [
-        ...currentItems,
+  const handleDecrementQuantity = (
+    productId
+  ) => {
+    setItems(
+      (currentItems) =>
+        currentItems.map(
+          (item) =>
+            item.product.id ===
+            productId
+              ? {
+                  ...item,
 
-        {
-          product,
-          quantity: 1,
-        },
-      ];
-    });
+                  quantity:
+                    Math.max(
+                      1,
+                      Number(
+                        item.quantity ||
+                          1
+                      ) - 1
+                    ),
+                }
+              : item
+        )
+    );
   };
 
 
@@ -482,23 +684,24 @@ function PurchaseCreate() {
     productId,
     value
   ) => {
-    setItems((currentItems) =>
-      currentItems.map(
-        (item) =>
-          item.product.id ===
-          productId
-            ? {
-                ...item,
+    setItems(
+      (currentItems) =>
+        currentItems.map(
+          (item) =>
+            item.product.id ===
+            productId
+              ? {
+                  ...item,
 
-                quantity:
-                  value === ""
-                    ? ""
-                    : Number(
-                        value
-                      ),
-              }
-            : item
-      )
+                  quantity:
+                    value === ""
+                      ? ""
+                      : Number(
+                          value
+                        ),
+                }
+              : item
+        )
     );
   };
 
@@ -506,26 +709,27 @@ function PurchaseCreate() {
   const handleQuantityBlur = (
     productId
   ) => {
-    setItems((currentItems) =>
-      currentItems.map(
-        (item) =>
-          item.product.id ===
-          productId
-            ? {
-                ...item,
+    setItems(
+      (currentItems) =>
+        currentItems.map(
+          (item) =>
+            item.product.id ===
+            productId
+              ? {
+                  ...item,
 
-                quantity:
-                  !item.quantity ||
-                  Number(
-                    item.quantity
-                  ) < 1
-                    ? 1
-                    : Number(
-                        item.quantity
-                      ),
-              }
-            : item
-      )
+                  quantity:
+                    !item.quantity ||
+                    Number(
+                      item.quantity
+                    ) < 1
+                      ? 1
+                      : Number(
+                          item.quantity
+                        ),
+                }
+              : item
+        )
     );
   };
 
@@ -533,39 +737,82 @@ function PurchaseCreate() {
   const handleRemoveItem = (
     productId
   ) => {
-    setItems((currentItems) =>
-      currentItems.filter(
-        (item) =>
-          item.product.id !==
-          productId
-      )
+    setItems(
+      (currentItems) =>
+        currentItems.filter(
+          (item) =>
+            item.product.id !==
+            productId
+        )
     );
   };
 
 
-  const total = useMemo(() => {
-    return items.reduce(
-      (
-        accumulator,
-        item
-      ) =>
-        accumulator +
-        Number(
-          item.product.price
-        ) *
+  const getProductQuantity = (
+    productId
+  ) => {
+    const item =
+      items.find(
+        (currentItem) =>
+          currentItem.product.id ===
+          productId
+      );
+
+
+    return Number(
+      item?.quantity ?? 0
+    );
+  };
+
+
+  /* ==========================
+     CALCULATIONS
+  ========================== */
+
+  const total =
+    useMemo(() => {
+      return items.reduce(
+        (
+          accumulator,
+          item
+        ) =>
+          accumulator +
+          Number(
+            item.product.price
+          ) *
+            Number(
+              item.quantity || 0
+            ),
+        0
+      );
+    }, [items]);
+
+
+  const totalItems =
+    useMemo(() => {
+      return items.reduce(
+        (
+          accumulator,
+          item
+        ) =>
+          accumulator +
           Number(
             item.quantity || 0
           ),
-      0
-    );
-  }, [items]);
+        0
+      );
+    }, [items]);
 
 
   const selectedRewardData =
     availableRewards.find(
       (reward) =>
-        String(reward.id) ===
-        String(selectedReward)
+        String(
+          reward.id
+        ) ===
+        String(
+          selectedReward
+        )
     );
 
 
@@ -599,6 +846,10 @@ function PurchaseCreate() {
       : currentPoints;
 
 
+  /* ==========================
+     REWARD HANDLER
+  ========================== */
+
   const handleRewardToggle = (
     event
   ) => {
@@ -616,6 +867,10 @@ function PurchaseCreate() {
     }
   };
 
+
+  /* ==========================
+     SUBMIT
+  ========================== */
 
   const handleSubmit = async (
     event
@@ -675,7 +930,9 @@ function PurchaseCreate() {
 
 
     try {
-      setSubmitting(true);
+      setSubmitting(
+        true
+      );
 
 
       const payload = {
@@ -684,17 +941,18 @@ function PurchaseCreate() {
             selectedCustomer.id
           ),
 
-        items: items.map(
-          (item) => ({
-            product:
-              item.product.id,
+        items:
+          items.map(
+            (item) => ({
+              product:
+                item.product.id,
 
-            quantity:
-              Number(
-                item.quantity
-              ),
-          })
-        ),
+              quantity:
+                Number(
+                  item.quantity
+                ),
+            })
+          ),
       };
 
 
@@ -721,13 +979,17 @@ function PurchaseCreate() {
           replace: true,
         }
       );
-
-    } catch (requestError) {
+    } catch (
+      requestError
+    ) {
       const responseData =
-        requestError.response?.data;
+        requestError
+          .response?.data;
 
 
-      if (responseData?.detail) {
+      if (
+        responseData?.detail
+      ) {
         setError(
           responseData.detail
         );
@@ -736,7 +998,9 @@ function PurchaseCreate() {
       }
 
 
-      if (responseData?.items) {
+      if (
+        responseData?.items
+      ) {
         setError(
           "Revisa los productos de la compra."
         );
@@ -745,7 +1009,9 @@ function PurchaseCreate() {
       }
 
 
-      if (responseData?.customer) {
+      if (
+        responseData?.customer
+      ) {
         setError(
           "El cliente seleccionado no es válido."
         );
@@ -754,7 +1020,9 @@ function PurchaseCreate() {
       }
 
 
-      if (responseData?.reward) {
+      if (
+        responseData?.reward
+      ) {
         setError(
           "La recompensa seleccionada no es válida."
         );
@@ -766,12 +1034,17 @@ function PurchaseCreate() {
       setError(
         "No fue posible registrar la compra."
       );
-
     } finally {
-      setSubmitting(false);
+      setSubmitting(
+        false
+      );
     }
   };
 
+
+  /* ==========================
+     LOADING
+  ========================== */
 
   if (loading) {
     return (
@@ -798,12 +1071,15 @@ function PurchaseCreate() {
           ← Volver a compras
         </Link>
 
+
         <h1>
           Nueva compra
         </h1>
 
+
         <p>
-          Registra los productos comprados por el cliente.
+          Registra los productos comprados
+          por el cliente.
         </p>
 
       </header>
@@ -820,19 +1096,42 @@ function PurchaseCreate() {
 
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
       >
+
+        {/* ==========================
+            CUSTOMER
+        ========================== */}
 
         <section className="dashboard-section">
 
-          <h2>
-            Cliente
-          </h2>
+          <div className="purchase-section-title">
+
+            <span className="purchase-step-label">
+              Paso 1
+            </span>
+
+
+            <h2>
+              Cliente
+            </h2>
+
+
+            <p>
+              Busca al cliente que realizará
+              la compra.
+            </p>
+
+          </div>
 
 
           <div
             className="customer-autocomplete"
-            ref={searchContainerRef}
+            ref={
+              searchContainerRef
+            }
           >
 
             <label
@@ -898,7 +1197,9 @@ function PurchaseCreate() {
                   ) : (
 
                     customerSuggestions.map(
-                      (customer) => (
+                      (
+                        customer
+                      ) => (
                         <button
                           key={
                             customer.id
@@ -962,7 +1263,6 @@ function PurchaseCreate() {
 
 
           {selectedCustomer && (
-
             <div className="purchase-customer-summary">
 
               <p>
@@ -1009,23 +1309,42 @@ function PurchaseCreate() {
               </button>
 
             </div>
-
           )}
 
         </section>
 
 
+        {/* ==========================
+            REWARD
+        ========================== */}
+
         <section className="dashboard-section">
 
-          <h2>
-            Recompensa
-          </h2>
+          <div className="purchase-section-title">
+
+            <span className="purchase-optional-label">
+              Opcional
+            </span>
+
+
+            <h2>
+              Recompensa
+            </h2>
+
+
+            <p>
+              Aplica una recompensa si el
+              cliente tiene una disponible.
+            </p>
+
+          </div>
 
 
           {!selectedCustomer ? (
 
             <p>
-              Selecciona primero un cliente para consultar sus recompensas.
+              Selecciona primero un cliente
+              para consultar sus recompensas.
             </p>
 
           ) : loadingRewards ? (
@@ -1055,6 +1374,7 @@ function PurchaseCreate() {
                   }
                 />
 
+
                 <label htmlFor="use_reward">
                   Usar recompensa
                 </label>
@@ -1066,7 +1386,9 @@ function PurchaseCreate() {
               0 ? (
 
                 <p>
-                  Este cliente no tiene recompensas disponibles con sus puntos actuales.
+                  Este cliente no tiene
+                  recompensas disponibles con
+                  sus puntos actuales.
                 </p>
 
               ) : (
@@ -1083,7 +1405,6 @@ function PurchaseCreate() {
 
 
               {useReward && (
-
                 <div className="reward-selection">
 
                   <div className="form-group">
@@ -1098,9 +1419,12 @@ function PurchaseCreate() {
                       value={
                         selectedReward
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setSelectedReward(
-                          event.target.value
+                          event.target
+                            .value
                         )
                       }
                       required={
@@ -1114,7 +1438,9 @@ function PurchaseCreate() {
 
 
                       {availableRewards.map(
-                        (reward) => (
+                        (
+                          reward
+                        ) => (
                           <option
                             key={
                               reward.id
@@ -1141,7 +1467,6 @@ function PurchaseCreate() {
 
 
                   {selectedRewardData && (
-
                     <div className="reward-points-summary">
 
                       <p>
@@ -1153,6 +1478,7 @@ function PurchaseCreate() {
                         }
                       </p>
 
+
                       <p>
                         <strong>
                           Puntos a utilizar:
@@ -1162,6 +1488,7 @@ function PurchaseCreate() {
                           rewardPointsUsed
                         }
                       </p>
+
 
                       <p>
                         <strong>
@@ -1173,11 +1500,9 @@ function PurchaseCreate() {
                       </p>
 
                     </div>
-
                   )}
 
                 </div>
-
               )}
 
             </>
@@ -1187,276 +1512,673 @@ function PurchaseCreate() {
         </section>
 
 
-        <section className="dashboard-section">
+        {/* ==========================
+            SALE WORKSPACE
+        ========================== */}
 
-          <h2>
-            Productos
-          </h2>
+        <div className="purchase-workspace">
 
+          {/* ==========================
+              PRODUCTS
+          ========================== */}
 
-          {products.length === 0 ? (
+          <section className="dashboard-section purchase-products-panel">
 
-            <p>
-              No hay productos activos disponibles.
-            </p>
+            <div className="purchase-section-header">
 
-          ) : (
+              <div>
 
-            <div className="product-selection-grid">
-
-              {products.map(
-                (product) => (
-                  <article
-                    key={
-                      product.id
-                    }
-                    className="product-selection-card"
-                  >
-
-                    {product.image && (
-                      <img
-                        src={
-                          product.image
-                        }
-                        alt={
-                          product.name
-                        }
-                      />
-                    )}
+                <span className="purchase-step-label">
+                  Paso 2
+                </span>
 
 
-                    <h3>
-                      {
-                        product.name
+                <h2>
+                  Productos
+                </h2>
+
+
+                <p>
+                  Busca y agrega productos
+                  a la compra.
+                </p>
+
+              </div>
+
+
+              <div className="purchase-cart-counter">
+
+                <ShoppingCart
+                  size={18}
+                />
+
+                <span>
+                  {totalItems} artículo
+                  {totalItems === 1
+                    ? ""
+                    : "s"}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div className="purchase-product-filters">
+
+              <div className="purchase-product-search">
+
+                <Search
+                  size={18}
+                />
+
+
+                <input
+                  type="search"
+                  value={
+                    productSearch
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setProductSearch(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Buscar producto..."
+                  aria-label="Buscar producto"
+                />
+
+              </div>
+
+
+              <select
+                value={
+                  selectedCategory
+                }
+                onChange={(
+                  event
+                ) =>
+                  setSelectedCategory(
+                    event.target.value
+                  )
+                }
+                aria-label="Filtrar productos por categoría"
+              >
+
+                <option value="ALL">
+                  Todas las categorías
+                </option>
+
+
+                {productCategories.map(
+                  (
+                    category
+                  ) => (
+                    <option
+                      key={
+                        category
                       }
-                    </h3>
-
-
-                    <p>
-                      $
-                      {Number(
-                        product.price
-                      ).toFixed(2)}
-                    </p>
-
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleAddProduct(
-                          product
-                        )
+                      value={
+                        category
                       }
                     >
-                      Agregar
-                    </button>
+                      {
+                        PRODUCT_CATEGORY_LABELS[
+                          category
+                        ] ??
+                        category
+                      }
+                    </option>
+                  )
+                )}
 
-                  </article>
-                )
+              </select>
+
+            </div>
+
+
+            <div className="purchase-products-toolbar">
+
+              <p className="purchase-product-results-count">
+                {filteredProducts.length}{" "}
+                producto
+                {filteredProducts.length ===
+                1
+                  ? ""
+                  : "s"}{" "}
+                encontrado
+                {filteredProducts.length ===
+                1
+                  ? ""
+                  : "s"}
+              </p>
+
+
+              {(productSearch ||
+                selectedCategory !==
+                  "ALL") && (
+                <button
+                  type="button"
+                  className="purchase-clear-filters"
+                  onClick={() => {
+                    setProductSearch("");
+
+                    setSelectedCategory(
+                      "ALL"
+                    );
+                  }}
+                >
+                  Limpiar filtros
+                </button>
               )}
 
             </div>
 
-          )}
 
-        </section>
+            {products.length ===
+            0 ? (
 
+              <div className="purchase-products-empty">
 
-        <section className="dashboard-section">
+                <p>
+                  No hay productos activos
+                  disponibles.
+                </p>
 
-          <h2>
-            Resumen de compra
-          </h2>
+              </div>
 
+            ) : filteredProducts.length ===
+              0 ? (
 
-          {items.length === 0 ? (
+              <div className="purchase-products-empty">
 
-            <p>
-              No has agregado productos.
-            </p>
-
-          ) : (
-
-            <div className="table-container">
-
-              <table>
-
-                <thead>
-
-                  <tr>
-                    <th>
-                      Producto
-                    </th>
-
-                    <th>
-                      Precio
-                    </th>
-
-                    <th>
-                      Cantidad
-                    </th>
-
-                    <th>
-                      Subtotal
-                    </th>
-
-                    <th>
-                      Acción
-                    </th>
-                  </tr>
-
-                </thead>
+                <Search
+                  size={28}
+                />
 
 
-                <tbody>
+                <strong>
+                  No encontramos productos
+                </strong>
 
-                  {items.map(
-                    (item) => (
-                      <tr
+
+                <p>
+                  Prueba con otro nombre
+                  o categoría.
+                </p>
+
+
+                <button
+                  type="button"
+                  className="secondary-action"
+                  onClick={() => {
+                    setProductSearch("");
+
+                    setSelectedCategory(
+                      "ALL"
+                    );
+                  }}
+                >
+                  Limpiar filtros
+                </button>
+
+              </div>
+
+            ) : (
+
+              <div className="product-selection-grid purchase-product-grid">
+
+                {filteredProducts.map(
+                  (
+                    product
+                  ) => {
+                    const quantityInCart =
+                      getProductQuantity(
+                        product.id
+                      );
+
+
+                    return (
+                      <article
                         key={
-                          item.product.id
+                          product.id
+                        }
+                        className={
+                          `product-selection-card ${
+                            quantityInCart >
+                            0
+                              ? "product-selection-card-added"
+                              : ""
+                          }`
                         }
                       >
 
-                        <td>
-                          {
-                            item.product.name
-                          }
-                        </td>
-
-
-                        <td>
-                          $
-                          {Number(
-                            item.product.price
-                          ).toFixed(2)}
-                        </td>
-
-
-                        <td>
-
-                          <input
-                            type="number"
-                            min="1"
-                            step="1"
-                            value={
-                              item.quantity
+                        {product.image ? (
+                          <img
+                            src={
+                              product.image
                             }
-                            onChange={
-                              (event) =>
-                                handleQuantityChange(
-                                  item.product.id,
-                                  event.target.value
-                                )
-                            }
-                            onBlur={() =>
-                              handleQuantityBlur(
-                                item.product.id
-                              )
+                            alt={
+                              product.name
                             }
                           />
+                        ) : (
+                          <div className="purchase-product-image-placeholder">
+                            Sin imagen
+                          </div>
+                        )}
 
-                        </td>
+
+                        <div className="purchase-product-card-content">
+
+                          <span className="purchase-product-category">
+                            {
+                              PRODUCT_CATEGORY_LABELS[
+                                product.category
+                              ] ??
+                              product.category
+                            }
+                          </span>
 
 
-                        <td>
-                          $
-                          {(
-                            Number(
-                              item.product.price
-                            ) *
-                            Number(
-                              item.quantity ||
-                                0
+                          <h3>
+                            {
+                              product.name
+                            }
+                          </h3>
+
+
+                          <p className="purchase-product-price">
+                            {formatCurrency(
+                              product.price
+                            )}
+                          </p>
+
+
+                          {quantityInCart >
+                            0 && (
+                            <span className="purchase-product-added-label">
+                              {
+                                quantityInCart
+                              }{" "}
+                              agregado
+                              {quantityInCart ===
+                              1
+                                ? ""
+                                : "s"}
+                            </span>
+                          )}
+
+                        </div>
+
+
+                        <button
+                          type="button"
+                          className="purchase-add-product-button"
+                          onClick={() =>
+                            handleAddProduct(
+                              product
                             )
-                          ).toFixed(2)}
-                        </td>
+                          }
+                        >
+                          <Plus
+                            size={17}
+                          />
+
+                          Agregar
+                        </button>
+
+                      </article>
+                    );
+                  }
+                )}
+
+              </div>
+
+            )}
+
+          </section>
 
 
-                        <td>
+          {/* ==========================
+              PURCHASE SUMMARY
+          ========================== */}
+
+          <aside className="purchase-summary-column">
+
+            <section className="dashboard-section purchase-summary-panel">
+
+              <div className="purchase-section-header">
+
+                <div>
+
+                  <span className="purchase-step-label">
+                    Paso 3
+                  </span>
+
+
+                  <h2>
+                    Resumen
+                  </h2>
+
+
+                  <p>
+                    Revisa la compra antes
+                    de registrarla.
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              {items.length ===
+              0 ? (
+
+                <div className="purchase-cart-empty">
+
+                  <ShoppingCart
+                    size={32}
+                  />
+
+
+                  <strong>
+                    La compra está vacía
+                  </strong>
+
+
+                  <p>
+                    Agrega productos desde
+                    el catálogo.
+                  </p>
+
+                </div>
+
+              ) : (
+
+                <div className="purchase-summary-items">
+
+                  {items.map(
+                    (
+                      item
+                    ) => (
+                      <article
+                        key={
+                          item.product.id
+                        }
+                        className="purchase-summary-item"
+                      >
+
+                        <div className="purchase-summary-item-header">
+
+                          <div>
+
+                            <strong>
+                              {
+                                item.product.name
+                              }
+                            </strong>
+
+
+                            <span>
+                              {formatCurrency(
+                                item.product.price
+                              )}{" "}
+                              c/u
+                            </span>
+
+                          </div>
+
 
                           <button
                             type="button"
+                            className="purchase-remove-item-icon"
                             onClick={() =>
                               handleRemoveItem(
                                 item.product.id
                               )
                             }
+                            aria-label={`Quitar ${item.product.name}`}
                           >
-                            Quitar
+                            <Trash2
+                              size={17}
+                            />
                           </button>
 
-                        </td>
+                        </div>
 
-                      </tr>
+
+                        <div className="purchase-summary-item-footer">
+
+                          <div className="purchase-quantity-control">
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleDecrementQuantity(
+                                  item.product.id
+                                )
+                              }
+                              disabled={
+                                Number(
+                                  item.quantity
+                                ) <= 1
+                              }
+                              aria-label={`Reducir cantidad de ${item.product.name}`}
+                            >
+                              <Minus
+                                size={15}
+                              />
+                            </button>
+
+
+                            <input
+                              type="number"
+                              min="1"
+                              step="1"
+                              value={
+                                item.quantity
+                              }
+                              onChange={(
+                                event
+                              ) =>
+                                handleQuantityChange(
+                                  item.product.id,
+                                  event.target.value
+                                )
+                              }
+                              onBlur={() =>
+                                handleQuantityBlur(
+                                  item.product.id
+                                )
+                              }
+                              aria-label={`Cantidad de ${item.product.name}`}
+                            />
+
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleIncrementQuantity(
+                                  item.product.id
+                                )
+                              }
+                              aria-label={`Aumentar cantidad de ${item.product.name}`}
+                            >
+                              <Plus
+                                size={15}
+                              />
+                            </button>
+
+                          </div>
+
+
+                          <strong className="purchase-summary-item-subtotal">
+                            {formatCurrency(
+                              Number(
+                                item.product.price
+                              ) *
+                                Number(
+                                  item.quantity ||
+                                    0
+                                )
+                            )}
+                          </strong>
+
+                        </div>
+
+                      </article>
                     )
                   )}
 
-                </tbody>
-
-              </table>
-
-            </div>
-
-          )}
-
-
-          <div className="purchase-total">
-
-            <p>
-              <strong>
-                Total:
-              </strong>{" "}
-              ${total.toFixed(2)}
-            </p>
-
-
-            <p>
-              <strong>
-                Puntos generados:
-              </strong>{" "}
-              {
-                estimatedPoints
-              }
-            </p>
-
-
-            {useReward &&
-              selectedRewardData && (
-
-                <p>
-                  Esta compra utiliza una recompensa y no generará puntos.
-                </p>
+                </div>
 
               )}
 
-          </div>
+
+              <div className="purchase-summary-totals">
+
+                <div>
+
+                  <span>
+                    Artículos
+                  </span>
+
+                  <strong>
+                    {
+                      totalItems
+                    }
+                  </strong>
+
+                </div>
 
 
-          <div className="form-actions">
+                <div>
 
-            <Link
-              to="/purchases"
-              className="secondary-action"
-            >
-              Cancelar
-            </Link>
+                  <span>
+                    Productos distintos
+                  </span>
+
+                  <strong>
+                    {
+                      items.length
+                    }
+                  </strong>
+
+                </div>
 
 
-            <button
-              type="submit"
-              disabled={
-                submitting
-              }
-            >
-              {submitting
-                ? "Registrando..."
-                : "Registrar compra"}
-            </button>
+                <div>
 
-          </div>
+                  <span>
+                    Puntos a generar
+                  </span>
 
-        </section>
+                  <strong>
+                    {
+                      estimatedPoints
+                    }
+                  </strong>
+
+                </div>
+
+
+                {useReward &&
+                  selectedRewardData && (
+                    <div>
+
+                      <span>
+                        Puntos utilizados
+                      </span>
+
+                      <strong>
+                        -
+                        {
+                          rewardPointsUsed
+                        }
+                      </strong>
+
+                    </div>
+                  )}
+
+              </div>
+
+
+              {useReward &&
+                selectedRewardData && (
+                  <div className="purchase-reward-notice">
+
+                    <Gift
+                      size={18}
+                    />
+
+
+                    <div>
+
+                      <strong>
+                        Recompensa aplicada
+                      </strong>
+
+
+                      <span>
+                        Esta compra no generará
+                        puntos.
+                      </span>
+
+                    </div>
+
+                  </div>
+                )}
+
+
+              <div className="purchase-grand-total-card">
+
+                <span>
+                  Total a cobrar
+                </span>
+
+
+                <strong>
+                  {formatCurrency(
+                    total
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div className="purchase-summary-actions">
+
+                <Link
+                  to="/purchases"
+                  className="secondary-action"
+                >
+                  Cancelar
+                </Link>
+
+
+                <button
+                  type="submit"
+                  className="primary-action"
+                  disabled={
+                    submitting ||
+                    !selectedCustomer ||
+                    items.length === 0
+                  }
+                >
+                  {submitting
+                    ? "Registrando..."
+                    : "Registrar compra"}
+                </button>
+
+              </div>
+
+            </section>
+
+          </aside>
+
+        </div>
 
       </form>
 
