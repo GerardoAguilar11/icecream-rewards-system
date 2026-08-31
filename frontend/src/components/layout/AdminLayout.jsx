@@ -30,6 +30,12 @@ import {
   useNotification,
 } from "../../context/useNotification";
 
+import frioCoLogo
+  from "../../assets/frio-co-logo-ui.png";
+
+import frioCoMark
+  from "../../assets/frio-co-mark.png";
+
 
 function AdminLayout() {
   const navigate =
@@ -134,15 +140,25 @@ function AdminLayout() {
 
         <div className="mobile-navigation-brand">
 
-          <strong>
-            Frio&Co
-          </strong>
+          <div className="mobile-brand-icon">
+            <img
+              src={frioCoMark}
+              alt=""
+              className="mobile-brand-mark"
+            />
+          </div>
 
-          <span>
-            {user?.role === "ADMIN"
-              ? "Administrador"
-              : "Empleado"}
-          </span>
+          <div>
+            <strong>
+              Frio&Co
+            </strong>
+
+            <span>
+              {user?.role === "ADMIN"
+                ? "Administrador"
+                : "Empleado"}
+            </span>
+          </div>
 
         </div>
 
@@ -177,18 +193,29 @@ function AdminLayout() {
 
           <div className="sidebar-brand">
 
-            <div className="sidebar-brand-text">
+            <div className="sidebar-brand-expanded">
 
-              <h2>
-                Frio&Co
-              </h2>
+              <img
+                src={frioCoLogo}
+                alt="Frio&Co"
+                className="sidebar-brand-logo"
+              />
 
-              <p>
-                Rewards System
-              </p>
+              <div className="sidebar-brand-caption">
+                <span>
+                  Rewards System
+                </span>
+              </div>
 
             </div>
 
+            <div className="sidebar-brand-collapsed">
+              <img
+                src={frioCoMark}
+                alt="Frio&Co"
+                className="sidebar-brand-mark"
+              />
+            </div>
 
             <button
               type="button"
@@ -224,19 +251,17 @@ function AdminLayout() {
           >
             {collapsed ? (
               <ChevronRight
-                size={20}
+                size={19}
               />
             ) : (
               <ChevronLeft
-                size={20}
+                size={19}
               />
             )}
           </button>
 
         </div>
 
-
-        {/* Navigation */}
 
         <nav className="sidebar-nav">
 
@@ -386,8 +411,6 @@ function AdminLayout() {
         </nav>
 
 
-        {/* Footer */}
-
         <div className="sidebar-footer">
 
           <div className="sidebar-user-info">
@@ -434,8 +457,6 @@ function AdminLayout() {
 
       </aside>
 
-
-      {/* Content */}
 
       <div className="admin-content">
 
