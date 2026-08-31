@@ -4,78 +4,115 @@ import {
 } from "react";
 
 import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
   getMyCustomerProfile,
   updateMyCustomerProfile,
 } from "../services/customerService";
 
 
 function CustomerProfile() {
-  const [form, setForm] = useState({
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
+
+  const [
+    form,
+    setForm,
+  ] = useState({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
   });
 
-  const [customerCode, setCustomerCode] =
-    useState("");
+  const [
+    customerCode,
+    setCustomerCode,
+  ] = useState("");
 
-  const [points, setPoints] =
-    useState(0);
+  const [
+    points,
+    setPoints,
+  ] = useState(0);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
-  const [error, setError] =
-    useState("");
-
-  const [success, setSuccess] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
 
   useEffect(() => {
     let cancelled = false;
 
     getMyCustomerProfile()
-      .then((data) => {
-        if (cancelled) {
-          return;
-        }
+      .then(
+        (data) => {
+          if (cancelled) {
+            return;
+          }
 
-        setForm({
-          first_name:
-            data.first_name ?? "",
-          last_name:
-            data.last_name ?? "",
-          email:
-            data.email ?? "",
-          phone:
-            data.phone ?? "",
-        });
+          setForm({
+            first_name:
+              data.first_name ??
+              "",
+            last_name:
+              data.last_name ??
+              "",
+            email:
+              data.email ??
+              "",
+            phone:
+              data.phone ??
+              "",
+          });
 
-        setCustomerCode(
-          data.customer_code ?? ""
-        );
+          setCustomerCode(
+            data.customer_code ??
+            ""
+          );
 
-        setPoints(
-          data.points ?? 0
-        );
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError(
-            "No fue posible cargar tu perfil."
+          setPoints(
+            data.points ??
+            0
           );
         }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
+      )
+      .catch(
+        () => {
+          if (
+            !cancelled
+          ) {
+            setError(
+              "No fue posible cargar tu perfil."
+            );
+          }
         }
-      });
+      )
+      .finally(
+        () => {
+          if (
+            !cancelled
+          ) {
+            setLoading(
+              false
+            );
+          }
+        }
+      );
 
     return () => {
       cancelled = true;
@@ -92,157 +129,193 @@ function CustomerProfile() {
     } = event.target;
 
     setForm(
-      (currentForm) => ({
+      (
+        currentForm
+      ) => ({
         ...currentForm,
         [name]: value,
       })
     );
 
-    setSuccess("");
+    setError("");
   };
 
 
-  const handleSubmit = async (
-    event
-  ) => {
-    event.preventDefault();
+  const handleSubmit =
+    async (event) => {
+      event.preventDefault();
 
-    setError("");
-    setSuccess("");
+      setError("");
 
 
-    if (!form.first_name.trim()) {
-      setError(
-        "El nombre es obligatorio."
-      );
+      if (
+        !form.first_name.trim()
+      ) {
+        setError(
+          "El nombre es obligatorio."
+        );
 
-      return;
-    }
-
-
-    if (!form.last_name.trim()) {
-      setError(
-        "Los apellidos son obligatorios."
-      );
-
-      return;
-    }
+        return;
+      }
 
 
-    if (!form.email.trim()) {
-      setError(
-        "El correo electrónico es obligatorio."
-      );
+      if (
+        !form.last_name.trim()
+      ) {
+        setError(
+          "Los apellidos son obligatorios."
+        );
 
-      return;
-    }
+        return;
+      }
 
 
-    try {
-      setSubmitting(true);
+      if (
+        !form.email.trim()
+      ) {
+        setError(
+          "El correo electrónico es obligatorio."
+        );
 
-      const updatedCustomer =
-        await updateMyCustomerProfile({
+        return;
+      }
+
+
+      try {
+        setSubmitting(
+          true
+        );
+
+
+        const updatedCustomer =
+          await updateMyCustomerProfile({
+            first_name:
+              form.first_name.trim(),
+            last_name:
+              form.last_name.trim(),
+            email:
+              form.email.trim(),
+            phone:
+              form.phone.trim(),
+          });
+
+
+        setForm({
           first_name:
-            form.first_name.trim(),
-
+            updatedCustomer.first_name ??
+            "",
           last_name:
-            form.last_name.trim(),
-
+            updatedCustomer.last_name ??
+            "",
           email:
-            form.email.trim(),
-
+            updatedCustomer.email ??
+            "",
           phone:
-            form.phone.trim(),
+            updatedCustomer.phone ??
+            "",
         });
 
 
-      setForm({
-        first_name:
-          updatedCustomer.first_name ?? "",
-
-        last_name:
-          updatedCustomer.last_name ?? "",
-
-        email:
-          updatedCustomer.email ?? "",
-
-        phone:
-          updatedCustomer.phone ?? "",
-      });
-
-
-      setCustomerCode(
-        updatedCustomer.customer_code
-      );
-
-      setPoints(
-        updatedCustomer.points
-      );
-
-
-      setSuccess(
-        "Tu perfil se actualizó correctamente."
-      );
-    } catch (requestError) {
-      const responseData =
-        requestError.response?.data;
-
-
-      if (responseData?.email) {
-        setError(
-          Array.isArray(
-            responseData.email
-          )
-            ? responseData.email[0]
-            : responseData.email
+        setCustomerCode(
+          updatedCustomer.customer_code
         );
 
-        return;
-      }
 
-
-      if (responseData?.first_name) {
-        setError(
-          Array.isArray(
-            responseData.first_name
-          )
-            ? responseData.first_name[0]
-            : responseData.first_name
+        setPoints(
+          updatedCustomer.points
         );
 
-        return;
-      }
 
-
-      if (responseData?.last_name) {
-        setError(
-          Array.isArray(
-            responseData.last_name
-          )
-            ? responseData.last_name[0]
-            : responseData.last_name
+        showSuccess(
+          "Tu perfil se actualizó correctamente."
         );
+      } catch (
+        requestError
+      ) {
+        const responseData =
+          requestError.response
+            ?.data;
 
-        return;
+
+        if (
+          responseData?.email
+        ) {
+          setError(
+            Array.isArray(
+              responseData.email
+            )
+              ? responseData.email[0]
+              : responseData.email
+          );
+
+          return;
+        }
+
+
+        if (
+          responseData?.first_name
+        ) {
+          setError(
+            Array.isArray(
+              responseData.first_name
+            )
+              ? responseData.first_name[0]
+              : responseData.first_name
+          );
+
+          return;
+        }
+
+
+        if (
+          responseData?.last_name
+        ) {
+          setError(
+            Array.isArray(
+              responseData.last_name
+            )
+              ? responseData.last_name[0]
+              : responseData.last_name
+          );
+
+          return;
+        }
+
+
+        if (
+          responseData?.phone
+        ) {
+          setError(
+            Array.isArray(
+              responseData.phone
+            )
+              ? responseData.phone[0]
+              : responseData.phone
+          );
+
+          return;
+        }
+
+
+        showError(
+          "No fue posible actualizar tu perfil."
+        );
+      } finally {
+        setSubmitting(
+          false
+        );
       }
-
-
-      setError(
-        "No fue posible actualizar tu perfil."
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    };
 
 
   if (loading) {
     return (
       <main className="customer-section-page">
+
         <p>
           Cargando perfil...
         </p>
+
       </main>
     );
   }
@@ -258,7 +331,8 @@ function CustomerProfile() {
         </h1>
 
         <p>
-          Consulta y actualiza tu información personal.
+          Consulta y actualiza
+          tu información personal.
         </p>
 
       </header>
@@ -272,7 +346,9 @@ function CustomerProfile() {
 
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={
+            handleSubmit
+          }
           className="customer-form"
         >
 
@@ -286,8 +362,12 @@ function CustomerProfile() {
               id="first_name"
               name="first_name"
               type="text"
-              value={form.first_name}
-              onChange={handleChange}
+              value={
+                form.first_name
+              }
+              onChange={
+                handleChange
+              }
               required
             />
 
@@ -304,8 +384,12 @@ function CustomerProfile() {
               id="last_name"
               name="last_name"
               type="text"
-              value={form.last_name}
-              onChange={handleChange}
+              value={
+                form.last_name
+              }
+              onChange={
+                handleChange
+              }
               required
             />
 
@@ -322,8 +406,12 @@ function CustomerProfile() {
               id="email"
               name="email"
               type="email"
-              value={form.email}
-              onChange={handleChange}
+              value={
+                form.email
+              }
+              onChange={
+                handleChange
+              }
               required
             />
 
@@ -340,8 +428,12 @@ function CustomerProfile() {
               id="phone"
               name="phone"
               type="tel"
-              value={form.phone}
-              onChange={handleChange}
+              value={
+                form.phone
+              }
+              onChange={
+                handleChange
+              }
             />
 
           </div>
@@ -357,21 +449,13 @@ function CustomerProfile() {
           )}
 
 
-          {success && (
-            <p
-              role="status"
-              className="form-success"
-            >
-              {success}
-            </p>
-          )}
-
-
           <div className="form-actions">
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={
+                submitting
+              }
             >
               {submitting
                 ? "Guardando..."
@@ -395,6 +479,7 @@ function CustomerProfile() {
         <div className="customer-profile-readonly">
 
           <div>
+
             <span>
               Código de cliente
             </span>
@@ -402,10 +487,12 @@ function CustomerProfile() {
             <strong>
               {customerCode}
             </strong>
+
           </div>
 
 
           <div>
+
             <span>
               Puntos disponibles
             </span>
@@ -413,6 +500,7 @@ function CustomerProfile() {
             <strong>
               {points}
             </strong>
+
           </div>
 
         </div>

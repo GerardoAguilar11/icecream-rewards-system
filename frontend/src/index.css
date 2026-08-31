@@ -2663,6 +2663,208 @@ input[type="number"]::-webkit-outer-spin-button {
   cursor: pointer;
 }
 
+/* =========================================================
+   Notifications
+========================================================= */
+
+.notification-container {
+  position: fixed;
+
+  top: 20px;
+  right: 20px;
+
+  z-index: 2000;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  width: min(
+    390px,
+    calc(100vw - 40px)
+  );
+
+  pointer-events: none;
+}
+
+
+.notification-toast {
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: flex-start;
+
+  gap: 11px;
+
+  padding: 14px;
+
+  border: 1px solid #dedede;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.12);
+
+  pointer-events: auto;
+
+  animation:
+    notification-enter
+    0.2s ease-out;
+}
+
+
+.notification-icon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 8px;
+
+  background: #f3f3f3;
+}
+
+
+.notification-content {
+  min-width: 0;
+}
+
+
+.notification-title {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+.notification-content p {
+  margin: 0;
+
+  color: #666;
+
+  font-size: 13px;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+
+.notification-close {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #777;
+
+  cursor: pointer;
+}
+
+
+.notification-close:hover {
+  background: #f2f2f2;
+
+  color: #333;
+}
+
+
+.notification-success {
+  border-left:
+    4px solid #2f855a;
+}
+
+
+.notification-success
+.notification-icon {
+  color: #2f855a;
+
+  background: #f0fff4;
+}
+
+
+.notification-error {
+  border-left:
+    4px solid #c53030;
+}
+
+
+.notification-error
+.notification-icon {
+  color: #c53030;
+
+  background: #fff5f5;
+}
+
+
+.notification-warning {
+  border-left:
+    4px solid #b7791f;
+}
+
+
+.notification-warning
+.notification-icon {
+  color: #b7791f;
+
+  background: #fffaf0;
+}
+
+
+.notification-info {
+  border-left:
+    4px solid #2b6cb0;
+}
+
+
+.notification-info
+.notification-icon {
+  color: #2b6cb0;
+
+  background: #ebf8ff;
+}
+
+
+@keyframes notification-enter {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateX(18px);
+  }
+
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateX(0);
+  }
+
+}
 
 /* =========================================================
    26. Responsive / Mobile
@@ -3187,6 +3389,16 @@ input[type="number"]::-webkit-outer-spin-button {
   .purchase-grand-total-card strong {
     text-align:
       left;
+  }
+
+    /* Notifications */
+
+  .notification-container {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+
+    width: auto;
   }
 
 }

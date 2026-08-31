@@ -3,9 +3,17 @@ import {
   useState,
 } from "react";
 
-import { Link } from "react-router-dom";
+import {
+  Link,
+} from "react-router-dom";
 
-import { useAuth } from "../context/useAuth";
+import {
+  useAuth,
+} from "../context/useAuth";
+
+import {
+  useNotification,
+} from "../context/useNotification";
 
 import {
   getRewards,
@@ -14,28 +22,51 @@ import {
 
 
 function Rewards() {
-  const { user } = useAuth();
+  const {
+    user,
+  } = useAuth();
 
-  const [rewards, setRewards] =
-    useState([]);
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
 
-  const [loading, setLoading] =
-    useState(true);
 
-  const [updatingId, setUpdatingId] =
-    useState(null);
+  const [
+    rewards,
+    setRewards,
+  ] = useState([]);
 
-  const [error, setError] =
-    useState("");
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
+  const [
+    updatingId,
+    setUpdatingId,
+  ] = useState(null);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  /* ==========================
+     LOAD REWARDS
+  ========================== */
 
   useEffect(() => {
     let cancelled = false;
 
+
     getRewards()
       .then((data) => {
         if (!cancelled) {
-          setRewards(data);
+          setRewards(
+            data
+          );
         }
       })
       .catch(() => {
@@ -47,9 +78,12 @@ function Rewards() {
       })
       .finally(() => {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -57,41 +91,66 @@ function Rewards() {
   }, []);
 
 
-  const reloadRewards = async () => {
-    const data =
-      await getRewards();
+  /* ==========================
+     RELOAD REWARDS
+  ========================== */
 
-    setRewards(data);
-  };
+  const reloadRewards =
+    async () => {
+      const data =
+        await getRewards();
 
-
-  const handleToggleActive = async (
-    reward
-  ) => {
-    try {
-      setUpdatingId(
-        reward.id
+      setRewards(
+        data
       );
+    };
 
-      setError("");
 
-      await updateReward(
-        reward.id,
-        {
-          is_active:
-            !reward.is_active,
-        }
-      );
+  /* ==========================
+     TOGGLE ACTIVE
+  ========================== */
 
-      await reloadRewards();
-    } catch {
-      setError(
-        "No fue posible actualizar la recompensa."
-      );
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+  const handleToggleActive =
+    async (reward) => {
+      try {
+        setUpdatingId(
+          reward.id
+        );
+
+        setError("");
+
+
+        const newStatus =
+          !reward.is_active;
+
+
+        await updateReward(
+          reward.id,
+          {
+            is_active:
+              newStatus,
+          }
+        );
+
+
+        await reloadRewards();
+
+
+        showSuccess(
+          newStatus
+            ? `${reward.name} fue activada correctamente.`
+            : `${reward.name} fue desactivada correctamente.`
+        );
+      } catch {
+        showError(
+          "No fue posible actualizar el estado de la recompensa."
+        );
+      } finally {
+        setUpdatingId(
+          null
+        );
+      }
+    };
 
 
   return (
@@ -105,14 +164,19 @@ function Rewards() {
             Recompensas
           </h1>
 
+
           <p>
-            Consulta y administra las recompensas disponibles para los clientes.
+            Consulta y administra
+            las recompensas
+            disponibles para los
+            clientes.
           </p>
 
         </div>
 
 
-        {user?.role === "ADMIN" && (
+        {user?.role ===
+          "ADMIN" && (
           <Link
             to="/rewards/new"
             className="primary-action"
@@ -142,19 +206,27 @@ function Rewards() {
 
 
         {loading ? (
+
           <p>
             Cargando recompensas...
           </p>
-        ) : rewards.length === 0 ? (
+
+        ) : rewards.length ===
+          0 ? (
+
           <p>
-            No hay recompensas registradas.
+            No hay recompensas
+            registradas.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
 
                   <th>
@@ -173,6 +245,7 @@ function Rewards() {
                     Estado
                   </th>
 
+
                   {user?.role ===
                     "ADMIN" && (
                     <th>
@@ -181,13 +254,16 @@ function Rewards() {
                   )}
 
                 </tr>
+
               </thead>
 
 
               <tbody>
 
                 {rewards.map(
-                  (reward) => (
+                  (
+                    reward
+                  ) => (
                     <tr
                       key={
                         reward.id
@@ -195,11 +271,13 @@ function Rewards() {
                     >
 
                       <td>
+
                         <strong>
                           {
                             reward.name
                           }
                         </strong>
+
                       </td>
 
 
@@ -275,6 +353,7 @@ function Rewards() {
             </table>
 
           </div>
+
         )}
 
       </section>

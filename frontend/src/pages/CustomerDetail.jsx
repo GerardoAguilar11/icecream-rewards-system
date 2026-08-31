@@ -9,9 +9,16 @@ import {
   useParams,
 } from "react-router-dom";
 
-import { useAuth } from "../context/useAuth";
+import {
+  useAuth,
+} from "../context/useAuth";
 
-import ConfirmModal from "../components/common/ConfirmModal";
+import {
+  useNotification,
+} from "../context/useNotification";
+
+import ConfirmModal
+  from "../components/common/ConfirmModal";
 
 import {
   getCustomerById,
@@ -19,35 +26,57 @@ import {
   getCustomerRewardHistory,
 } from "../services/customerService";
 
-import api from "../api/axios";
+import api
+  from "../api/axios";
 
 
 function CustomerDetail() {
-  const { id } = useParams();
+  const {
+    id,
+  } = useParams();
 
   const navigate =
     useNavigate();
 
-  const { user } =
-    useAuth();
+  const {
+    user,
+  } = useAuth();
 
-  const [customer, setCustomer] =
-    useState(null);
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
 
-  const [purchases, setPurchases] =
-    useState([]);
 
-  const [redemptions, setRedemptions] =
-    useState([]);
+  const [
+    customer,
+    setCustomer,
+  ] = useState(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    purchases,
+    setPurchases,
+  ] = useState([]);
 
-  const [error, setError] =
-    useState("");
+  const [
+    redemptions,
+    setRedemptions,
+  ] = useState([]);
 
-  const [deleting, setDeleting] =
-    useState(false);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
 
   const [
     showDeleteModal,
@@ -55,69 +84,113 @@ function CustomerDetail() {
   ] = useState(false);
 
 
-  useEffect(() => {
-    const loadCustomer = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  /* ==========================
+     LOAD CUSTOMER
+  ========================== */
 
-        const customerData =
-          await getCustomerById(
-            id
+  useEffect(() => {
+    const loadCustomer =
+      async () => {
+        try {
+          setLoading(
+            true
           );
 
-        setCustomer(
-          customerData
-        );
+          setError("");
 
-        const [
-          purchaseData,
-          rewardData,
-        ] = await Promise.all([
-          getCustomerPurchases(
-            customerData.customer_code
-          ),
 
-          getCustomerRewardHistory(
-            customerData.customer_code
-          ),
-        ]);
+          const customerData =
+            await getCustomerById(
+              id
+            );
 
-        setPurchases(
-          purchaseData.purchases ??
-          []
-        );
 
-        setRedemptions(
-          rewardData.redemptions ??
-          []
-        );
-      } catch {
-        setError(
-          "No fue posible cargar la información del cliente."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+          setCustomer(
+            customerData
+          );
+
+
+          const [
+            purchaseData,
+            rewardData,
+          ] = await Promise.all([
+            getCustomerPurchases(
+              customerData.customer_code
+            ),
+
+            getCustomerRewardHistory(
+              customerData.customer_code
+            ),
+          ]);
+
+
+          setPurchases(
+            purchaseData.purchases ??
+            []
+          );
+
+
+          setRedemptions(
+            rewardData.redemptions ??
+            []
+          );
+        } catch {
+          setError(
+            "No fue posible cargar la información del cliente."
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      };
+
 
     loadCustomer();
-  }, [id]);
+  }, [
+    id,
+  ]);
 
+
+  /* ==========================
+     DELETE CUSTOMER
+  ========================== */
 
   const handleDelete =
     async () => {
+      if (!customer) {
+        return;
+      }
+
+
+      const customerName =
+        `${customer.first_name} ${customer.last_name}`.trim();
+
+
       try {
-        setDeleting(true);
+        setDeleting(
+          true
+        );
+
         setError("");
+
 
         await api.delete(
           `/customers/${id}/`
         );
 
+
         setShowDeleteModal(
           false
         );
+
+
+        showSuccess(
+          customerName
+            ? `${customerName} fue eliminado correctamente.`
+            : "Cliente eliminado correctamente."
+        );
+
 
         navigate(
           "/customers",
@@ -125,21 +198,29 @@ function CustomerDetail() {
             replace: true,
           }
         );
-      } catch (requestError) {
+      } catch (
+        requestError
+      ) {
         const detail =
-          requestError.response
-            ?.data?.detail;
+          requestError
+            .response
+            ?.data
+            ?.detail;
 
-        setError(
-          detail ||
-          "No fue posible eliminar el cliente."
-        );
 
         setShowDeleteModal(
           false
         );
+
+
+        showError(
+          detail ||
+          "No fue posible eliminar el cliente."
+        );
       } finally {
-        setDeleting(false);
+        setDeleting(
+          false
+        );
       }
     };
 
@@ -147,9 +228,11 @@ function CustomerDetail() {
   if (loading) {
     return (
       <main className="customers-page">
+
         <p>
           Cargando cliente...
         </p>
+
       </main>
     );
   }
@@ -162,9 +245,13 @@ function CustomerDetail() {
     return (
       <main className="customers-page">
 
-        <p role="alert">
+        <p
+          role="alert"
+          className="form-error"
+        >
           {error}
         </p>
+
 
         <Link
           to="/customers"
@@ -191,13 +278,20 @@ function CustomerDetail() {
             ← Volver a clientes
           </Link>
 
+
           <h1>
-            {customer.first_name}{" "}
-            {customer.last_name}
+            {
+              customer.first_name
+            }{" "}
+            {
+              customer.last_name
+            }
           </h1>
 
+
           <p>
-            Información general del cliente.
+            Información general
+            del cliente.
           </p>
 
         </div>
@@ -213,6 +307,7 @@ function CustomerDetail() {
             >
               Editar
             </Link>
+
 
             <button
               type="button"
@@ -253,6 +348,7 @@ function CustomerDetail() {
             Código
           </h3>
 
+
           <p>
             {
               customer.customer_code
@@ -267,6 +363,7 @@ function CustomerDetail() {
           <h3>
             Puntos disponibles
           </h3>
+
 
           <p>
             {
@@ -283,6 +380,7 @@ function CustomerDetail() {
             Correo
           </h3>
 
+
           <p className="customer-info-text">
             {
               customer.email
@@ -297,6 +395,7 @@ function CustomerDetail() {
           <h3>
             Teléfono
           </h3>
+
 
           <p className="customer-info-text">
             {
@@ -317,17 +416,24 @@ function CustomerDetail() {
         </h2>
 
 
-        {purchases.length === 0 ? (
+        {purchases.length ===
+          0 ? (
+
           <p>
-            El cliente todavía no tiene compras.
+            El cliente todavía
+            no tiene compras.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Compra
                   </th>
@@ -347,14 +453,18 @@ function CustomerDetail() {
                   <th>
                     Fecha
                   </th>
+
                 </tr>
+
               </thead>
 
 
               <tbody>
 
                 {purchases.map(
-                  (purchase) => (
+                  (
+                    purchase
+                  ) => (
                     <tr
                       key={
                         purchase.id
@@ -368,12 +478,16 @@ function CustomerDetail() {
                         }
                       </td>
 
+
                       <td>
                         $
                         {Number(
                           purchase.total_amount
-                        ).toFixed(2)}
+                        ).toFixed(
+                          2
+                        )}
                       </td>
+
 
                       <td>
                         {
@@ -381,11 +495,13 @@ function CustomerDetail() {
                         }
                       </td>
 
+
                       <td>
                         {
                           purchase.status
                         }
                       </td>
+
 
                       <td>
                         {new Date(
@@ -402,6 +518,7 @@ function CustomerDetail() {
             </table>
 
           </div>
+
         )}
 
       </section>
@@ -414,17 +531,25 @@ function CustomerDetail() {
         </h2>
 
 
-        {redemptions.length === 0 ? (
+        {redemptions.length ===
+          0 ? (
+
           <p>
-            El cliente todavía no ha canjeado recompensas.
+            El cliente todavía
+            no ha canjeado
+            recompensas.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Recompensa
                   </th>
@@ -440,14 +565,18 @@ function CustomerDetail() {
                   <th>
                     Fecha
                   </th>
+
                 </tr>
+
               </thead>
 
 
               <tbody>
 
                 {redemptions.map(
-                  (redemption) => (
+                  (
+                    redemption
+                  ) => (
                     <tr
                       key={
                         redemption.id
@@ -460,17 +589,20 @@ function CustomerDetail() {
                         }
                       </td>
 
+
                       <td>
                         {
                           redemption.points_used
                         }
                       </td>
 
+
                       <td>
                         {
                           redemption.status
                         }
                       </td>
+
 
                       <td>
                         {new Date(
@@ -487,6 +619,7 @@ function CustomerDetail() {
             </table>
 
           </div>
+
         )}
 
       </section>
