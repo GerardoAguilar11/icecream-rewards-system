@@ -22,6 +22,10 @@ import {
 } from "../../context/useAuth";
 
 import {
+  useNotification,
+} from "../../context/useNotification";
+
+import {
   useState,
 } from "react";
 
@@ -35,6 +39,11 @@ function CustomerLayout() {
     logout,
   } = useAuth();
 
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
+
   const [
     collapsed,
     setCollapsed,
@@ -45,17 +54,41 @@ function CustomerLayout() {
     setMobileOpen,
   ] = useState(false);
 
+  const [
+    loggingOut,
+    setLoggingOut,
+  ] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
 
-    navigate(
-      "/login",
-      {
-        replace: true,
+  const handleLogout =
+    async () => {
+      try {
+        setLoggingOut(
+          true
+        );
+
+        await logout();
+
+        showSuccess(
+          "Sesión cerrada correctamente."
+        );
+
+        navigate(
+          "/login",
+          {
+            replace: true,
+          }
+        );
+      } catch {
+        showError(
+          "No fue posible cerrar la sesión."
+        );
+      } finally {
+        setLoggingOut(
+          false
+        );
       }
-    );
-  };
+    };
 
 
   const closeMobileMenu = () => {
@@ -309,6 +342,7 @@ function CustomerLayout() {
             type="button"
             className="sidebar-logout-button"
             onClick={handleLogout}
+            disabled={loggingOut}
           >
 
             <LogOut
@@ -317,7 +351,9 @@ function CustomerLayout() {
             />
 
             <span className="logout-label">
-              Cerrar sesión
+              {loggingOut
+                ? "Cerrando sesión..."
+                : "Cerrar sesión"}
             </span>
 
           </button>

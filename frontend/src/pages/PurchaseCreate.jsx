@@ -20,6 +20,10 @@ import {
 } from "lucide-react";
 
 import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
   searchCustomers,
 } from "../services/customerService";
 
@@ -60,6 +64,10 @@ function PurchaseCreate() {
   const searchContainerRef =
     useRef(null);
 
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
 
   /* ==========================
      PRODUCTS
@@ -972,6 +980,9 @@ function PurchaseCreate() {
           payload
         );
 
+      showSuccess(
+        `Compra #${purchase.id} registrada correctamente.`
+      );
 
       navigate(
         `/purchases/${purchase.id}`,
@@ -990,7 +1001,7 @@ function PurchaseCreate() {
       if (
         responseData?.detail
       ) {
-        setError(
+        showError(
           responseData.detail
         );
 
@@ -1001,7 +1012,7 @@ function PurchaseCreate() {
       if (
         responseData?.items
       ) {
-        setError(
+        showError(
           "Revisa los productos de la compra."
         );
 
@@ -1012,7 +1023,7 @@ function PurchaseCreate() {
       if (
         responseData?.customer
       ) {
-        setError(
+        showError(
           "El cliente seleccionado no es válido."
         );
 
@@ -1023,15 +1034,14 @@ function PurchaseCreate() {
       if (
         responseData?.reward
       ) {
-        setError(
+        showError(
           "La recompensa seleccionada no es válida."
         );
 
         return;
       }
 
-
-      setError(
+      showError(
         "No fue posible registrar la compra."
       );
     } finally {

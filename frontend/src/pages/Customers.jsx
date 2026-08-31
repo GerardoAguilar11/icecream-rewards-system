@@ -3,7 +3,9 @@ import {
   useState,
 } from "react";
 
-import { Link } from "react-router-dom";
+import {
+  Link,
+} from "react-router-dom";
 
 import {
   getCustomers,
@@ -12,51 +14,68 @@ import {
 
 
 function Customers() {
-  const [customers, setCustomers] =
-    useState([]);
+  const [
+    customers,
+    setCustomers,
+  ] = useState([]);
 
-  const [search, setSearch] =
-    useState("");
+  const [
+    search,
+    setSearch,
+  ] = useState("");
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
 
   useEffect(() => {
     let cancelled = false;
 
-    const timeoutId = setTimeout(
-      async () => {
-        try {
-          const query =
-            search.trim();
 
-          const data = query
-            ? await searchCustomers(
-                query
-              )
-            : await getCustomers();
+    const timeoutId =
+      setTimeout(
+        async () => {
+          try {
+            const query =
+              search.trim();
 
-          if (!cancelled) {
-            setCustomers(data);
+
+            const data =
+              query
+                ? await searchCustomers(
+                    query
+                  )
+                : await getCustomers();
+
+
+            if (!cancelled) {
+              setCustomers(
+                data
+              );
+            }
+          } catch {
+            if (!cancelled) {
+              setError(
+                "No fue posible realizar la búsqueda."
+              );
+            }
+          } finally {
+            if (!cancelled) {
+              setLoading(
+                false
+              );
+            }
           }
-        } catch {
-          if (!cancelled) {
-            setError(
-              "No fue posible realizar la búsqueda."
-            );
-          }
-        } finally {
-          if (!cancelled) {
-            setLoading(false);
-          }
-        }
-      },
-      300
-    );
+        },
+        300
+      );
 
 
     return () => {
@@ -66,7 +85,9 @@ function Customers() {
         timeoutId
       );
     };
-  }, [search]);
+  }, [
+    search,
+  ]);
 
 
   const handleSearchChange = (
@@ -76,7 +97,9 @@ function Customers() {
       event.target.value
     );
 
-    setLoading(true);
+    setLoading(
+      true
+    );
 
     setError("");
   };
@@ -93,8 +116,10 @@ function Customers() {
             Clientes
           </h1>
 
+
           <p>
-            Consulta los clientes registrados.
+            Consulta los clientes
+            registrados.
           </p>
 
         </div>
@@ -109,7 +134,9 @@ function Customers() {
           <input
             type="text"
             placeholder="Buscar por nombre, correo, teléfono o código"
-            value={search}
+            value={
+              search
+            }
             onChange={
               handleSearchChange
             }
@@ -128,24 +155,38 @@ function Customers() {
 
 
         {loading ? (
+
           <p>
             Buscando clientes...
           </p>
+
         ) : error ? (
-          <p role="alert">
+
+          <p
+            role="alert"
+            className="form-error"
+          >
             {error}
           </p>
-        ) : customers.length === 0 ? (
+
+        ) : customers.length ===
+          0 ? (
+
           <p>
-            No se encontraron clientes.
+            No se encontraron
+            clientes.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Código
                   </th>
@@ -169,14 +210,18 @@ function Customers() {
                   <th>
                     Acciones
                   </th>
+
                 </tr>
+
               </thead>
 
 
               <tbody>
 
                 {customers.map(
-                  (customer) => (
+                  (
+                    customer
+                  ) => (
                     <tr
                       key={
                         customer.id
@@ -189,6 +234,7 @@ function Customers() {
                         }
                       </td>
 
+
                       <td>
                         {
                           customer.first_name
@@ -198,11 +244,13 @@ function Customers() {
                         }
                       </td>
 
+
                       <td>
                         {
                           customer.email
                         }
                       </td>
+
 
                       <td>
                         {
@@ -211,11 +259,13 @@ function Customers() {
                         }
                       </td>
 
+
                       <td>
                         {
                           customer.points
                         }
                       </td>
+
 
                       <td>
 
@@ -237,6 +287,7 @@ function Customers() {
             </table>
 
           </div>
+
         )}
 
       </section>

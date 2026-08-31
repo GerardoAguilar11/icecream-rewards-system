@@ -12,6 +12,10 @@ import {
 } from "../context/useAuth";
 
 import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
   deleteProduct,
   getProducts,
   updateProduct,
@@ -22,6 +26,12 @@ function Products() {
   const {
     user,
   } = useAuth();
+
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
+
 
   const [
     products,
@@ -49,23 +59,25 @@ function Products() {
   ] = useState(false);
 
   const [
-    deleteError,
-    setDeleteError,
-  ] = useState("");
+    updatingId,
+    setUpdatingId,
+  ] = useState(null);
 
-  const [
-    deleteSuccess,
-    setDeleteSuccess,
-  ] = useState(false);
 
+  /* ==========================
+     LOAD PRODUCTS
+  ========================== */
 
   useEffect(() => {
     let cancelled = false;
 
+
     getProducts()
       .then((data) => {
         if (!cancelled) {
-          setProducts(data);
+          setProducts(
+            data
+          );
         }
       })
       .catch(() => {
@@ -77,9 +89,12 @@ function Products() {
       })
       .finally(() => {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -87,44 +102,76 @@ function Products() {
   }, []);
 
 
-  const reloadProducts = async () => {
-    const data =
-      await getProducts();
+  /* ==========================
+     RELOAD PRODUCTS
+  ========================== */
 
-    setProducts(data);
-  };
+  const reloadProducts =
+    async () => {
+      const data =
+        await getProducts();
 
-
-  const handleToggleActive = async (
-    product
-  ) => {
-    try {
-      setError("");
-
-      await updateProduct(
-        product.id,
-        {
-          is_active:
-            !product.is_active,
-        }
+      setProducts(
+        data
       );
+    };
 
-      await reloadProducts();
 
-    } catch {
-      setError(
-        "No fue posible actualizar el producto."
-      );
-    }
-  };
+  /* ==========================
+     TOGGLE ACTIVE
+  ========================== */
 
+  const handleToggleActive =
+    async (product) => {
+      try {
+        setUpdatingId(
+          product.id
+        );
+
+        setError("");
+
+
+        const newStatus =
+          !product.is_active;
+
+
+        await updateProduct(
+          product.id,
+          {
+            is_active:
+              newStatus,
+          }
+        );
+
+
+        await reloadProducts();
+
+
+        showSuccess(
+          newStatus
+            ? `${product.name} fue activado correctamente.`
+            : `${product.name} fue desactivado correctamente.`
+        );
+      } catch {
+        showError(
+          "No fue posible actualizar el estado del producto."
+        );
+      } finally {
+        setUpdatingId(
+          null
+        );
+      }
+    };
+
+
+  /* ==========================
+     DELETE PRODUCT
+  ========================== */
 
   const handleDeleteClick = (
     product
   ) => {
     setError("");
-    setDeleteError("");
-    setDeleteSuccess(false);
 
     setProductToDelete(
       product
@@ -132,78 +179,102 @@ function Products() {
   };
 
 
-  const handleCloseDeleteModal = () => {
-    if (deleting) {
-      return;
-    }
+  const handleCloseDeleteModal =
+    () => {
+      if (deleting) {
+        return;
+      }
 
-    setProductToDelete(
-      null
-    );
-
-    setDeleteError("");
-    setDeleteSuccess(false);
-  };
-
-
-  const handleCloseSuccessModal = () => {
-    setDeleteSuccess(false);
-
-    window.location.reload();
-  };
-
-
-  const handleConfirmDelete = async () => {
-    if (!productToDelete) {
-      return;
-    }
-
-    try {
-      setDeleting(true);
-      setDeleteError("");
-
-      await deleteProduct(
-        productToDelete.id
-      );
 
       setProductToDelete(
         null
       );
+    };
 
-      setDeleteSuccess(
-        true
-      );
 
-    } catch (requestError) {
-      const detail =
+  const handleConfirmDelete =
+    async () => {
+      if (
+        !productToDelete
+      ) {
+        return;
+      }
+
+
+      const productName =
+        productToDelete.name;
+
+
+      try {
+        setDeleting(
+          true
+        );
+
+
+        await deleteProduct(
+          productToDelete.id
+        );
+
+
+        await reloadProducts();
+
+
+        setProductToDelete(
+          null
+        );
+
+
+        showSuccess(
+          `${productName} fue eliminado correctamente.`
+        );
+      } catch (
         requestError
-          .response
-          ?.data
-          ?.detail;
+      ) {
+        const detail =
+          requestError
+            .response
+            ?.data
+            ?.detail;
 
-      setDeleteError(
-        detail ||
-        "No fue posible eliminar el producto."
-      );
 
-    } finally {
-      setDeleting(false);
-    }
-  };
+        showError(
+          detail ||
+          "No fue posible eliminar el producto."
+        );
+      } finally {
+        setDeleting(
+          false
+        );
+      }
+    };
 
+
+  /* ==========================
+     CATEGORY LABEL
+  ========================== */
 
   const getCategoryLabel = (
     category
   ) => {
     const categories = {
-      ICE_CREAM: "Helado",
-      DRINK: "Bebida",
-      TOPPING: "Complemento",
-      OTHER: "Otro",
+      ICE_CREAM:
+        "Helado",
+
+      DRINK:
+        "Bebida",
+
+      TOPPING:
+        "Complemento",
+
+      OTHER:
+        "Otro",
     };
 
+
     return (
-      categories[category] ||
+      categories[
+        category
+      ] ||
       category
     );
   };
@@ -220,36 +291,35 @@ function Products() {
             Productos
           </h1>
 
+
           <p>
-            Consulta y administra el catálogo de productos.
+            Consulta y administra
+            el catálogo de productos.
           </p>
 
         </div>
 
 
-        {user?.role === "ADMIN" && (
-
+        {user?.role ===
+          "ADMIN" && (
           <Link
             to="/products/new"
             className="primary-action"
           >
             Nuevo producto
           </Link>
-
         )}
 
       </header>
 
 
       {error && (
-
         <p
           role="alert"
           className="form-error"
         >
           {error}
         </p>
-
       )}
 
 
@@ -266,10 +336,12 @@ function Products() {
             Cargando productos...
           </p>
 
-        ) : products.length === 0 ? (
+        ) : products.length ===
+          0 ? (
 
           <p>
-            No hay productos registrados.
+            No hay productos
+            registrados.
           </p>
 
         ) : (
@@ -302,7 +374,9 @@ function Products() {
                     Estado
                   </th>
 
-                  {user?.role === "ADMIN" && (
+
+                  {user?.role ===
+                    "ADMIN" && (
                     <th>
                       Acciones
                     </th>
@@ -316,8 +390,9 @@ function Products() {
               <tbody>
 
                 {products.map(
-                  (product) => (
-
+                  (
+                    product
+                  ) => (
                     <tr
                       key={
                         product.id
@@ -327,7 +402,6 @@ function Products() {
                       <td>
 
                         {product.image ? (
-
                           <img
                             src={
                               product.image
@@ -337,13 +411,10 @@ function Products() {
                             }
                             className="product-thumbnail"
                           />
-
                         ) : (
-
                           <span>
                             Sin imagen
                           </span>
-
                         )}
 
                       </td>
@@ -367,7 +438,9 @@ function Products() {
                         $
                         {Number(
                           product.price
-                        ).toFixed(2)}
+                        ).toFixed(
+                          2
+                        )}
                       </td>
 
 
@@ -378,8 +451,8 @@ function Products() {
                       </td>
 
 
-                      {user?.role === "ADMIN" && (
-
+                      {user?.role ===
+                        "ADMIN" && (
                         <td>
 
                           <div className="table-actions">
@@ -395,21 +468,32 @@ function Products() {
                             <button
                               type="button"
                               className="link-button"
+                              disabled={
+                                updatingId ===
+                                product.id
+                              }
                               onClick={() =>
                                 handleToggleActive(
                                   product
                                 )
                               }
                             >
-                              {product.is_active
-                                ? "Desactivar"
-                                : "Activar"}
+                              {updatingId ===
+                              product.id
+                                ? "Actualizando..."
+                                : product.is_active
+                                  ? "Desactivar"
+                                  : "Activar"}
                             </button>
 
 
                             <button
                               type="button"
                               className="link-button danger-link"
+                              disabled={
+                                updatingId ===
+                                product.id
+                              }
                               onClick={() =>
                                 handleDeleteClick(
                                   product
@@ -422,11 +506,9 @@ function Products() {
                           </div>
 
                         </td>
-
                       )}
 
                     </tr>
-
                   )
                 )}
 
@@ -441,8 +523,11 @@ function Products() {
       </section>
 
 
-      {productToDelete && (
+      {/* ==========================
+          DELETE MODAL
+      ========================== */}
 
+      {productToDelete && (
         <div
           className="modal-overlay"
           role="presentation"
@@ -455,126 +540,30 @@ function Products() {
             aria-labelledby="delete-product-title"
           >
 
-            {deleteError ? (
-
-              <>
-                <h2
-                  id="delete-product-title"
-                >
-                  No se puede eliminar
-                </h2>
-
-
-                <p>
-                  {deleteError}
-                </p>
-
-
-                <div className="modal-actions">
-
-                  <button
-                    type="button"
-                    className="secondary-action"
-                    onClick={
-                      handleCloseDeleteModal
-                    }
-                  >
-                    Entendido
-                  </button>
-
-                </div>
-              </>
-
-            ) : (
-
-              <>
-                <h2
-                  id="delete-product-title"
-                >
-                  Eliminar producto
-                </h2>
-
-
-                <p>
-                  ¿Estás seguro de que deseas eliminar{" "}
-                  <strong>
-                    {productToDelete.name}
-                  </strong>
-                  ?
-                </p>
-
-
-                <p>
-                  Esta acción solo será posible si el producto nunca ha sido utilizado en una compra.
-                </p>
-
-
-                <div className="modal-actions">
-
-                  <button
-                    type="button"
-                    className="secondary-action"
-                    onClick={
-                      handleCloseDeleteModal
-                    }
-                    disabled={
-                      deleting
-                    }
-                  >
-                    Cancelar
-                  </button>
-
-
-                  <button
-                    type="button"
-                    className="danger-action"
-                    onClick={
-                      handleConfirmDelete
-                    }
-                    disabled={
-                      deleting
-                    }
-                  >
-                    {deleting
-                      ? "Eliminando..."
-                      : "Eliminar producto"}
-                  </button>
-
-                </div>
-              </>
-
-            )}
-
-          </div>
-
-        </div>
-
-      )}
-
-
-      {deleteSuccess && (
-
-        <div
-          className="modal-overlay"
-          role="presentation"
-        >
-
-          <div
-            className="modal-container"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="delete-success-title"
-          >
-
             <h2
-              id="delete-success-title"
+              id="delete-product-title"
             >
-              Producto eliminado
+              Eliminar producto
             </h2>
 
 
             <p>
-              El producto se eliminó correctamente.
+              ¿Estás seguro de que
+              deseas eliminar{" "}
+              <strong>
+                {
+                  productToDelete.name
+                }
+              </strong>
+              ?
+            </p>
+
+
+            <p>
+              Esta acción solo será
+              posible si el producto
+              nunca ha sido utilizado
+              en una compra.
             </p>
 
 
@@ -582,12 +571,31 @@ function Products() {
 
               <button
                 type="button"
-                className="primary-action"
+                className="secondary-action"
                 onClick={
-                  handleCloseSuccessModal
+                  handleCloseDeleteModal
+                }
+                disabled={
+                  deleting
                 }
               >
-                Aceptar
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className="danger-action"
+                onClick={
+                  handleConfirmDelete
+                }
+                disabled={
+                  deleting
+                }
+              >
+                {deleting
+                  ? "Eliminando..."
+                  : "Eliminar producto"}
               </button>
 
             </div>
@@ -595,7 +603,6 @@ function Products() {
           </div>
 
         </div>
-
       )}
 
     </main>

@@ -8,12 +8,22 @@ import {
 } from "react-router-dom";
 
 import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
   getEmployees,
   updateEmployee,
 } from "../services/employeeService";
 
 
 function Employees() {
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
+
+
   const [
     employees,
     setEmployees,
@@ -29,14 +39,22 @@ function Employees() {
     setError,
   ] = useState("");
 
+  const [
+    updatingId,
+    setUpdatingId,
+  ] = useState(null);
+
 
   useEffect(() => {
     let cancelled = false;
 
+
     getEmployees()
       .then((data) => {
         if (!cancelled) {
-          setEmployees(data);
+          setEmployees(
+            data
+          );
         }
       })
       .catch(() => {
@@ -48,9 +66,12 @@ function Employees() {
       })
       .finally(() => {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -58,36 +79,63 @@ function Employees() {
   }, []);
 
 
-  const reloadEmployees = async () => {
-    const data =
-      await getEmployees();
-
-    setEmployees(data);
-  };
+  const reloadEmployees =
+    async () => {
+      const data =
+        await getEmployees();
 
 
-  const handleToggleActive = async (
-    employee
-  ) => {
-    try {
-      setError("");
-
-      await updateEmployee(
-        employee.id,
-        {
-          is_active:
-            !employee.is_active,
-        }
+      setEmployees(
+        data
       );
+    };
 
-      await reloadEmployees();
 
-    } catch {
-      setError(
-        "No fue posible actualizar el estado del empleado."
-      );
-    }
-  };
+  const handleToggleActive =
+    async (employee) => {
+      try {
+        setUpdatingId(
+          employee.id
+        );
+
+        setError("");
+
+
+        const newStatus =
+          !employee.is_active;
+
+
+        await updateEmployee(
+          employee.id,
+          {
+            is_active:
+              newStatus,
+          }
+        );
+
+
+        await reloadEmployees();
+
+
+        const employeeName =
+          `${employee.first_name} ${employee.last_name}`.trim();
+
+
+        showSuccess(
+          newStatus
+            ? `${employeeName} fue activado correctamente.`
+            : `${employeeName} fue desactivado correctamente.`
+        );
+      } catch {
+        showError(
+          "No fue posible actualizar el estado del empleado."
+        );
+      } finally {
+        setUpdatingId(
+          null
+        );
+      }
+    };
 
 
   return (
@@ -101,8 +149,11 @@ function Employees() {
             Empleados
           </h1>
 
+
           <p>
-            Consulta y administra las cuentas de empleados.
+            Consulta y administra
+            las cuentas de
+            empleados.
           </p>
 
         </div>
@@ -141,10 +192,12 @@ function Employees() {
             Cargando empleados...
           </p>
 
-        ) : employees.length === 0 ? (
+        ) : employees.length ===
+          0 ? (
 
           <p>
-            No hay empleados registrados.
+            No hay empleados
+            registrados.
           </p>
 
         ) : (
@@ -156,6 +209,7 @@ function Employees() {
               <thead>
 
                 <tr>
+
                   <th>
                     Nombre
                   </th>
@@ -175,6 +229,7 @@ function Employees() {
                   <th>
                     Acciones
                   </th>
+
                 </tr>
 
               </thead>
@@ -183,8 +238,9 @@ function Employees() {
               <tbody>
 
                 {employees.map(
-                  (employee) => (
-
+                  (
+                    employee
+                  ) => (
                     <tr
                       key={
                         employee.id
@@ -237,15 +293,22 @@ function Employees() {
                           <button
                             type="button"
                             className="link-button"
+                            disabled={
+                              updatingId ===
+                              employee.id
+                            }
                             onClick={() =>
                               handleToggleActive(
                                 employee
                               )
                             }
                           >
-                            {employee.is_active
-                              ? "Desactivar"
-                              : "Activar"}
+                            {updatingId ===
+                            employee.id
+                              ? "Actualizando..."
+                              : employee.is_active
+                                ? "Desactivar"
+                                : "Activar"}
                           </button>
 
                         </div>
@@ -253,7 +316,6 @@ function Employees() {
                       </td>
 
                     </tr>
-
                   )
                 )}
 

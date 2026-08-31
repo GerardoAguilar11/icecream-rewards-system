@@ -10,6 +10,10 @@ import {
 } from "react-router-dom";
 
 import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
   createEmployee,
   getEmployeeById,
   updateEmployee,
@@ -24,8 +28,14 @@ function EmployeeForm() {
   const navigate =
     useNavigate();
 
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
+
   const isEditing =
     Boolean(id);
+
 
   const [
     form,
@@ -61,42 +71,61 @@ function EmployeeForm() {
       return;
     }
 
+
     let cancelled = false;
 
-    getEmployeeById(id)
-      .then((employee) => {
-        if (cancelled) {
-          return;
+
+    getEmployeeById(
+      id
+    )
+      .then(
+        (employee) => {
+          if (cancelled) {
+            return;
+          }
+
+
+          setForm({
+            first_name:
+              employee.first_name ??
+              "",
+
+            last_name:
+              employee.last_name ??
+              "",
+
+            email:
+              employee.email ??
+              "",
+
+            password:
+              "",
+
+            is_active:
+              employee.is_active ??
+              true,
+          });
         }
-
-        setForm({
-          first_name:
-            employee.first_name ?? "",
-
-          last_name:
-            employee.last_name ?? "",
-
-          email:
-            employee.email ?? "",
-
-          password: "",
-
-          is_active:
-            employee.is_active,
-        });
-      })
+      )
       .catch(() => {
-        if (!cancelled) {
+        if (
+          !cancelled
+        ) {
           setError(
             "No fue posible cargar el empleado."
           );
         }
       })
       .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
+        if (
+          !cancelled
+        ) {
+          setLoading(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -117,189 +146,226 @@ function EmployeeForm() {
       checked,
     } = event.target;
 
+
     setForm(
-      (currentForm) => ({
+      (
+        currentForm
+      ) => ({
         ...currentForm,
 
         [name]:
-          type === "checkbox"
+          type ===
+          "checkbox"
             ? checked
             : value,
       })
     );
 
+
     setError("");
   };
 
 
-  const handleSubmit = async (
-    event
-  ) => {
-    event.preventDefault();
+  const handleSubmit =
+    async (event) => {
+      event.preventDefault();
 
-    setError("");
-
-
-    if (
-      !form.first_name.trim()
-    ) {
-      setError(
-        "El nombre es obligatorio."
-      );
-
-      return;
-    }
+      setError("");
 
 
-    if (
-      !form.last_name.trim()
-    ) {
-      setError(
-        "Los apellidos son obligatorios."
-      );
+      if (
+        !form.first_name.trim()
+      ) {
+        setError(
+          "El nombre es obligatorio."
+        );
 
-      return;
-    }
-
-
-    if (
-      !form.email.trim()
-    ) {
-      setError(
-        "El correo electrónico es obligatorio."
-      );
-
-      return;
-    }
-
-
-    if (
-      !isEditing &&
-      form.password.length < 8
-    ) {
-      setError(
-        "La contraseña debe tener al menos 8 caracteres."
-      );
-
-      return;
-    }
-
-
-    try {
-      setSubmitting(true);
-
-
-      const payload = {
-        first_name:
-          form.first_name.trim(),
-
-        last_name:
-          form.last_name.trim(),
-
-        email:
-          form.email.trim(),
-
-        is_active:
-          form.is_active,
-      };
-
-
-      if (!isEditing) {
-        payload.password =
-          form.password;
+        return;
       }
 
 
-      if (isEditing) {
-
-        await updateEmployee(
-          id,
-          payload
+      if (
+        !form.last_name.trim()
+      ) {
+        setError(
+          "Los apellidos son obligatorios."
         );
 
-      } else {
-
-        await createEmployee(
-          payload
-        );
-
+        return;
       }
 
 
-      navigate(
-        "/employees",
-        {
-          replace: true,
+      if (
+        !form.email.trim()
+      ) {
+        setError(
+          "El correo electrónico es obligatorio."
+        );
+
+        return;
+      }
+
+
+      if (
+        !isEditing &&
+        form.password.length <
+          8
+      ) {
+        setError(
+          "La contraseña debe tener al menos 8 caracteres."
+        );
+
+        return;
+      }
+
+
+      try {
+        setSubmitting(
+          true
+        );
+
+
+        const payload = {
+          first_name:
+            form.first_name.trim(),
+
+          last_name:
+            form.last_name.trim(),
+
+          email:
+            form.email.trim(),
+
+          is_active:
+            form.is_active,
+        };
+
+
+        if (!isEditing) {
+          payload.password =
+            form.password;
         }
-      );
-
-    } catch (requestError) {
-      const responseData =
-        requestError.response?.data;
 
 
-      if (responseData?.email) {
-        setError(
-          Array.isArray(
-            responseData.email
-          )
-            ? responseData.email[0]
-            : responseData.email
+        if (isEditing) {
+          await updateEmployee(
+            id,
+            payload
+          );
+
+
+          showSuccess(
+            "Empleado actualizado correctamente."
+          );
+        } else {
+          await createEmployee(
+            payload
+          );
+
+
+          showSuccess(
+            "Empleado creado correctamente."
+          );
+        }
+
+
+        navigate(
+          "/employees",
+          {
+            replace: true,
+          }
         );
+      } catch (
+        requestError
+      ) {
+        const responseData =
+          requestError
+            .response
+            ?.data;
 
-        return;
-      }
+
+        if (
+          responseData
+            ?.email
+        ) {
+          setError(
+            Array.isArray(
+              responseData.email
+            )
+              ? responseData
+                  .email[0]
+              : responseData
+                  .email
+          );
+
+          return;
+        }
 
 
-      if (responseData?.first_name) {
-        setError(
-          Array.isArray(
-            responseData.first_name
-          )
-            ? responseData.first_name[0]
-            : responseData.first_name
+        if (
+          responseData
+            ?.first_name
+        ) {
+          setError(
+            Array.isArray(
+              responseData.first_name
+            )
+              ? responseData
+                  .first_name[0]
+              : responseData
+                  .first_name
+          );
+
+          return;
+        }
+
+
+        if (
+          responseData
+            ?.last_name
+        ) {
+          setError(
+            Array.isArray(
+              responseData.last_name
+            )
+              ? responseData
+                  .last_name[0]
+              : responseData
+                  .last_name
+          );
+
+          return;
+        }
+
+
+        if (
+          responseData
+            ?.password
+        ) {
+          setError(
+            Array.isArray(
+              responseData.password
+            )
+              ? responseData
+                  .password[0]
+              : responseData
+                  .password
+          );
+
+          return;
+        }
+
+
+        showError(
+          isEditing
+            ? "No fue posible actualizar el empleado."
+            : "No fue posible crear el empleado."
         );
-
-        return;
-      }
-
-
-      if (responseData?.last_name) {
-        setError(
-          Array.isArray(
-            responseData.last_name
-          )
-            ? responseData.last_name[0]
-            : responseData.last_name
+      } finally {
+        setSubmitting(
+          false
         );
-
-        return;
       }
-
-
-      if (responseData?.password) {
-        setError(
-          Array.isArray(
-            responseData.password
-          )
-            ? responseData.password[0]
-            : responseData.password
-        );
-
-        return;
-      }
-
-
-      setError(
-        isEditing
-          ? "No fue posible actualizar el empleado."
-          : "No fue posible crear el empleado."
-      );
-
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    };
 
 
   if (loading) {
@@ -359,6 +425,7 @@ function EmployeeForm() {
               Nombre
             </label>
 
+
             <input
               id="first_name"
               name="first_name"
@@ -380,6 +447,7 @@ function EmployeeForm() {
             <label htmlFor="last_name">
               Apellidos
             </label>
+
 
             <input
               id="last_name"
@@ -403,6 +471,7 @@ function EmployeeForm() {
               Correo electrónico
             </label>
 
+
             <input
               id="email"
               name="email"
@@ -420,12 +489,12 @@ function EmployeeForm() {
 
 
           {!isEditing && (
-
             <div className="form-group">
 
               <label htmlFor="password">
                 Contraseña
               </label>
+
 
               <input
                 id="password"
@@ -441,12 +510,12 @@ function EmployeeForm() {
                 required
               />
 
+
               <small>
                 Mínimo 8 caracteres.
               </small>
 
             </div>
-
           )}
 
 
@@ -464,6 +533,7 @@ function EmployeeForm() {
               }
             />
 
+
             <label htmlFor="is_active">
               Empleado activo
             </label>
@@ -472,14 +542,12 @@ function EmployeeForm() {
 
 
           {error && (
-
             <p
               role="alert"
               className="form-error"
             >
               {error}
             </p>
-
           )}
 
 

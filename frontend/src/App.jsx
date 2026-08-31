@@ -46,7 +46,6 @@ import PublicRoute from "./routes/PublicRoute";
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
 
         {/* ==========================
@@ -164,6 +163,8 @@ function App() {
           }
         >
 
+          {/* Customers */}
+
           <Route
             path="/customers"
             element={
@@ -181,12 +182,30 @@ function App() {
 
 
           <Route
+            path="/customers/:id/edit"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "ADMIN",
+                ]}
+              >
+                <CustomerEdit />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* Products */}
+
+          <Route
             path="/products"
             element={
               <Products />
             }
           />
 
+
+          {/* Purchases */}
 
           <Route
             path="/purchases"
@@ -211,6 +230,8 @@ function App() {
             }
           />
 
+
+          {/* Rewards */}
 
           <Route
             path="/rewards"
@@ -237,6 +258,8 @@ function App() {
             </ProtectedRoute>
           }
         >
+
+          {/* Dashboard */}
 
           <Route
             path="/dashboard"
@@ -268,16 +291,6 @@ function App() {
             path="/employees/:id/edit"
             element={
               <EmployeeForm />
-            }
-          />
-
-
-          {/* Customers */}
-
-          <Route
-            path="/customers/:id/edit"
-            element={
-              <CustomerEdit />
             }
           />
 
@@ -332,7 +345,6 @@ function App() {
         />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

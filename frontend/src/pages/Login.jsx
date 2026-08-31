@@ -1,100 +1,152 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
+
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
 
-import { useAuth } from "../context/useAuth";
+import {
+  useAuth,
+} from "../context/useAuth";
+
+import {
+  useNotification,
+} from "../context/useNotification";
 
 
 function Login() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { login } = useAuth();
+  const {
+    login,
+  } = useAuth();
 
-  const [form, setForm] = useState({
+  const {
+    showSuccess,
+  } = useNotification();
+
+  const [
+    form,
+    setForm,
+  ] = useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
 
-  const handleChange = (event) => {
+  const handleChange = (
+    event
+  ) => {
     const {
       name,
       value,
     } = event.target;
 
-    setForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }));
-  };
-
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+    setForm(
+      (
+        currentForm
+      ) => ({
+        ...currentForm,
+        [name]: value,
+      })
+    );
 
     setError("");
-    setSubmitting(true);
-
-    try {
-      const user = await login(
-        form.email,
-        form.password
-      );
-
-      if (user.role === "ADMIN") {
-        navigate(
-          "/dashboard",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      if (user.role === "EMPLOYEE") {
-        navigate(
-          "/customers",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      if (user.role === "CUSTOMER") {
-        navigate(
-          "/customer",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      navigate(
-        "/",
-        {
-          replace: true,
-        }
-      );
-    } catch {
-      setError(
-        "Correo electrónico o contraseña incorrectos."
-      );
-    } finally {
-      setSubmitting(false);
-    }
   };
+
+
+  const handleSubmit =
+    async (event) => {
+      event.preventDefault();
+
+      setError("");
+
+      try {
+        setSubmitting(
+          true
+        );
+
+        const user =
+          await login(
+            form.email.trim(),
+            form.password
+          );
+
+        showSuccess(
+          "Sesión iniciada correctamente."
+        );
+
+        if (
+          user.role ===
+          "ADMIN"
+        ) {
+          navigate(
+            "/dashboard",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        if (
+          user.role ===
+          "EMPLOYEE"
+        ) {
+          navigate(
+            "/customers",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        if (
+          user.role ===
+          "CUSTOMER"
+        ) {
+          navigate(
+            "/customer",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        navigate(
+          "/",
+          {
+            replace: true,
+          }
+        );
+      } catch {
+        setError(
+          "Correo electrónico o contraseña incorrectos."
+        );
+      } finally {
+        setSubmitting(
+          false
+        );
+      }
+    };
 
 
   return (
@@ -106,10 +158,13 @@ function Login() {
 
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
       >
 
         <div>
+
           <label htmlFor="email">
             Correo electrónico
           </label>
@@ -118,15 +173,21 @@ function Login() {
             id="email"
             name="email"
             type="email"
-            value={form.email}
-            onChange={handleChange}
+            value={
+              form.email
+            }
+            onChange={
+              handleChange
+            }
             autoComplete="email"
             required
           />
+
         </div>
 
 
         <div>
+
           <label htmlFor="password">
             Contraseña
           </label>
@@ -135,16 +196,24 @@ function Login() {
             id="password"
             name="password"
             type="password"
-            value={form.password}
-            onChange={handleChange}
+            value={
+              form.password
+            }
+            onChange={
+              handleChange
+            }
             autoComplete="current-password"
             required
           />
+
         </div>
 
 
         {error && (
-          <p role="alert">
+          <p
+            role="alert"
+            className="form-error"
+          >
             {error}
           </p>
         )}
@@ -152,7 +221,9 @@ function Login() {
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={
+            submitting
+          }
         >
           {submitting
             ? "Iniciando sesión..."
