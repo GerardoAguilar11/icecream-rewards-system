@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Settings,
   ShoppingCart,
   Users,
   X,
@@ -99,7 +100,9 @@ function AdminLayout() {
 
 
   const closeMobileMenu = () => {
-    setMobileOpen(false);
+    setMobileOpen(
+      false
+    );
   };
 
 
@@ -121,25 +124,22 @@ function AdminLayout() {
         }`
       }
     >
-
       {/* Mobile Header */}
-
       <header className="mobile-navigation-header">
-
         <button
           type="button"
           className="mobile-menu-button"
           onClick={() =>
-            setMobileOpen(true)
+            setMobileOpen(
+              true
+            )
           }
           aria-label="Abrir menú"
         >
           <Menu size={22} />
         </button>
 
-
         <div className="mobile-navigation-brand">
-
           <div className="mobile-brand-icon">
             <img
               src={frioCoMark}
@@ -159,26 +159,24 @@ function AdminLayout() {
                 : "Empleado"}
             </span>
           </div>
-
         </div>
-
       </header>
 
 
       {/* Mobile Backdrop */}
-
       {mobileOpen && (
         <button
           type="button"
           className="navigation-backdrop"
-          onClick={closeMobileMenu}
+          onClick={
+            closeMobileMenu
+          }
           aria-label="Cerrar menú"
         />
       )}
 
 
       {/* Sidebar */}
-
       <aside
         className={
           `sidebar ${
@@ -188,13 +186,9 @@ function AdminLayout() {
           }`
         }
       >
-
         <div className="sidebar-top">
-
           <div className="sidebar-brand">
-
             <div className="sidebar-brand-expanded">
-
               <img
                 src={frioCoLogo}
                 alt="Frio&Co"
@@ -206,7 +200,6 @@ function AdminLayout() {
                   Rewards System
                 </span>
               </div>
-
             </div>
 
             <div className="sidebar-brand-collapsed">
@@ -220,12 +213,13 @@ function AdminLayout() {
             <button
               type="button"
               className="mobile-menu-close"
-              onClick={closeMobileMenu}
+              onClick={
+                closeMobileMenu
+              }
               aria-label="Cerrar menú"
             >
               <X size={22} />
             </button>
-
           </div>
 
 
@@ -259,12 +253,10 @@ function AdminLayout() {
               />
             )}
           </button>
-
         </div>
 
 
         <nav className="sidebar-nav">
-
           {user?.role === "ADMIN" && (
             <NavLink
               to="/dashboard"
@@ -276,7 +268,6 @@ function AdminLayout() {
               }
               title="Dashboard"
             >
-
               <span className="nav-icon">
                 <LayoutDashboard
                   size={20}
@@ -286,7 +277,6 @@ function AdminLayout() {
               <span className="nav-label">
                 Dashboard
               </span>
-
             </NavLink>
           )}
 
@@ -301,15 +291,15 @@ function AdminLayout() {
             }
             title="Clientes"
           >
-
             <span className="nav-icon">
-              <Users size={20} />
+              <Users
+                size={20}
+              />
             </span>
 
             <span className="nav-label">
               Clientes
             </span>
-
           </NavLink>
 
 
@@ -324,7 +314,6 @@ function AdminLayout() {
               }
               title="Empleados"
             >
-
               <span className="nav-icon">
                 <BriefcaseBusiness
                   size={20}
@@ -334,7 +323,6 @@ function AdminLayout() {
               <span className="nav-label">
                 Empleados
               </span>
-
             </NavLink>
           )}
 
@@ -349,7 +337,6 @@ function AdminLayout() {
             }
             title="Productos"
           >
-
             <span className="nav-icon">
               <IceCreamBowl
                 size={20}
@@ -359,7 +346,6 @@ function AdminLayout() {
             <span className="nav-label">
               Productos
             </span>
-
           </NavLink>
 
 
@@ -373,7 +359,6 @@ function AdminLayout() {
             }
             title="Compras"
           >
-
             <span className="nav-icon">
               <ShoppingCart
                 size={20}
@@ -383,7 +368,6 @@ function AdminLayout() {
             <span className="nav-label">
               Compras
             </span>
-
           </NavLink>
 
 
@@ -397,24 +381,45 @@ function AdminLayout() {
             }
             title="Recompensas"
           >
-
             <span className="nav-icon">
-              <Gift size={20} />
+              <Gift
+                size={20}
+              />
             </span>
 
             <span className="nav-label">
               Recompensas
             </span>
-
           </NavLink>
 
+
+          {user?.role === "ADMIN" && (
+            <NavLink
+              to="/settings/points"
+              className={
+                getNavClass
+              }
+              onClick={
+                closeMobileMenu
+              }
+              title="Configuración"
+            >
+              <span className="nav-icon">
+                <Settings
+                  size={20}
+                />
+              </span>
+
+              <span className="nav-label">
+                Configuración
+              </span>
+            </NavLink>
+          )}
         </nav>
 
 
         <div className="sidebar-footer">
-
           <div className="sidebar-user-info">
-
             <p>
               {user?.email}
             </p>
@@ -424,7 +429,6 @@ function AdminLayout() {
                 ? "Administrador"
                 : "Empleado"}
             </span>
-
           </div>
 
 
@@ -439,7 +443,6 @@ function AdminLayout() {
             }
             title="Cerrar sesión"
           >
-
             <LogOut
               className="logout-icon"
               size={19}
@@ -450,20 +453,14 @@ function AdminLayout() {
                 ? "Cerrando sesión..."
                 : "Cerrar sesión"}
             </span>
-
           </button>
-
         </div>
-
       </aside>
 
 
       <div className="admin-content">
-
         <Outlet />
-
       </div>
-
     </div>
   );
 }
