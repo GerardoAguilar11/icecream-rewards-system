@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 from decouple import Csv, config
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "storages",
 
     "authentication",
     "customers",
@@ -102,13 +104,30 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
+
+        "NAME": config(
+            "PGDATABASE",
+            default=config("DB_NAME", default=""),
+        ),
+
+        "USER": config(
+            "PGUSER",
+            default=config("DB_USER", default=""),
+        ),
+
+        "PASSWORD": config(
+            "PGPASSWORD",
+            default=config("DB_PASSWORD", default=""),
+        ),
+
+        "HOST": config(
+            "PGHOST",
+            default=config("DB_HOST", default="localhost"),
+        ),
+
         "PORT": config(
-            "DB_PORT",
-            default="5432",
+            "PGPORT",
+            default=config("DB_PORT", default="5432"),
         ),
     }
 }
@@ -159,28 +178,93 @@ USE_TZ = True
 
 
 # =========================================================
-# Static / Media Files
+# Static Files
 # =========================================================
 
 STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": (
-            "whitenoise.storage."
-            "CompressedManifestStaticFilesStorage"
-        ),
-    },
-}
+
+# =========================================================
+# Media Storage
+# =========================================================
+
+USE_R2_STORAGE = config(
+    "USE_R2_STORAGE",
+    default=False,
+    cast=bool,
+)
 
 MEDIA_URL = "/media/"
-
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+if USE_R2_STORAGE:
+    R2_ACCESS_KEY_ID = config("R2_ACCESS_KEY_ID")
+    R2_SECRET_ACCESS_KEY = config("R2_SECRET_ACCESS_KEY")
+    R2_BUCKET_NAME = config("R2_BUCKET_NAME")
+    R2_ACCOUNT_ID = config("R2_ACCOUNT_ID")
+
+    R2_PUBLIC_URL = config(
+        "R2_PUBLIC_URL",
+        default="",
+    ).rstrip("/")
+
+    R2_ENDPOINT_URL = (
+        f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+    )
+
+    r2_storage_options = {
+        "access_key": R2_ACCESS_KEY_ID,
+        "secret_key": R2_SECRET_ACCESS_KEY,
+        "bucket_name": R2_BUCKET_NAME,
+        "endpoint_url": R2_ENDPOINT_URL,
+        "region_name": "auto",
+        "default_acl": None,
+        "file_overwrite": False,
+    }
+
+    if R2_PUBLIC_URL:
+        parsed_public_url = urlparse(R2_PUBLIC_URL)
+
+        r2_storage_options.update(
+            {
+                "custom_domain": parsed_public_url.netloc,
+                "url_protocol": f"{parsed_public_url.scheme}:",
+                "querystring_auth": False,
+            }
+        )
+
+        MEDIA_URL = f"{R2_PUBLIC_URL}/"
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": r2_storage_options,
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage."
+                "CompressedManifestStaticFilesStorage"
+            ),
+        },
+    }
+
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": (
+                "django.core.files.storage.FileSystemStorage"
+            ),
+        },
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage."
+                "CompressedManifestStaticFilesStorage"
+            ),
+        },
+    }
 
 
 # =========================================================
