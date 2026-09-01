@@ -22,7 +22,8 @@ import CustomerRewards from "./pages/CustomerRewards";
 import CustomerRedemptions from "./pages/CustomerRedemptions";
 import CustomerProfile from "./pages/CustomerProfile";
 import CustomerPurchases from "./pages/CustomerPurchases";
-import CustomerPurchaseDetail from "./pages/CustomerPurchaseDetail";
+import CustomerPurchaseDetail
+  from "./pages/CustomerPurchaseDetail";
 
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
@@ -34,13 +35,22 @@ import PurchaseDetail from "./pages/PurchaseDetail";
 import Rewards from "./pages/Rewards";
 import RewardForm from "./pages/RewardForm";
 
+import PointsSettings
+  from "./pages/PointsSettings";
+
 import NotFound from "./pages/NotFound";
 
-import AdminLayout from "./components/layout/AdminLayout";
-import CustomerLayout from "./components/layout/CustomerLayout";
+import AdminLayout
+  from "./components/layout/AdminLayout";
 
-import ProtectedRoute from "./routes/ProtectedRoute";
-import PublicRoute from "./routes/PublicRoute";
+import CustomerLayout
+  from "./components/layout/CustomerLayout";
+
+import ProtectedRoute
+  from "./routes/ProtectedRoute";
+
+import PublicRoute
+  from "./routes/PublicRoute";
 
 
 function App() {
@@ -59,7 +69,6 @@ function App() {
           }
         />
 
-
         <Route
           path="/login"
           element={
@@ -68,7 +77,6 @@ function App() {
             </PublicRoute>
           }
         />
-
 
         <Route
           path="/register"
@@ -95,14 +103,12 @@ function App() {
             </ProtectedRoute>
           }
         >
-
           <Route
             path="/customer"
             element={
               <CustomerHome />
             }
           />
-
 
           <Route
             path="/customer/rewards"
@@ -111,14 +117,12 @@ function App() {
             }
           />
 
-
           <Route
             path="/customer/redemptions"
             element={
               <CustomerRedemptions />
             }
           />
-
 
           <Route
             path="/customer/purchases"
@@ -127,7 +131,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/customer/purchases/:id"
             element={
@@ -135,14 +138,12 @@ function App() {
             }
           />
 
-
           <Route
             path="/customer/profile"
             element={
               <CustomerProfile />
             }
           />
-
         </Route>
 
 
@@ -172,14 +173,12 @@ function App() {
             }
           />
 
-
           <Route
             path="/customers/:id"
             element={
               <CustomerDetail />
             }
           />
-
 
           <Route
             path="/customers/:id/edit"
@@ -214,14 +213,12 @@ function App() {
             }
           />
 
-
           <Route
             path="/purchases/new"
             element={
               <PurchaseCreate />
             }
           />
-
 
           <Route
             path="/purchases/:id"
@@ -239,7 +236,6 @@ function App() {
               <Rewards />
             }
           />
-
         </Route>
 
 
@@ -278,14 +274,12 @@ function App() {
             }
           />
 
-
           <Route
             path="/employees/new"
             element={
               <EmployeeForm />
             }
           />
-
 
           <Route
             path="/employees/:id/edit"
@@ -304,7 +298,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/products/:id/edit"
             element={
@@ -322,7 +315,6 @@ function App() {
             }
           />
 
-
           <Route
             path="/rewards/:id/edit"
             element={
@@ -330,6 +322,15 @@ function App() {
             }
           />
 
+
+          {/* Settings */}
+
+          <Route
+            path="/settings/points"
+            element={
+              <PointsSettings />
+            }
+          />
         </Route>
 
 

@@ -39,6 +39,10 @@ import {
   getAvailableRewards,
 } from "../services/rewardService";
 
+import {
+  getPointsSettings,
+} from "../services/settingsService";
+
 
 const PRODUCT_CATEGORY_LABELS = {
   ICE_CREAM: "Helados",
@@ -173,6 +177,11 @@ function PurchaseCreate() {
     setError,
   ] = useState("");
 
+  const [
+    pointsSettings,
+    setPointsSettings,
+  ] = useState(null);
+
 
   /* ==========================
      LOAD PRODUCTS
@@ -207,6 +216,37 @@ function PurchaseCreate() {
         }
       });
 
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
+  /* ==========================
+     LOAD POINTS SETTINGS
+  ========================== */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getPointsSettings()
+      .then((data) => {
+        if (cancelled) {
+          return;
+        }
+
+        setPointsSettings(
+          data
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(
+            "No fue posible cargar la configuración del programa de puntos."
+          );
+        }
+      });
 
     return () => {
       cancelled = true;
@@ -824,12 +864,28 @@ function PurchaseCreate() {
     );
 
 
+  const amountRequired =
+    Number(
+      pointsSettings
+        ?.amount_required ?? 0
+    );
+
+  const pointsAwarded =
+    Number(
+      pointsSettings
+        ?.points_awarded ?? 0
+    );
+
   const estimatedPoints =
-    useReward
+    useReward ||
+    amountRequired <= 0 ||
+    pointsAwarded <= 0
       ? 0
       : Math.floor(
-          total / 50
-        );
+          total /
+            amountRequired
+        ) *
+        pointsAwarded;
 
 
   const currentPoints =
