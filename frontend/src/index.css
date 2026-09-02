@@ -4503,3 +4503,152 @@ input[type="number"]::-webkit-outer-spin-button {
     object-fit: contain !important;
   }
 }
+
+/* =========================================================
+   43. Not Found Page
+========================================================= */
+
+.not-found-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(35, 133, 196, 0.12),
+      transparent 42%
+    ),
+    #f5f9fc;
+}
+
+.not-found-card {
+  width: 100%;
+  max-width: 560px;
+  padding: 48px 40px;
+  border: 1px solid rgba(35, 133, 196, 0.12);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow:
+    0 24px 60px rgba(48, 56, 64, 0.12);
+  text-align: center;
+}
+
+.not-found-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 22px;
+  border-radius: 22px;
+  background: rgba(35, 133, 196, 0.12);
+  color: #2385c4;
+}
+
+.not-found-code {
+  margin: 0 0 8px;
+  color: #2385c4;
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -3px;
+}
+
+.not-found-title {
+  margin: 0;
+  color: #303840;
+  font-size: 30px;
+  font-weight: 750;
+}
+
+.not-found-description {
+  max-width: 430px;
+  margin: 16px auto 28px;
+  color: #687783;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.not-found-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 12px;
+  background: #2385c4;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.not-found-button:hover {
+  background: #1d74aa;
+  box-shadow:
+    0 10px 24px rgba(35, 133, 196, 0.28);
+  transform: translateY(-1px);
+}
+
+.not-found-button:active {
+  transform: translateY(0);
+}
+
+.not-found-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 34px;
+}
+
+.not-found-brand span {
+  color: #303840;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.not-found-brand small {
+  color: #8a99a5;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .not-found-page {
+    padding: 20px 16px;
+  }
+
+  .not-found-card {
+    padding: 38px 22px;
+    border-radius: 20px;
+  }
+
+  .not-found-icon {
+    width: 66px;
+    height: 66px;
+  }
+
+  .not-found-code {
+    font-size: 58px;
+  }
+
+  .not-found-title {
+    font-size: 25px;
+  }
+
+  .not-found-description {
+    font-size: 15px;
+  }
+
+  .not-found-button {
+    width: 100%;
+  }
+}

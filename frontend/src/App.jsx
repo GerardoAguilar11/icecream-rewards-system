@@ -1,22 +1,18 @@
 import {
   BrowserRouter,
+  Navigate,
   Route,
   Routes,
 } from "react-router-dom";
 
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
 import Dashboard from "./pages/Dashboard";
-
 import Customers from "./pages/Customers";
 import CustomerDetail from "./pages/CustomerDetail";
 import CustomerEdit from "./pages/CustomerEdit";
-
 import Employees from "./pages/Employees";
 import EmployeeForm from "./pages/EmployeeForm";
-
 import CustomerHome from "./pages/CustomerHome";
 import CustomerRewards from "./pages/CustomerRewards";
 import CustomerRedemptions from "./pages/CustomerRedemptions";
@@ -24,51 +20,47 @@ import CustomerProfile from "./pages/CustomerProfile";
 import CustomerPurchases from "./pages/CustomerPurchases";
 import CustomerPurchaseDetail
   from "./pages/CustomerPurchaseDetail";
-
 import Products from "./pages/Products";
 import ProductForm from "./pages/ProductForm";
-
 import Purchases from "./pages/Purchases";
 import PurchaseCreate from "./pages/PurchaseCreate";
 import PurchaseDetail from "./pages/PurchaseDetail";
-
 import Rewards from "./pages/Rewards";
 import RewardForm from "./pages/RewardForm";
-
 import PointsSettings
   from "./pages/PointsSettings";
-
 import NotFound from "./pages/NotFound";
 
 import AdminLayout
   from "./components/layout/AdminLayout";
-
 import CustomerLayout
   from "./components/layout/CustomerLayout";
 
 import ProtectedRoute
   from "./routes/ProtectedRoute";
-
 import PublicRoute
   from "./routes/PublicRoute";
-
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ==========================
+            ROOT
+        ========================== */}
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
+        />
 
         {/* ==========================
             PUBLIC
         ========================== */}
-
-        <Route
-          path="/"
-          element={
-            <Home />
-          }
-        />
-
         <Route
           path="/login"
           element={
@@ -87,11 +79,9 @@ function App() {
           }
         />
 
-
         {/* ==========================
             CUSTOMER
         ========================== */}
-
         <Route
           element={
             <ProtectedRoute
@@ -146,11 +136,9 @@ function App() {
           />
         </Route>
 
-
         {/* ==========================
             ADMIN + EMPLOYEE
         ========================== */}
-
         <Route
           element={
             <ProtectedRoute
@@ -163,9 +151,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-
           {/* Customers */}
-
           <Route
             path="/customers"
             element={
@@ -193,9 +179,7 @@ function App() {
             }
           />
 
-
           {/* Products */}
-
           <Route
             path="/products"
             element={
@@ -203,9 +187,7 @@ function App() {
             }
           />
 
-
           {/* Purchases */}
-
           <Route
             path="/purchases"
             element={
@@ -227,9 +209,7 @@ function App() {
             }
           />
 
-
           {/* Rewards */}
-
           <Route
             path="/rewards"
             element={
@@ -238,11 +218,9 @@ function App() {
           />
         </Route>
 
-
         {/* ==========================
             ADMIN ONLY
         ========================== */}
-
         <Route
           element={
             <ProtectedRoute
@@ -254,9 +232,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-
           {/* Dashboard */}
-
           <Route
             path="/dashboard"
             element={
@@ -264,9 +240,7 @@ function App() {
             }
           />
 
-
           {/* Employees */}
-
           <Route
             path="/employees"
             element={
@@ -288,9 +262,7 @@ function App() {
             }
           />
 
-
           {/* Products */}
-
           <Route
             path="/products/new"
             element={
@@ -305,9 +277,7 @@ function App() {
             }
           />
 
-
           {/* Rewards */}
-
           <Route
             path="/rewards/new"
             element={
@@ -322,9 +292,7 @@ function App() {
             }
           />
 
-
           {/* Settings */}
-
           <Route
             path="/settings/points"
             element={
@@ -333,22 +301,18 @@ function App() {
           />
         </Route>
 
-
         {/* ==========================
             NOT FOUND
         ========================== */}
-
         <Route
           path="*"
           element={
             <NotFound />
           }
         />
-
       </Routes>
     </BrowserRouter>
   );
 }
-
 
 export default App;
