@@ -3,36 +3,81 @@ import {
   useState,
 } from "react";
 
-import { Link } from "react-router-dom";
-
-import { useAuth } from "../context/useAuth";
+import {
+  Link,
+} from "react-router-dom";
 
 import {
+  useAuth,
+} from "../context/useAuth";
+
+import {
+  useNotification,
+} from "../context/useNotification";
+
+import {
+  deleteProduct,
   getProducts,
   updateProduct,
 } from "../services/productService";
 
 
 function Products() {
-  const { user } = useAuth();
+  const {
+    user,
+  } = useAuth();
 
-  const [products, setProducts] =
-    useState([]);
+  const {
+    showSuccess,
+    showError,
+  } = useNotification();
 
-  const [loading, setLoading] =
-    useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [
+    products,
+    setProducts,
+  ] = useState([]);
 
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    productToDelete,
+    setProductToDelete,
+  ] = useState(null);
+
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
+
+  const [
+    updatingId,
+    setUpdatingId,
+  ] = useState(null);
+
+
+  /* ==========================
+     LOAD PRODUCTS
+  ========================== */
 
   useEffect(() => {
     let cancelled = false;
 
+
     getProducts()
       .then((data) => {
         if (!cancelled) {
-          setProducts(data);
+          setProducts(
+            data
+          );
         }
       })
       .catch(() => {
@@ -44,9 +89,12 @@ function Products() {
       })
       .finally(() => {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(
+            false
+          );
         }
       });
+
 
     return () => {
       cancelled = true;
@@ -54,47 +102,179 @@ function Products() {
   }, []);
 
 
-  const reloadProducts = async () => {
-    const data = await getProducts();
+  /* ==========================
+     RELOAD PRODUCTS
+  ========================== */
 
-    setProducts(data);
-  };
+  const reloadProducts =
+    async () => {
+      const data =
+        await getProducts();
+
+      setProducts(
+        data
+      );
+    };
 
 
-  const handleToggleActive = async (
+  /* ==========================
+     TOGGLE ACTIVE
+  ========================== */
+
+  const handleToggleActive =
+    async (product) => {
+      try {
+        setUpdatingId(
+          product.id
+        );
+
+        setError("");
+
+
+        const newStatus =
+          !product.is_active;
+
+
+        await updateProduct(
+          product.id,
+          {
+            is_active:
+              newStatus,
+          }
+        );
+
+
+        await reloadProducts();
+
+
+        showSuccess(
+          newStatus
+            ? `${product.name} fue activado correctamente.`
+            : `${product.name} fue desactivado correctamente.`
+        );
+      } catch {
+        showError(
+          "No fue posible actualizar el estado del producto."
+        );
+      } finally {
+        setUpdatingId(
+          null
+        );
+      }
+    };
+
+
+  /* ==========================
+     DELETE PRODUCT
+  ========================== */
+
+  const handleDeleteClick = (
     product
   ) => {
-    try {
-      setError("");
+    setError("");
 
-      await updateProduct(
-        product.id,
-        {
-          is_active: !product.is_active,
-        }
-      );
-
-      await reloadProducts();
-    } catch {
-      setError(
-        "No fue posible actualizar el producto."
-      );
-    }
+    setProductToDelete(
+      product
+    );
   };
 
+
+  const handleCloseDeleteModal =
+    () => {
+      if (deleting) {
+        return;
+      }
+
+
+      setProductToDelete(
+        null
+      );
+    };
+
+
+  const handleConfirmDelete =
+    async () => {
+      if (
+        !productToDelete
+      ) {
+        return;
+      }
+
+
+      const productName =
+        productToDelete.name;
+
+
+      try {
+        setDeleting(
+          true
+        );
+
+
+        await deleteProduct(
+          productToDelete.id
+        );
+
+
+        await reloadProducts();
+
+
+        setProductToDelete(
+          null
+        );
+
+
+        showSuccess(
+          `${productName} fue eliminado correctamente.`
+        );
+      } catch (
+        requestError
+      ) {
+        const detail =
+          requestError
+            .response
+            ?.data
+            ?.detail;
+
+
+        showError(
+          detail ||
+          "No fue posible eliminar el producto."
+        );
+      } finally {
+        setDeleting(
+          false
+        );
+      }
+    };
+
+
+  /* ==========================
+     CATEGORY LABEL
+  ========================== */
 
   const getCategoryLabel = (
     category
   ) => {
     const categories = {
-      ICE_CREAM: "Helado",
-      DRINK: "Bebida",
-      TOPPING: "Complemento",
-      OTHER: "Otro",
+      ICE_CREAM:
+        "Helado",
+
+      DRINK:
+        "Bebida",
+
+      TOPPING:
+        "Complemento",
+
+      OTHER:
+        "Otro",
     };
 
+
     return (
-      categories[category] ||
+      categories[
+        category
+      ] ||
       category
     );
   };
@@ -106,17 +286,22 @@ function Products() {
       <header className="page-header page-header-actions">
 
         <div>
+
           <h1>
             Productos
           </h1>
 
+
           <p>
-            Consulta y administra el catálogo de productos.
+            Consulta y administra
+            el catálogo de productos.
           </p>
+
         </div>
 
 
-        {user?.role === "ADMIN" && (
+        {user?.role ===
+          "ADMIN" && (
           <Link
             to="/products/new"
             className="primary-action"
@@ -146,20 +331,29 @@ function Products() {
 
 
         {loading ? (
+
           <p>
             Cargando productos...
           </p>
-        ) : products.length === 0 ? (
+
+        ) : products.length ===
+          0 ? (
+
           <p>
-            No hay productos registrados.
+            No hay productos
+            registrados.
           </p>
+
         ) : (
+
           <div className="table-container">
 
             <table>
 
               <thead>
+
                 <tr>
+
                   <th>
                     Imagen
                   </th>
@@ -180,26 +374,41 @@ function Products() {
                     Estado
                   </th>
 
-                  {user?.role === "ADMIN" && (
+
+                  {user?.role ===
+                    "ADMIN" && (
                     <th>
                       Acciones
                     </th>
                   )}
+
                 </tr>
+
               </thead>
 
 
               <tbody>
 
                 {products.map(
-                  (product) => (
-                    <tr key={product.id}>
+                  (
+                    product
+                  ) => (
+                    <tr
+                      key={
+                        product.id
+                      }
+                    >
 
                       <td>
+
                         {product.image ? (
                           <img
-                            src={product.image}
-                            alt={product.name}
+                            src={
+                              product.image
+                            }
+                            alt={
+                              product.name
+                            }
                             className="product-thumbnail"
                           />
                         ) : (
@@ -207,11 +416,14 @@ function Products() {
                             Sin imagen
                           </span>
                         )}
+
                       </td>
 
 
                       <td>
-                        {product.name}
+                        {
+                          product.name
+                        }
                       </td>
 
 
@@ -226,7 +438,9 @@ function Products() {
                         $
                         {Number(
                           product.price
-                        ).toFixed(2)}
+                        ).toFixed(
+                          2
+                        )}
                       </td>
 
 
@@ -237,7 +451,8 @@ function Products() {
                       </td>
 
 
-                      {user?.role === "ADMIN" && (
+                      {user?.role ===
+                        "ADMIN" && (
                         <td>
 
                           <div className="table-actions">
@@ -253,15 +468,39 @@ function Products() {
                             <button
                               type="button"
                               className="link-button"
+                              disabled={
+                                updatingId ===
+                                product.id
+                              }
                               onClick={() =>
                                 handleToggleActive(
                                   product
                                 )
                               }
                             >
-                              {product.is_active
-                                ? "Desactivar"
-                                : "Activar"}
+                              {updatingId ===
+                              product.id
+                                ? "Actualizando..."
+                                : product.is_active
+                                  ? "Desactivar"
+                                  : "Activar"}
+                            </button>
+
+
+                            <button
+                              type="button"
+                              className="link-button danger-link"
+                              disabled={
+                                updatingId ===
+                                product.id
+                              }
+                              onClick={() =>
+                                handleDeleteClick(
+                                  product
+                                )
+                              }
+                            >
+                              Eliminar
                             </button>
 
                           </div>
@@ -278,9 +517,93 @@ function Products() {
             </table>
 
           </div>
+
         )}
 
       </section>
+
+
+      {/* ==========================
+          DELETE MODAL
+      ========================== */}
+
+      {productToDelete && (
+        <div
+          className="modal-overlay"
+          role="presentation"
+        >
+
+          <div
+            className="modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-product-title"
+          >
+
+            <h2
+              id="delete-product-title"
+            >
+              Eliminar producto
+            </h2>
+
+
+            <p>
+              ¿Estás seguro de que
+              deseas eliminar{" "}
+              <strong>
+                {
+                  productToDelete.name
+                }
+              </strong>
+              ?
+            </p>
+
+
+            <p>
+              Esta acción solo será
+              posible si el producto
+              nunca ha sido utilizado
+              en una compra.
+            </p>
+
+
+            <div className="modal-actions">
+
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={
+                  handleCloseDeleteModal
+                }
+                disabled={
+                  deleting
+                }
+              >
+                Cancelar
+              </button>
+
+
+              <button
+                type="button"
+                className="danger-action"
+                onClick={
+                  handleConfirmDelete
+                }
+                disabled={
+                  deleting
+                }
+              >
+                {deleting
+                  ? "Eliminando..."
+                  : "Eliminar producto"}
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
     </main>
   );

@@ -1,11 +1,27 @@
 from django.db import transaction
-from django.db.models import Q
-from django.db.models.deletion import ProtectedError
 
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.db.models import Q
+
+from django.db.models.deletion import (
+    ProtectedError,
+)
+
+from rest_framework import (
+    generics,
+    status,
+)
+
+from rest_framework.permissions import (
+    IsAuthenticated,
+)
+
+from rest_framework.response import (
+    Response,
+)
+
+from rest_framework.views import (
+    APIView,
+)
 
 from permissions.permissions import (
     IsAdmin,
@@ -13,7 +29,10 @@ from permissions.permissions import (
 )
 
 from .models import Customer
-from .serializers import CustomerSerializer
+
+from .serializers import (
+    CustomerSerializer,
+)
 
 
 class CustomerListView(
@@ -26,7 +45,9 @@ class CustomerListView(
         .all()
     )
 
-    serializer_class = CustomerSerializer
+    serializer_class = (
+        CustomerSerializer
+    )
 
     permission_classes = [
         IsAdminOrEmployee
@@ -43,24 +64,29 @@ class CustomerDetailView(
         .all()
     )
 
-    serializer_class = CustomerSerializer
+    serializer_class = (
+        CustomerSerializer
+    )
 
 
     def get_permissions(self):
 
         if self.request.method == "GET":
+
             permission_classes = [
                 IsAdminOrEmployee
             ]
 
         else:
+
             permission_classes = [
                 IsAdmin
             ]
 
         return [
             permission()
-            for permission in permission_classes
+            for permission
+            in permission_classes
         ]
 
 
@@ -76,6 +102,7 @@ class CustomerDetailView(
 
         user = customer.user
 
+
         try:
 
             user.delete()
@@ -90,41 +117,146 @@ class CustomerDetailView(
                         "relacionados."
                     )
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=(
+                    status
+                    .HTTP_400_BAD_REQUEST
+                )
             )
 
+
         return Response(
-            status=status.HTTP_204_NO_CONTENT
+            status=(
+                status
+                .HTTP_204_NO_CONTENT
+            )
         )
 
 
-class CustomerProfileView(APIView):
+class CustomerProfileView(
+    APIView
+):
 
     permission_classes = [
         IsAuthenticated
     ]
 
 
-    def get(self, request):
+    def get_customer(
+        self,
+        request
+    ):
 
-        customer = (
-            request.user.customer_profile
+        if (
+            request.user.role
+            != "CUSTOMER"
+        ):
+
+            return None
+
+        try:
+
+            return (
+                Customer.objects
+                .select_related("user")
+                .get(
+                    user=request.user
+                )
+            )
+
+        except Customer.DoesNotExist:
+
+            return None
+
+
+    def get(
+        self,
+        request
+    ):
+
+        customer = self.get_customer(
+            request
         )
+
+
+        if not customer:
+
+            return Response(
+                {
+                    "detail": (
+                        "No existe un perfil de cliente "
+                        "asociado a este usuario."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
+
 
         serializer = CustomerSerializer(
             customer
         )
+
 
         return Response(
             serializer.data
         )
 
 
+    def patch(
+        self,
+        request
+    ):
+
+        customer = self.get_customer(
+            request
+        )
+
+
+        if not customer:
+
+            return Response(
+                {
+                    "detail": (
+                        "No existe un perfil de cliente "
+                        "asociado a este usuario."
+                    )
+                },
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
+            )
+
+
+        serializer = CustomerSerializer(
+            customer,
+            data=request.data,
+            partial=True
+        )
+
+
+        serializer.is_valid(
+            raise_exception=True
+        )
+
+
+        serializer.save()
+
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
 class CustomerSearchView(
     generics.ListAPIView
 ):
 
-    serializer_class = CustomerSerializer
+    serializer_class = (
+        CustomerSerializer
+    )
 
     permission_classes = [
         IsAdminOrEmployee
@@ -136,9 +268,14 @@ class CustomerSearchView(
         query = self.request.GET.get(
             "q",
             ""
+        ).strip()
+
+        limit = self.request.GET.get(
+            "limit"
         )
 
-        return (
+
+        queryset = (
             Customer.objects
             .select_related("user")
             .filter(
@@ -162,4 +299,23 @@ class CustomerSearchView(
                     phone__icontains=query
                 )
             )
+            .order_by(
+                "user__first_name",
+                "user__last_name",
+            )
         )
+
+
+        if limit:
+
+            try:
+                limit = int(limit)
+
+                if limit > 0:
+                    queryset = queryset[:limit]
+
+            except ValueError:
+                pass
+
+
+        return queryset

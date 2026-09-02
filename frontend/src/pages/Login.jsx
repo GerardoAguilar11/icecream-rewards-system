@@ -1,174 +1,305 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
+
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
 
-import { useAuth } from "../context/useAuth";
+import {
+  LogIn,
+} from "lucide-react";
+
+import {
+  useAuth,
+} from "../context/useAuth";
+
+import {
+  useNotification,
+} from "../context/useNotification";
+
+import frioCoLogo
+  from "../assets/frio-co-logo-ui.png";
 
 
 function Login() {
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
-  const { login } = useAuth();
+  const {
+    login,
+  } = useAuth();
 
-  const [form, setForm] = useState({
+  const {
+    showSuccess,
+  } = useNotification();
+
+  const [
+    form,
+    setForm,
+  ] = useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
 
-  const handleChange = (event) => {
+  const handleChange = (
+    event
+  ) => {
     const {
       name,
       value,
     } = event.target;
 
-    setForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }));
-  };
-
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+    setForm(
+      (
+        currentForm
+      ) => ({
+        ...currentForm,
+        [name]: value,
+      })
+    );
 
     setError("");
-    setSubmitting(true);
-
-    try {
-      const user = await login(
-        form.email,
-        form.password
-      );
-
-      if (user.role === "ADMIN") {
-        navigate(
-          "/dashboard",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      if (user.role === "EMPLOYEE") {
-        navigate(
-          "/customers",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      if (user.role === "CUSTOMER") {
-        navigate(
-          "/customer",
-          {
-            replace: true,
-          }
-        );
-
-        return;
-      }
-
-      navigate(
-        "/",
-        {
-          replace: true,
-        }
-      );
-    } catch {
-      setError(
-        "Correo electrónico o contraseña incorrectos."
-      );
-    } finally {
-      setSubmitting(false);
-    }
   };
+
+
+  const handleSubmit =
+    async (event) => {
+      event.preventDefault();
+
+      setError("");
+
+      try {
+        setSubmitting(
+          true
+        );
+
+        const user =
+          await login(
+            form.email.trim(),
+            form.password
+          );
+
+        showSuccess(
+          "Sesión iniciada correctamente."
+        );
+
+        if (
+          user.role ===
+          "ADMIN"
+        ) {
+          navigate(
+            "/dashboard",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        if (
+          user.role ===
+          "EMPLOYEE"
+        ) {
+          navigate(
+            "/customers",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        if (
+          user.role ===
+          "CUSTOMER"
+        ) {
+          navigate(
+            "/customer",
+            {
+              replace: true,
+            }
+          );
+
+          return;
+        }
+
+        navigate(
+          "/",
+          {
+            replace: true,
+          }
+        );
+      } catch {
+        setError(
+          "Correo electrónico o contraseña incorrectos."
+        );
+      } finally {
+        setSubmitting(
+          false
+        );
+      }
+    };
 
 
   return (
-    <main>
+    <main className="auth-page">
 
-      <h1>
-        Iniciar sesión
-      </h1>
+      <section className="auth-card">
 
+        <div className="auth-brand">
 
-      <form
-        onSubmit={handleSubmit}
-      >
-
-        <div>
-          <label htmlFor="email">
-            Correo electrónico
-          </label>
-
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            autoComplete="email"
-            required
+          <img
+            src={frioCoLogo}
+            alt="Frio&Co"
+            className="auth-logo"
           />
-        </div>
 
-
-        <div>
-          <label htmlFor="password">
-            Contraseña
-          </label>
-
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            autoComplete="current-password"
-            required
-          />
-        </div>
-
-
-        {error && (
-          <p role="alert">
-            {error}
+          <p>
+            Tu programa de recompensas
+            para disfrutar más cada visita.
           </p>
-        )}
+
+        </div>
 
 
-        <button
-          type="submit"
-          disabled={submitting}
-        >
-          {submitting
-            ? "Iniciando sesión..."
-            : "Iniciar sesión"}
-        </button>
+        <div className="auth-content">
 
-      </form>
+          <div className="auth-header">
+
+            <span className="auth-eyebrow">
+              Bienvenido
+            </span>
+
+            <h1>
+              Iniciar sesión
+            </h1>
+
+            <p>
+              Ingresa tus datos para acceder
+              a tu cuenta.
+            </p>
+
+          </div>
 
 
-      <p>
-        ¿Aún no tienes cuenta?{" "}
+          <form
+            onSubmit={
+              handleSubmit
+            }
+            className="auth-form"
+          >
 
-        <Link to="/register">
-          Crear cuenta
-        </Link>
-      </p>
+            <div className="form-group">
+
+              <label htmlFor="email">
+                Correo electrónico
+              </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={
+                  form.email
+                }
+                onChange={
+                  handleChange
+                }
+                autoComplete="email"
+                placeholder="correo@ejemplo.com"
+                required
+              />
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label htmlFor="password">
+                Contraseña
+              </label>
+
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={
+                  form.password
+                }
+                onChange={
+                  handleChange
+                }
+                autoComplete="current-password"
+                placeholder="Tu contraseña"
+                required
+              />
+
+            </div>
+
+
+            {error && (
+              <p
+                role="alert"
+                className="form-error"
+              >
+                {error}
+              </p>
+            )}
+
+
+            <button
+              type="submit"
+              className="auth-submit-button"
+              disabled={
+                submitting
+              }
+            >
+
+              <LogIn
+                size={18}
+              />
+
+              <span>
+                {submitting
+                  ? "Iniciando sesión..."
+                  : "Iniciar sesión"}
+              </span>
+
+            </button>
+
+          </form>
+
+
+          <div className="auth-footer">
+
+            <span>
+              ¿Aún no tienes cuenta?
+            </span>
+
+            <Link to="/register">
+              Crear cuenta
+            </Link>
+
+          </div>
+
+        </div>
+
+      </section>
 
     </main>
   );

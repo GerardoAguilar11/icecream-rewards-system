@@ -54,11 +54,14 @@ class CustomerSerializer(
         value
     ):
 
+        value = value.strip().lower()
+
         users = CustomUser.objects.filter(
             email__iexact=value
         )
 
         if self.instance:
+
             users = users.exclude(
                 pk=self.instance.user_id
             )
@@ -68,6 +71,38 @@ class CustomerSerializer(
             raise serializers.ValidationError(
                 "Ya existe un usuario con "
                 "este correo electrónico."
+            )
+
+        return value
+
+
+    def validate_first_name(
+        self,
+        value
+    ):
+
+        value = value.strip()
+
+        if not value:
+
+            raise serializers.ValidationError(
+                "El nombre no puede estar vacío."
+            )
+
+        return value
+
+
+    def validate_last_name(
+        self,
+        value
+    ):
+
+        value = value.strip()
+
+        if not value:
+
+            raise serializers.ValidationError(
+                "Los apellidos no pueden estar vacíos."
             )
 
         return value
@@ -87,30 +122,50 @@ class CustomerSerializer(
 
         user = instance.user
 
+
         if "email" in user_data:
+
             user.email = (
                 user_data["email"]
             )
 
+
         if "first_name" in user_data:
+
             user.first_name = (
                 user_data["first_name"]
             )
 
+
         if "last_name" in user_data:
+
             user.last_name = (
                 user_data["last_name"]
             )
 
-        user.save()
 
-        instance.phone = (
-            validated_data.get(
-                "phone",
-                instance.phone
-            )
+        user.save(
+            update_fields=[
+                "email",
+                "first_name",
+                "last_name",
+            ]
         )
 
-        instance.save()
+
+        if "phone" in validated_data:
+
+            instance.phone = (
+                validated_data["phone"]
+            )
+
+
+        instance.save(
+            update_fields=[
+                "phone",
+                "updated_at",
+            ]
+        )
+
 
         return instance

@@ -1,34 +1,62 @@
 from rest_framework import serializers
 
-from .models import (Purchase,PurchaseItem,)
+from customers.models import Customer
+from products.models import Product
+from rewards.models import Reward
+
+from .models import (
+    Purchase,
+    PurchaseItem,
+)
 
 
-class PurchaseItemCreateSerializer(serializers.Serializer):
+class PurchaseItemCreateSerializer(
+    serializers.Serializer
+):
 
-    product = serializers.IntegerField()
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.filter(
+            is_active=True
+        )
+    )
 
     quantity = serializers.IntegerField(
         min_value=1
     )
 
-class PurchaseCreateSerializer(serializers.Serializer):
 
-    customer = serializers.IntegerField()
+class PurchaseCreateSerializer(
+    serializers.Serializer
+):
 
-    used_reward = serializers.BooleanField(
-        default=False
+    customer = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all()
+    )
+
+    reward = serializers.PrimaryKeyRelatedField(
+        queryset=Reward.objects.filter(
+            is_active=True
+        ),
+        required=False,
+        allow_null=True,
+        write_only=True
     )
 
     items = PurchaseItemCreateSerializer(
-        many=True
+        many=True,
+        allow_empty=False
     )
 
-class PurchaseItemSerializer(serializers.ModelSerializer):
+
+class PurchaseItemSerializer(
+    serializers.ModelSerializer
+):
 
     product_name = serializers.CharField(
         source="product.name",
         read_only=True
     )
+
 
     class Meta:
 
@@ -43,7 +71,10 @@ class PurchaseItemSerializer(serializers.ModelSerializer):
             "subtotal",
         ]
 
-class PurchaseSerializer(serializers.ModelSerializer):
+
+class PurchaseSerializer(
+    serializers.ModelSerializer
+):
 
     customer_name = serializers.CharField(
         source="customer.user.get_full_name",
@@ -60,10 +91,29 @@ class PurchaseSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    redemption_id = serializers.IntegerField(
+        source="redemption.id",
+        read_only=True,
+        allow_null=True
+    )
+
+    reward_name = serializers.CharField(
+        source="redemption.reward.name",
+        read_only=True,
+        allow_null=True
+    )
+
+    reward_points_used = serializers.IntegerField(
+        source="redemption.points_used",
+        read_only=True,
+        allow_null=True
+    )
+
     items = PurchaseItemSerializer(
         many=True,
         read_only=True
     )
+
 
     class Meta:
 
@@ -77,12 +127,18 @@ class PurchaseSerializer(serializers.ModelSerializer):
             "total_amount",
             "points_earned",
             "used_reward",
+            "redemption_id",
+            "reward_name",
+            "reward_points_used",
             "status",
             "items",
             "created_at",
         ]
 
-class CustomerPurchaseHistorySerializer(serializers.Serializer):
+
+class CustomerPurchaseHistorySerializer(
+    serializers.Serializer
+):
 
     customer = serializers.DictField()
 

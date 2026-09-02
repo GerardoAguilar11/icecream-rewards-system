@@ -1,8 +1,9 @@
 import {
-  BarChart,
   Bar,
   CartesianGrid,
+  ComposedChart,
   Legend,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -10,42 +11,184 @@ import {
 } from "recharts";
 
 
-function SalesChart({ data }) {
-  const chartData = data.map((day) => ({
-    ...day,
-    sales: Number(day.sales),
-  }));
+const SALES_COLOR =
+  "#2385c4";
+
+const PURCHASES_COLOR =
+  "#176a9f";
 
 
-  if (chartData.length === 0) {
-    return (
-      <p>
-        No hay información de ventas disponible.
-      </p>
-    );
+const formatCurrency = (value) =>
+  Number(
+    value ?? 0
+  ).toLocaleString(
+    "es-MX",
+    {
+      style: "currency",
+      currency: "MXN",
+      maximumFractionDigits: 0,
+    },
+  );
+
+
+const formatShortDate = (value) => {
+  if (!value) {
+    return "";
   }
 
+  const [
+    year,
+    month,
+    day,
+  ] = value.split("-");
+
+  const date = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+  );
+
+  return date.toLocaleDateString(
+    "es-MX",
+    {
+      day: "2-digit",
+      month: "short",
+    },
+  );
+};
+
+
+const getXAxisInterval = (
+  length
+) => {
+  if (length <= 10) {
+    return 0;
+  }
+
+  if (length <= 20) {
+    return 1;
+  }
+
+  if (length <= 35) {
+    return 2;
+  }
+
+  if (length <= 60) {
+    return 4;
+  }
+
+  return (
+    Math.ceil(
+      length / 12
+    ) - 1
+  );
+};
+
+
+function SalesChart({
+  data,
+}) {
+  const chartData = data.map(
+    (day) => ({
+      ...day,
+
+      sales: Number(
+        day.sales
+      ),
+
+      purchases: Number(
+        day.purchases
+      ),
+    }),
+  );
+
+  if (
+    chartData.length === 0
+  ) {
+    return (
+      <div className="dashboard-empty-state">
+        <p>
+          No hay información de ventas
+          disponible para este periodo.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="sales-chart">
       <ResponsiveContainer
         width="100%"
-        height={320}
+        height={360}
       >
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
+        <ComposedChart
+          data={chartData}
+          margin={{
+            top: 12,
+            right: 10,
+            left: 5,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+          />
 
           <XAxis
             dataKey="date"
+            tickFormatter={
+              formatShortDate
+            }
+            interval={
+              getXAxisInterval(
+                chartData.length
+              )
+            }
+            minTickGap={20}
           />
 
-          <YAxis />
+          <YAxis
+            yAxisId="sales"
+            orientation="left"
+            tickFormatter={(
+              value
+            ) =>
+              `$${Number(
+                value
+              ).toLocaleString(
+                "es-MX"
+              )}`
+            }
+            width={72}
+          />
+
+          <YAxis
+            yAxisId="purchases"
+            orientation="right"
+            allowDecimals={false}
+            width={38}
+          />
 
           <Tooltip
-            formatter={(value, name) => {
-              if (name === "Ventas") {
+            labelFormatter={(
+              value
+            ) =>
+              `Fecha: ${formatShortDate(
+                value
+              )}`
+            }
+            formatter={(
+              value,
+              name,
+            ) => {
+              if (
+                name === "Ventas"
+              ) {
                 return [
-                  `$${Number(value).toFixed(2)}`,
+                  formatCurrency(
+                    value
+                  ),
                   name,
                 ];
               }
@@ -60,15 +203,50 @@ function SalesChart({ data }) {
           <Legend />
 
           <Bar
+            yAxisId="sales"
             dataKey="sales"
             name="Ventas"
+            fill={
+              SALES_COLOR
+            }
+            radius={[
+              5,
+              5,
+              0,
+              0,
+            ]}
+            maxBarSize={42}
           />
 
-          <Bar
+          <Line
+            yAxisId="purchases"
+            type="monotone"
             dataKey="purchases"
             name="Compras"
+            stroke={
+              PURCHASES_COLOR
+            }
+            strokeWidth={2}
+            dot={
+              chartData.length <= 15
+                ? {
+                    stroke:
+                      PURCHASES_COLOR,
+                    fill: "#ffffff",
+                    strokeWidth: 2,
+                    r: 3,
+                  }
+                : false
+            }
+            activeDot={{
+              r: 5,
+              stroke:
+                PURCHASES_COLOR,
+              fill:
+                PURCHASES_COLOR,
+            }}
           />
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

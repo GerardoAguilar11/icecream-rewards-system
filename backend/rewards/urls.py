@@ -5,6 +5,8 @@ from .views import (
     RewardDetailView,
     RewardRedemptionCreateView,
     CustomerRewardHistoryView,
+    AvailableCustomerRewardsView,
+    CustomerRewardCatalogView,
 )
 
 
@@ -23,14 +25,26 @@ urlpatterns = [
     ),
 
     path(
-        "<int:pk>/",
-        RewardDetailView.as_view(),
-        name="reward-detail",
+        "customer/<int:customer_id>/available/",
+        AvailableCustomerRewardsView.as_view(),
+        name="customer-available-rewards",
     ),
 
     path(
         "customer/<str:customer_code>/history/",
         CustomerRewardHistoryView.as_view(),
         name="customer-reward-history",
+    ),
+
+    path(
+        "<int:pk>/",
+        RewardDetailView.as_view(),
+        name="reward-detail",
+    ),
+
+    path(
+        "customer/me/catalog/",
+        CustomerRewardCatalogView.as_view(),
+        name="customer-reward-catalog",
     ),
 ]
