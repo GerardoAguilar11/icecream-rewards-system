@@ -197,13 +197,27 @@ class PurchaseListCreateView(
         )
 
 
-        purchase = (
-            PurchaseService
-            .create_purchase(
-                serializer.validated_data,
-                request.user
+        try:
+
+            purchase = (
+                PurchaseService
+                .create_purchase(
+                    serializer.validated_data,
+                    request.user
+                )
             )
-        )
+
+        except ValueError as e:
+
+            return Response(
+                {
+                    "detail": str(e)
+                },
+                status=(
+                    status
+                    .HTTP_400_BAD_REQUEST
+                )
+            )
 
 
         serializer = PurchaseSerializer(

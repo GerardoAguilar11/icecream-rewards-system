@@ -10,6 +10,7 @@ from customers.models import Customer
 from rewards.models import (
     RewardRedemption,
     RewardRedemptionStatus,
+    RewardType,
 )
 from rewards.services import RewardService
 
@@ -40,13 +41,37 @@ class PurchaseService:
             )
         )
 
-        items = data["items"]
+        items = data.get(
+            "items",
+            []
+        )
 
         reward = data.get(
             "reward"
         )
 
-        total_amount = Decimal(
+        if (
+            not items
+            and not reward
+        ):
+            raise ValueError(
+                "Agrega al menos un producto "
+                "o selecciona una recompensa."
+            )
+
+        if (
+            not items
+            and reward
+            and reward.reward_type
+            != RewardType.FREE_PRODUCT
+        ):
+            raise ValueError(
+                "Las recompensas de descuento "
+                "requieren al menos un producto "
+                "en la compra."
+            )
+
+        subtotal_amount = Decimal(
             "0.00"
         )
 
@@ -66,7 +91,9 @@ class PurchaseService:
                 * quantity
             )
 
-            total_amount += subtotal
+            subtotal_amount += (
+                subtotal
+            )
 
             purchase_items.append({
                 "product": product,
@@ -77,19 +104,77 @@ class PurchaseService:
                 "subtotal": subtotal,
             })
 
+        total_amount = (
+            subtotal_amount
+        )
+
         redemption = None
+        used_reward = False
 
         if reward:
             redemption = (
-                RewardService.redeem_reward(
+                RewardService
+                .redeem_reward(
                     customer=customer,
                     reward=reward,
                     employee=employee,
                 )
             )
 
-            points = 0
             used_reward = True
+
+            if (
+                reward.reward_type
+                ==
+                RewardType.PERCENTAGE_DISCOUNT
+            ):
+                discount_percentage = (
+                    reward.discount_value
+                )
+
+                discount_amount = (
+                    subtotal_amount
+                    * discount_percentage
+                    / Decimal("100")
+                )
+
+                total_amount = (
+                    subtotal_amount
+                    - discount_amount
+                )
+
+            elif (
+                reward.reward_type
+                ==
+                RewardType.FIXED_DISCOUNT
+            ):
+                discount_amount = (
+                    reward.discount_value
+                )
+
+                total_amount = max(
+                    Decimal("0.00"),
+                    subtotal_amount
+                    - discount_amount,
+                )
+
+            elif (
+                reward.reward_type
+                ==
+                RewardType.FREE_PRODUCT
+            ):
+                total_amount = (
+                    subtotal_amount
+                )
+
+        total_amount = (
+            total_amount.quantize(
+                Decimal("0.01")
+            )
+        )
+
+        if used_reward:
+            points = 0
 
         else:
             points_settings = (
@@ -103,8 +188,6 @@ class PurchaseService:
                     total_amount
                 )
             )
-
-            used_reward = False
 
         purchase = (
             Purchase.objects.create(
