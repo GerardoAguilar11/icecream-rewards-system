@@ -910,6 +910,88 @@ function PurchaseCreate() {
       : currentPoints;
 
 
+  const selectedRewardType =
+    selectedRewardData
+      ?.reward_type ?? "";
+
+
+  const rewardDiscountValue =
+    Number(
+      selectedRewardData
+        ?.discount_value ?? 0
+    );
+
+
+  const discountAmount =
+    useMemo(() => {
+      if (
+        !useReward ||
+        !selectedRewardData
+      ) {
+        return 0;
+      }
+
+
+      if (
+        selectedRewardType ===
+        "PERCENTAGE_DISCOUNT"
+      ) {
+        return Math.min(
+          total,
+          total *
+            (rewardDiscountValue / 100)
+        );
+      }
+
+
+      if (
+        selectedRewardType ===
+        "FIXED_DISCOUNT"
+      ) {
+        return Math.min(
+          total,
+          rewardDiscountValue
+        );
+      }
+
+
+      return 0;
+    }, [
+      useReward,
+      selectedRewardData,
+      selectedRewardType,
+      rewardDiscountValue,
+      total,
+    ]);
+
+
+  const totalToCharge =
+    Math.max(
+      0,
+      total - discountAmount
+    );
+
+
+  const canRedeemWithoutProducts =
+    useReward &&
+    selectedRewardData &&
+    selectedRewardType ===
+      "FREE_PRODUCT";
+
+
+  const freeRewardProductName =
+    selectedRewardType ===
+      "FREE_PRODUCT"
+      ? (
+          selectedRewardData
+            ?.product_name ||
+          selectedRewardData
+            ?.free_product_name ||
+          "Producto gratuito"
+        )
+      : "";
+
+
   /* ==========================
      REWARD HANDLER
   ========================== */
@@ -953,9 +1035,26 @@ function PurchaseCreate() {
     }
 
 
-    if (items.length === 0) {
+    if (
+      useReward &&
+      !selectedReward
+    ) {
       setError(
-        "Agrega al menos un producto."
+        "Selecciona una recompensa."
+      );
+
+      return;
+    }
+
+
+    if (
+      items.length === 0 &&
+      !canRedeemWithoutProducts
+    ) {
+      setError(
+        useReward
+          ? "Las recompensas de descuento requieren al menos un producto en la compra."
+          : "Agrega al menos un producto."
       );
 
       return;
@@ -975,18 +1074,6 @@ function PurchaseCreate() {
     if (invalidQuantity) {
       setError(
         "Todas las cantidades deben ser mayores a cero."
-      );
-
-      return;
-    }
-
-
-    if (
-      useReward &&
-      !selectedReward
-    ) {
-      setError(
-        "Selecciona una recompensa."
       );
 
       return;
@@ -1564,6 +1651,57 @@ function PurchaseCreate() {
                           remainingPoints
                         }
                       </p>
+
+
+                      <p>
+                        <strong>
+                          Tipo:
+                        </strong>{" "}
+                        {
+                          selectedRewardData
+                            .reward_type_display ??
+                          selectedRewardType
+                        }
+                      </p>
+
+
+                      {selectedRewardType ===
+                        "FREE_PRODUCT" && (
+                        <p>
+                          <strong>
+                            Producto a entregar:
+                          </strong>{" "}
+                          {
+                            freeRewardProductName
+                          }
+                        </p>
+                      )}
+
+
+                      {selectedRewardType ===
+                        "PERCENTAGE_DISCOUNT" && (
+                        <p>
+                          <strong>
+                            Descuento:
+                          </strong>{" "}
+                          {
+                            rewardDiscountValue
+                          }%
+                        </p>
+                      )}
+
+
+                      {selectedRewardType ===
+                        "FIXED_DISCOUNT" && (
+                        <p>
+                          <strong>
+                            Descuento:
+                          </strong>{" "}
+                          {formatCurrency(
+                            rewardDiscountValue
+                          )}
+                        </p>
+                      )}
 
                     </div>
                   )}
@@ -2198,6 +2336,66 @@ function PurchaseCreate() {
                 )}
 
 
+              {useReward &&
+                selectedRewardData &&
+                selectedRewardType !==
+                  "FREE_PRODUCT" && (
+                  <div className="purchase-summary-totals">
+
+                    <div>
+                      <span>
+                        Subtotal
+                      </span>
+
+                      <strong>
+                        {formatCurrency(
+                          total
+                        )}
+                      </strong>
+                    </div>
+
+
+                    <div>
+                      <span>
+                        Descuento
+                      </span>
+
+                      <strong>
+                        -{formatCurrency(
+                          discountAmount
+                        )}
+                      </strong>
+                    </div>
+
+                  </div>
+                )}
+
+
+              {useReward &&
+                selectedRewardData &&
+                selectedRewardType ===
+                  "FREE_PRODUCT" && (
+                  <div className="purchase-reward-notice">
+
+                    <Gift
+                      size={18}
+                    />
+
+
+                    <div>
+                      <strong>
+                        Producto gratuito a entregar
+                      </strong>
+
+                      <span>
+                        {freeRewardProductName}
+                      </span>
+                    </div>
+
+                  </div>
+                )}
+
+
               <div className="purchase-grand-total-card">
 
                 <span>
@@ -2207,7 +2405,7 @@ function PurchaseCreate() {
 
                 <strong>
                   {formatCurrency(
-                    total
+                    totalToCharge
                   )}
                 </strong>
 
@@ -2230,7 +2428,10 @@ function PurchaseCreate() {
                   disabled={
                     submitting ||
                     !selectedCustomer ||
-                    items.length === 0
+                    (
+                      items.length === 0 &&
+                      !canRedeemWithoutProducts
+                    )
                   }
                 >
                   {submitting

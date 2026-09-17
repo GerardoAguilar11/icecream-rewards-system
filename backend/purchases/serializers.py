@@ -44,9 +44,8 @@ class PurchaseCreateSerializer(
 
     items = PurchaseItemCreateSerializer(
         many=True,
-        allow_empty=False
+        allow_empty=True
     )
-
 
 class PurchaseItemSerializer(
     serializers.ModelSerializer

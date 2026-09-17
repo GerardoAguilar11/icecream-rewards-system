@@ -34,6 +34,9 @@ class RewardListCreateView(
 
     queryset = (
         Reward.objects
+        .select_related(
+            "product"
+        )
         .all()
         .order_by(
             "points_required"
@@ -70,7 +73,13 @@ class RewardDetailView(
     generics.RetrieveUpdateDestroyAPIView
 ):
 
-    queryset = Reward.objects.all()
+    queryset = (
+        Reward.objects
+        .select_related(
+            "product"
+        )
+        .all()
+    )
 
     serializer_class = (
         RewardSerializer
@@ -164,6 +173,9 @@ class AvailableCustomerRewardsView(
 
         rewards = (
             Reward.objects
+            .select_related(
+                "product"
+            )
             .filter(
                 is_active=True,
                 points_required__lte=(
@@ -309,7 +321,9 @@ class CustomerRewardHistoryView(
 
         customer = get_object_or_404(
             Customer.objects
-            .select_related("user"),
+            .select_related(
+                "user"
+            ),
             customer_code=customer_code
         )
 
@@ -399,6 +413,7 @@ class CustomerRewardHistoryView(
             ),
         })
 
+
 class CustomerRewardCatalogView(
     APIView
 ):
@@ -421,7 +436,10 @@ class CustomerRewardCatalogView(
                         "únicamente para clientes."
                     )
                 },
-                status=status.HTTP_403_FORBIDDEN
+                status=(
+                    status
+                    .HTTP_403_FORBIDDEN
+                )
             )
 
 
@@ -435,6 +453,9 @@ class CustomerRewardCatalogView(
 
         rewards = (
             Reward.objects
+            .select_related(
+                "product"
+            )
             .filter(
                 is_active=True
             )
@@ -446,6 +467,7 @@ class CustomerRewardCatalogView(
 
         reward_data = []
 
+
         for reward in rewards:
 
             points_missing = max(
@@ -454,17 +476,56 @@ class CustomerRewardCatalogView(
                 - customer.points
             )
 
+
             reward_data.append({
-                "id": reward.id,
-                "name": reward.name,
-                "description": reward.description,
+                "id": (
+                    reward.id
+                ),
+
+                "name": (
+                    reward.name
+                ),
+
+                "description": (
+                    reward.description
+                ),
+
                 "points_required": (
                     reward.points_required
                 ),
+
+                "reward_type": (
+                    reward.reward_type
+                ),
+
+                "reward_type_display": (
+                    reward
+                    .get_reward_type_display()
+                ),
+
+                "discount_value": (
+                    reward.discount_value
+                ),
+
+                "product": (
+                    reward.product_id
+                ),
+
+                "product_name": (
+                    reward.product.name
+                    if reward.product
+                    else None
+                ),
+
+                "free_product_name": (
+                    reward.free_product_name
+                ),
+
                 "can_redeem": (
                     customer.points
                     >= reward.points_required
                 ),
+
                 "points_missing": (
                     points_missing
                 ),
@@ -473,14 +534,20 @@ class CustomerRewardCatalogView(
 
         return Response({
             "customer": {
-                "id": customer.id,
+                "id": (
+                    customer.id
+                ),
+
                 "customer_code": (
                     customer.customer_code
                 ),
+
                 "points": (
                     customer.points
                 ),
             },
 
-            "rewards": reward_data,
+            "rewards": (
+                reward_data
+            ),
         })

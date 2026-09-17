@@ -2,6 +2,25 @@ from django.db import models
 
 from customers.models import Customer
 from authentication.models import CustomUser
+from products.models import Product
+
+
+class RewardType(models.TextChoices):
+
+    FREE_PRODUCT = (
+        "FREE_PRODUCT",
+        "Producto gratis",
+    )
+
+    PERCENTAGE_DISCOUNT = (
+        "PERCENTAGE_DISCOUNT",
+        "Descuento porcentual",
+    )
+
+    FIXED_DISCOUNT = (
+        "FIXED_DISCOUNT",
+        "Descuento fijo",
+    )
 
 
 class Reward(models.Model):
@@ -15,6 +34,32 @@ class Reward(models.Model):
     )
 
     points_required = models.PositiveIntegerField()
+
+    reward_type = models.CharField(
+        max_length=30,
+        choices=RewardType.choices,
+        default=RewardType.FREE_PRODUCT,
+    )
+
+    discount_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name="rewards",
+        null=True,
+        blank=True,
+    )
+
+    free_product_name = models.CharField(
+        max_length=150,
+        blank=True,
+    )
 
     is_active = models.BooleanField(
         default=True
@@ -30,7 +75,10 @@ class Reward(models.Model):
 
     def __str__(self):
 
-        return f"{self.name} - {self.points_required} puntos"
+        return (
+            f"{self.name} - "
+            f"{self.points_required} puntos"
+        )
 
 
 class RewardRedemptionStatus(models.TextChoices):
